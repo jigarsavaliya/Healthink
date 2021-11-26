@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_profile"
+        android:icon="@drawable/ic_baseline_person_24"
+        android:title=""
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_more"
+        android:icon="@drawable/ic_menu"
+        android:title=""
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/action_edit"
+                android:icon="@drawable/ic_baseline_edit"
+                android:title="Edit steps"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_reset"
+                android:icon="@drawable/ic_baseline_delete_24"
+                android:title="Reset"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_instruction"
+                android:icon="@drawable/ic_baseline_question_mark_24"
+                android:title="Instruction"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_trunoff"
+                android:icon="@drawable/ic_baseline_logout_24"
+                android:title="Turn off"
+                app:showAsAction="ifRoom" />
+
+        </menu>
+    </item>
+
+</menu>

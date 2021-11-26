@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/hr0"
+        android:enabled="true"
+        android:title="00:00 - 01:00" />
+    <item
+        android:id="@+id/hr1"
+        android:enabled="true"
+        android:title="01:00 - 02:00" />
+    <item
+        android:id="@+id/hr2"
+        android:enabled="true"
+        android:title="02:00 - 03:00" />
+    <item
+        android:id="@+id/hr3"
+        android:enabled="true"
+        android:title="03:00 - 04:00" />
+    <item
+        android:id="@+id/hr4"
+        android:enabled="true"
+        android:title="04:00 - 05:00" />
+    <item
+        android:id="@+id/hr5"
+        android:enabled="true"
+        android:title="05:00 - 06:00" />
+    <item
+        android:id="@+id/hr6"
+        android:enabled="true"
+        android:title="06:00 - 07:00" />
+    <item
+        android:id="@+id/hr7"
+        android:enabled="true"
+        android:title="07:00 - 08:00" />
+    <item
+        android:id="@+id/hr8"
+        android:enabled="true"
+        android:title="08:00 - 09:00" />
+    <item
+        android:id="@+id/hr9"
+        android:enabled="true"
+        android:title="09:00 - 10:00" />
+    <item
+        android:id="@+id/hr10"
+        android:enabled="true"
+        android:title="10:00 - 11:00" />
+    <item
+        android:id="@+id/hr11"
+        android:enabled="true"
+        android:title="11:00 - 12:00" />
+    <item
+        android:id="@+id/hr12"
+        android:enabled="true"
+        android:title="12:00 - 13:00" />
+    <item
+        android:id="@+id/hr13"
+        android:enabled="true"
+        android:title="13:00 - 14:00" />
+    <item
+        android:id="@+id/hr14"
+        android:enabled="true"
+        android:title="14:00 - 15:00" />
+    <item
+        android:id="@+id/hr15"
+        android:enabled="true"
+        android:title="15:00 - 16:00" />
+    <item
+        android:id="@+id/hr16"
+        android:enabled="true"
+        android:title="16:00 - 17:00" />
+    <item
+        android:id="@+id/hr17"
+        android:enabled="true"
+        android:title="17:00 - 18:00" />
+    <item
+        android:id="@+id/hr18"
+        android:enabled="true"
+        android:title="18:00 - 19:00" />
+    <item
+        android:id="@+id/hr19"
+        android:enabled="true"
+        android:title="19:00 - 20:00" />
+    <item
+        android:id="@+id/hr20"
+        android:enabled="true"
+        android:title="20:00 - 21:00" />
+    <item
+        android:id="@+id/hr21"
+        android:enabled="true"
+        android:title="21:00 - 22:00" />
+    <item
+        android:id="@+id/hr22"
+        android:enabled="true"
+        android:title="22:00 - 23:00" />
+    <item
+        android:id="@+id/hr23"
+        android:enabled="true"
+        android:title="23:00 - 24:00" />
+
+
+</menu>

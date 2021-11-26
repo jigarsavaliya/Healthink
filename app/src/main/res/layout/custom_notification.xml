@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:padding="@dimen/_10sdp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/forward"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/llview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    android:layout_weight="0.5"
+                    android:src="@drawable/ic_baseline_directions_walk_24" />
+
+                <TextView
+                    android:id="@+id/title"
+                    style="Custom Notification Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
+                    android:gravity="center_vertical"
+                    android:text="djf"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_16sdp" />
+            </LinearLayout>
+
+          <!--  <View
+                android:layout_width="1dp"
+                android:layout_height="30dp"
+                android:background="@color/colorBackgrond" />-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <ImageView
+                    android:id="@+id/ivcalorie"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    android:layout_weight="0.5"
+                    android:src="@drawable/ic_baseline_local_fire_department_24" />
+
+                <TextView
+                    android:id="@+id/tvcalorie"
+                    style="Custom Notification Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_weight="1.5"
+                    android:gravity="center_vertical"
+                    android:text="djf"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_16sdp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/llview"
+            android:paddingTop="@dimen/_5sdp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/forward"
+        android:layout_width="@dimen/_25sdp"
+        android:layout_height="@dimen/_25sdp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/_10sdp"
+        android:background="@drawable/primarydarkcricle"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <ImageView
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
+    </RelativeLayout>
+</RelativeLayout>
