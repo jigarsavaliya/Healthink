@@ -1,7 +1,6 @@
 package com.android.stepcounter.utils;
 
 import java.text.DecimalFormat;
-import java.util.Calendar;
 
 public class commanMethod {
 
@@ -20,7 +19,7 @@ public class commanMethod {
      * @param value double that is formatted
      * @return double that has 1 decimal place
      */
-    private double format(double value) {
+    private static double format(double value) {
         if (value != 0) {
             DecimalFormat df = new DecimalFormat("###.#");
             return Double.valueOf(df.format(value));
@@ -33,7 +32,7 @@ public class commanMethod {
      * @param lb - pounds
      * @return kg rounded to 1 decimal place
      */
-    public double lbToKgConverter(double lb) {
+    public static double lbToKgConverter(double lb) {
         return format(lb * 0.45359237);
     }
 
@@ -41,7 +40,7 @@ public class commanMethod {
      * @param kg - kilograms
      * @return lb rounded to 1 decimal place
      */
-    public double kgToLbConverter(double kg) {
+    public static double kgToLbConverter(double kg) {
         return format(kg * 2.20462262);
     }
 
@@ -49,7 +48,7 @@ public class commanMethod {
      * @param cm - centimeters
      * @return feet rounded to 1 decimal place
      */
-    public double cmToFeetConverter(double cm) {
+    public static double cmToFeetConverter(double cm) {
         return format(cm * 0.032808399);
     }
 
@@ -57,7 +56,7 @@ public class commanMethod {
      * @param feet - feet
      * @return centimeters rounded to 1 decimal place
      */
-    public double feetToCmConverter(double feet) {
+    public static double feetToCmConverter(double feet) {
         return format(feet * 30.48);
     }
 
@@ -105,6 +104,10 @@ public class commanMethod {
 
     public static double getFlozToMl(Float aFloat) {
         return aFloat * 29.57353;
+    }
+
+    public static double getMlToFloz(Float aFloat) {
+        return aFloat * 0.03381;
     }
 
 

@@ -29,6 +29,7 @@ import com.android.stepcounter.model.stepcountModel;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.commanMethod;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -36,6 +37,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.MPPointF;
@@ -227,12 +229,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private void SetMonthChart() {
+
         Legend L;
         L = chart.getLegend();
         L.setEnabled(false);
 
         YAxis leftAxis = chart.getAxisLeft();
-        YAxis rightAxis = chart.getAxisRight();
+//        YAxis rightAxis = chart.getAxisRight();
         XAxis xAxis = chart.getXAxis();
 
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -245,9 +248,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         leftAxis.setDrawAxisLine(true);
         leftAxis.setDrawGridLines(false);
 
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setDrawLabels(false);
+//        rightAxis.setDrawAxisLine(false);
+//        rightAxis.setDrawGridLines(false);
+//        rightAxis.setDrawLabels(false);
 
         BarData data = new BarData(setMonthData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -282,6 +285,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private void SetWeekChart() {
+
+        final ArrayList<String> xAxisLabel = new ArrayList<>();
+        xAxisLabel.add("Mon");
+        xAxisLabel.add("Tue");
+        xAxisLabel.add("Wed");
+        xAxisLabel.add("Thu");
+        xAxisLabel.add("Fri");
+        xAxisLabel.add("Sat");
+        xAxisLabel.add("Sun");
+
         Legend L;
         L = chart.getLegend();
         L.setEnabled(false);
@@ -294,6 +307,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         xAxis.setTextSize(10f);
         xAxis.setDrawAxisLine(true);
         xAxis.setDrawGridLines(false);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return xAxisLabel.get((int) value);
+            }
+        });
 
         leftAxis.setTextSize(10f);
         leftAxis.setDrawLabels(false);

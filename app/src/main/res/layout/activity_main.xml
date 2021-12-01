@@ -580,12 +580,11 @@
                             android:padding="@dimen/_5sdp">
 
                             <LinearLayout
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:gravity="right">
 
                                 <LinearLayout
-                                    android:id="@+id/lladdwater"
                                     android:layout_width="@dimen/_35sdp"
                                     android:layout_height="@dimen/_35sdp"
                                     android:layout_gravity="center"
@@ -593,6 +592,7 @@
                                     android:gravity="center">
 
                                     <ImageView
+                                        android:id="@+id/ivaddwater"
                                         android:layout_width="@dimen/_30sdp"
                                         android:layout_height="@dimen/_30sdp"
                                         android:padding="5dp"
@@ -669,6 +669,7 @@
                                 android:orientation="vertical">
 
                                 <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/waterSunday"
                                     android:layout_width="wrap_content"
                                     android:layout_height="@dimen/_30sdp"
                                     app:cpb_background_progressbar_color="#C6E9ED"
@@ -693,6 +694,7 @@
                                 android:orientation="vertical">
 
                                 <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/waterMonday"
                                     android:layout_width="wrap_content"
                                     android:layout_height="@dimen/_30sdp"
                                     app:cpb_background_progressbar_color="#C6E9ED"
@@ -717,6 +719,7 @@
                                 android:orientation="vertical">
 
                                 <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/waterTuesday"
                                     android:layout_width="wrap_content"
                                     android:layout_height="@dimen/_30sdp"
                                     app:cpb_background_progressbar_color="#C6E9ED"
@@ -741,6 +744,7 @@
                                 android:orientation="vertical">
 
                                 <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/waterWednesday"
                                     android:layout_width="wrap_content"
                                     android:layout_height="@dimen/_30sdp"
                                     app:cpb_background_progressbar_color="#C6E9ED"
@@ -765,6 +769,7 @@
                                 android:orientation="vertical">
 
                                 <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/waterThursday"
                                     android:layout_width="wrap_content"
                                     android:layout_height="@dimen/_30sdp"
                                     app:cpb_background_progressbar_color="#C6E9ED"
@@ -789,6 +794,7 @@
                                 android:orientation="vertical">
 
                                 <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/waterFriday"
                                     android:layout_width="wrap_content"
                                     android:layout_height="@dimen/_30sdp"
                                     app:cpb_background_progressbar_color="#C6E9ED"
@@ -813,6 +819,7 @@
                                 android:orientation="vertical">
 
                                 <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/waterSaturday"
                                     android:layout_width="wrap_content"
                                     android:layout_height="@dimen/_30sdp"
                                     app:cpb_background_progressbar_color="#C6E9ED"
@@ -867,6 +874,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/addWeight"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -924,6 +932,7 @@
                                 android:textSize="@dimen/_10sdp" />
 
                             <TextView
+                                android:id="@+id/tvlastdaydiffvalue"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:gravity="center"
@@ -933,6 +942,12 @@
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/WeightChart"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_150sdp"/>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

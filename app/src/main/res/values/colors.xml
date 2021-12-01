@@ -12,4 +12,5 @@
     <color name="colorPrimaryDark">#FF6200EE</color>
     <color name="colorDivider">#7E7D80</color>
     <color name="colorBackgrond">#D7D7D8</color>
+    <color name="transprant">#F4F4F4</color>
 </resources>

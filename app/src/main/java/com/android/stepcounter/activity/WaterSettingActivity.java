@@ -33,7 +33,6 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         goalmenu();
 
-
         StorageManager.getInstance().getWaterGoal();
         StorageManager.getInstance().getWaterCup();
 
@@ -116,6 +115,7 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         final ArrayAdapter adapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, list);
         spin.setAdapter(adapter);
+        spin.setSelection(((ArrayAdapter<String>) spin.getAdapter()).getPosition( StorageManager.getInstance().getWaterGoal()));
 
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -157,6 +157,7 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         final ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, list1);
         spinner.setAdapter(arrayAdapter);
+        spinner.setSelection(((ArrayAdapter<String>) spinner.getAdapter()).getPosition( StorageManager.getInstance().getWaterCup()));
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

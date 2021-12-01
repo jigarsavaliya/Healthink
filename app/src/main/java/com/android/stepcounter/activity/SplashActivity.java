@@ -54,6 +54,17 @@ public class SplashActivity extends AppCompatActivity {
                 handlePermission();
             }
         }, secondsDelayed * 3000);
+
+        /*stepcountModel stepcountModel= new stepcountModel();
+        DBHandler dbManager= new DBHandler();
+        stepcountModel.setStep(numSteps);
+        stepcountModel.setDate(date);
+        stepcountModel.setMonth(month);
+        stepcountModel.setYear(year);
+        stepcountModel.setDistance(Distance);
+        stepcountModel.setCalorie(Calories);
+        stepcountModel.setDuration(hour);
+        dbManager.addStepcountData(stepcountModel);*/
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
