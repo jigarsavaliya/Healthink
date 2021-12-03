@@ -49,16 +49,24 @@ public class commanMethod {
      * @return feet rounded to 1 decimal place
      */
     public static double cmToFeetConverter(double cm) {
-        return format(cm * 0.032808399);
+//        return format(cm * 0.394);
+        return Math.floor((cm / 2.54) / 12);
+    }
+
+    public static double cmToInchConverter(double cm,double feet) {
+//        return format(cm * 0.394);
+        return Math.floor((cm / 2.54) - (feet * 12));
     }
 
     /**
      * @param feet - feet
      * @return centimeters rounded to 1 decimal place
      */
-    public static double feetToCmConverter(double feet) {
-        return format(feet * 30.48);
+    public static double feetToCmConverter(double feet,double In) {
+//        return format(feet * 30.48);
+        return (((feet * 12.0) + In) * 2.54);
     }
+
 
     /**
      * @param height in cm

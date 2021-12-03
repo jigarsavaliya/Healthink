@@ -20,7 +20,6 @@
         <activity android:name=".activity.StepReportActivity" />
         <activity android:name=".activity.WaterSettingActivity" />
         <activity android:name=".activity.WelcomeActivity" />
-        <activity android:name=".activity.WaterTrackerActivity" />
         <activity android:name=".activity.ProfileActivity" />
         <activity android:name=".activity.TrainingActivity" />
         <activity android:name=".activity.SplashActivity">

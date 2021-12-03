@@ -36,7 +36,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="2.6">
+                android:layout_weight="2.6"
+                android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/etweight"
@@ -46,6 +47,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/_12sdp"
                     android:textStyle="bold" />
+
             </LinearLayout>
 
             <androidx.cardview.widget.CardView

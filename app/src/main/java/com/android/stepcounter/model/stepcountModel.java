@@ -7,7 +7,43 @@ public class stepcountModel {
     Integer year;
     String calorie;
     String distance;
+    String Timestemp;
     Integer duration;
+    int sumstep;
+    int sumcalorie;
+    int sumdistance;
+
+    public int getSumdistance() {
+        return sumdistance;
+    }
+
+    public void setSumdistance(int sumdistance) {
+        this.sumdistance = sumdistance;
+    }
+
+    public int getSumcalorie() {
+        return sumcalorie;
+    }
+
+    public void setSumcalorie(int sumcalorie) {
+        this.sumcalorie = sumcalorie;
+    }
+
+    public int getSumstep() {
+        return sumstep;
+    }
+
+    public void setSumstep(int sumstep) {
+        this.sumstep = sumstep;
+    }
+
+    public String getTimestemp() {
+        return Timestemp;
+    }
+
+    public void setTimestemp(String timestemp) {
+        Timestemp = timestemp;
+    }
 
     public Integer getStep() {
         return step;

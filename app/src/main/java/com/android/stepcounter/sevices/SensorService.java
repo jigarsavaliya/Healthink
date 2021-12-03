@@ -27,6 +27,7 @@ import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.commanMethod;
 import com.android.stepcounter.utils.constant;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -223,6 +224,8 @@ public class SensorService extends Service implements SensorEventListener, StepL
         sendLevel.putExtra("stepdata", Display);
         sendBroadcast(sendLevel);
 
+        String ts = String.valueOf(System.currentTimeMillis());
+
         for (int i = 0; i < 24; i++) {
             if (hour == i) {
                 stepcountModel.setStep(numSteps);
@@ -232,6 +235,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
                 stepcountModel.setDistance(Distance);
                 stepcountModel.setCalorie(Calories);
                 stepcountModel.setDuration(hour);
+                stepcountModel.setTimestemp(ts);
                 dbManager.addStepcountData(stepcountModel);
             }
         }

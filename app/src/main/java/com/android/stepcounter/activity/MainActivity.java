@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
@@ -59,9 +61,12 @@ import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, DatePickerListener {
 
@@ -72,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     BottomNavigationView mbottomNavigation;
     private CircularProgressBar progress, sunday, monday, tuesday, wednesday, thrusday, friday, saturday,
             watersunday, watermonday, watertuesday, waterwednesday, waterthrusday, waterfriday, watersaturday;
-    CardView mcvStrat, mcvWater;
+    CardView mcvStrat, mcvWater, mcvWeight;
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
     int StepGoal;
@@ -122,7 +127,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tvkcal.setText(calories);
             }
 
-            setDailyGoal();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                setDailyGoal();
+            }
         }
     }
 
@@ -161,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(mToolbar);
 
         mcvWater = findViewById(R.id.cvWater);
-
 
         progress = findViewById(R.id.progressBar);
         WeightChart = findViewById(R.id.WeightChart);
@@ -220,11 +226,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mbottomNavigation = findViewById(R.id.bottomNavigation);
 
         mcvStrat = findViewById(R.id.cvGPSStrat);
+        mcvWeight = findViewById(R.id.cvWeight);
 
         ivPlay.setOnClickListener(this);
         ivPause.setOnClickListener(this);
         mcvStrat.setOnClickListener(this);
         mcvWater.setOnClickListener(this);
+        mcvWeight.setOnClickListener(this);
         ivaddwater.setOnClickListener(this);
         llwaterSetting.setOnClickListener(this);
         addWeightDailog.setOnClickListener(this);
@@ -264,7 +272,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         calories = String.valueOf(commanMethod.calculateCalories(TotalStepCount, userWeight, userHeight));
         tvkcal.setText(calories);
 
-        setDailyGoal();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setDailyGoal();
+        }
 
         getoldSteplist = dbManager.getCurrentDayHoursStepcountlist(date, month, year, hour);
         if (getoldSteplist != null) {
@@ -324,6 +334,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         tvwatergoal.setText("/" + StorageManager.getInstance().getWaterGoal());
 
+        WeightModel weightModel = new WeightModel();
+        weightModel.setDate(date);
+        weightModel.setMonth(month);
+        weightModel.setYear(year);
+        weightModel.setKg((int) userWeight);
+        dbManager.addWeightData(weightModel);
+
         setWeightChart();
     }
 
@@ -335,10 +352,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         weightModels = dbManager.getWeightlist();
 
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
-        for (int i = 0; i < modelArrayList.size(); i++) {
-            tvuserWeight.setText("" + modelArrayList.get(i).getKg());
+        if (modelArrayList.size() != 0) {
+            for (int i = 0; i < modelArrayList.size(); i++) {
+                tvuserWeight.setText("" + modelArrayList.get(i).getKg());
+            }
+        } else {
+            tvuserWeight.setText("" + 0);
         }
-
         int cuurrvalue = Integer.parseInt(tvuserWeight.getText().toString());
         int diff = cuurrvalue - weightModels.get(weightModels.size() - 1).getKg();
         mtvlastdaydiffvalue.setText(diff + "KG");
@@ -464,33 +484,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         l.setForm(Legend.LegendForm.LINE);
     }
 
+    @SuppressLint("LongLogTag")
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void setDailyGoal() {
 
-        String s = getCurrentWeek(rightNow);
+        String s1 = getCurrentDateWeek(rightNow);
+
+        String[] strings = s1.split("-");
+        String date1 = strings[0];
+        String date2 = strings[1];
+
+        /*String s = getCurrentWeek(rightNow);
 //        Log.e("TAG", "date: " + s);
-        String[] Weekdate = s.split(" ");
+        String[] Weekdate = s.split("-");
         int stepnumber;
-        int fristdate = Integer.parseInt(Weekdate[0]);
-        int lastdate = Integer.parseInt(Weekdate[3]);
+        String fristdate = Weekdate[0];
+        String lastdate = Weekdate[1];
 
-        for (int i = fristdate; i <= lastdate; i++) {
-            stepnumber = dbManager.getSumOfStepList(i, month, year);
-//            Log.e("TAG", "date: " + stepnumber);
-            DaywiseSteplist.add(stepnumber);
-        }
+        ArrayList<stepcountModel> stepcountModelArrayList = new ArrayList<>();
 
-        for (int i = 0; i < DaywiseSteplist.size(); i++) {
+        stepcountModelArrayList = dbManager.getSumOfStepList(fristdate, lastdate);
+
+        for (int i = 0; i < 7; i++) {
 //            Log.e("TAG", "date: " + i + " " + DaywiseSteplist.get(i));
-            monday.setProgress(DaywiseSteplist.get(0));
-            tuesday.setProgress(DaywiseSteplist.get(1));
-            wednesday.setProgress(DaywiseSteplist.get(2));
-            thrusday.setProgress(DaywiseSteplist.get(3));
-            friday.setProgress(DaywiseSteplist.get(4));
-            saturday.setProgress(DaywiseSteplist.get(5));
-            sunday.setProgress(DaywiseSteplist.get(6));
+            monday.setProgress(stepcountModelArrayList.get(0).getSumstep() != 0 ? stepcountModelArrayList.get(0).getSumstep() : 0);
+            tuesday.setProgress(stepcountModelArrayList.get(1).getSumstep() != 0 ? stepcountModelArrayList.get(1).getSumstep() : 0);
+            wednesday.setProgress(stepcountModelArrayList.get(2).getSumstep() != 0 ? stepcountModelArrayList.get(2).getSumstep() : 0);
+            thrusday.setProgress(stepcountModelArrayList.get(3).getSumstep() != 0 ? stepcountModelArrayList.get(3).getSumstep() : 0);
+            friday.setProgress(stepcountModelArrayList.get(4).getSumstep() != 0 ? stepcountModelArrayList.get(4).getSumstep() : 0);
+            saturday.setProgress(stepcountModelArrayList.get(5).getSumstep() != 0 ? stepcountModelArrayList.get(5).getSumstep() : 0);
+            sunday.setProgress(stepcountModelArrayList.get(6).getSumstep() != 0 ? stepcountModelArrayList.get(6).getSumstep() : 0);
         }
-
-        //waterChart value get from database
+*/
+       /* //waterChart value get from database
         int DayWiseWater;
         for (int i = fristdate; i <= lastdate; i++) {
             DayWiseWater = dbManager.getSumOfWaterList(i, month, year);
@@ -507,11 +533,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             waterfriday.setProgress(DaywiseWaterlist.get(4));
             watersaturday.setProgress(DaywiseWaterlist.get(5));
             watersunday.setProgress(DaywiseWaterlist.get(6));
-        }
+        }*/
 
     }
 
     public static String getCurrentWeek(Calendar mCalendar) {
+        Date date = new Date();
+        mCalendar.setTime(date);
+        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
+        int monday_offset;
+        if (day_of_week == 1) {
+            monday_offset = -6;
+        } else
+            monday_offset = (2 - day_of_week); // need to minus back
+        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
+
+        long mDateMonday = mCalendar.getTimeInMillis();
+        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
+        long mDateSunday = mCalendar.getTimeInMillis();
+        String strDateFormat = "dd MMM";
+        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+
+        String MONDAY = sdf.format(mDateMonday);
+        String SUNDAY = sdf.format(mDateSunday);
+
+        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
+            MONDAY = MONDAY.substring(0, 2);
+        }
+        return mDateMonday + " - " + mDateSunday;
+    }
+
+    public static String getCurrentDateWeek(Calendar mCalendar) {
         Date date = new Date();
         mCalendar.setTime(date);
 
@@ -529,23 +581,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // return 6 the next days of current day (object cal save current day)
         mCalendar.add(Calendar.DAY_OF_YEAR, 6);
+
         Date mDateSunday = mCalendar.getTime();
 
         //Get format date
-        String strDateFormat = "dd MMM";
+        String strDateFormat = "dd/MM/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
 
         String MONDAY = sdf.format(mDateMonday);
         String SUNDAY = sdf.format(mDateSunday);
 
-        // Sub String
-        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
-            MONDAY = MONDAY.substring(0, 2);
-        }
+        Log.e("getCurrentDateWeek", "getCurrentDateWeek: " + MONDAY + "getCurrentDateWeek: " + SUNDAY);
 
         return MONDAY + " - " + SUNDAY;
     }
-
 
     private void setSharedPreferences() {
         userHeight = StorageManager.getInstance().getHeight();
@@ -578,7 +627,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(MainActivity.this, TrainingActivity.class));
                 break;
             case R.id.cvWater:
-                startActivity(new Intent(MainActivity.this, WaterTrackerActivity.class));
+                startActivity(new Intent(MainActivity.this, HeathActivity.class));
+                break;
+            case R.id.cvWeight:
+                startActivity(new Intent(MainActivity.this, HeathActivity.class));
                 break;
             case R.id.ivaddwater:
                 waterlist = dbManager.getCurrentDayWatercountlist(date, month, year);
@@ -733,6 +785,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .init();
         picker.setBackgroundColor(Color.LTGRAY);
         picker.setDate(new DateTime());
+
 
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1034,6 +1087,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String Calories = String.valueOf(commanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
                     String Distance = String.valueOf(commanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
 
+                    String ts = String.valueOf(System.currentTimeMillis());
+
                     int sum = finalOldsteptotal + Integer.parseInt(numSteps);
                     stepcountModel.setStep(sum);
                     stepcountModel.setDate(selectedday[0]);
@@ -1042,6 +1097,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     stepcountModel.setDistance(Distance);
                     stepcountModel.setCalorie(Calories);
                     stepcountModel.setDuration(saveHour[0]);
+                    stepcountModel.setTimestemp(ts);
                     dbManager.addStepcountData(stepcountModel);
                 }
                 alertDialog.dismiss();

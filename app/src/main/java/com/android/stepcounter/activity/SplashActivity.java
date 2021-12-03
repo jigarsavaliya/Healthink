@@ -55,15 +55,16 @@ public class SplashActivity extends AppCompatActivity {
             }
         }, secondsDelayed * 3000);
 
-        /*stepcountModel stepcountModel= new stepcountModel();
-        DBHandler dbManager= new DBHandler();
-        stepcountModel.setStep(numSteps);
-        stepcountModel.setDate(date);
-        stepcountModel.setMonth(month);
-        stepcountModel.setYear(year);
-        stepcountModel.setDistance(Distance);
-        stepcountModel.setCalorie(Calories);
-        stepcountModel.setDuration(hour);
+       /* stepcountModel stepcountModel= new stepcountModel();
+        DBHandler dbManager= new DBHandler(this);
+        stepcountModel.setStep(10);
+        stepcountModel.setDate(2);
+        stepcountModel.setMonth(12);
+        stepcountModel.setYear(2021);
+        stepcountModel.setDistance("16.0");
+        stepcountModel.setCalorie("1.0");
+        stepcountModel.setDuration(9);
+        stepcountModel.setTimestemp("1638180970824");
         dbManager.addStepcountData(stepcountModel);*/
     }
 
