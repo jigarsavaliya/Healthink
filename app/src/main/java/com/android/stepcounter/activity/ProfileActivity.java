@@ -55,6 +55,13 @@ public class ProfileActivity extends AppCompatActivity {
         mToolbar.setTitle("Personal Information");
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         llGender = findViewById(R.id.llGender);
         llLenght = findViewById(R.id.llLenght);

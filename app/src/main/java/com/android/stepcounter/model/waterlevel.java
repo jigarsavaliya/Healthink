@@ -8,6 +8,24 @@ public class waterlevel {
     int Hour;
     int min;
     String unit;
+    String Timestemp;
+    int sumwater;
+
+    public int getSumwater() {
+        return sumwater;
+    }
+
+    public void setSumwater(int sumwater) {
+        this.sumwater = sumwater;
+    }
+
+    public String getTimestemp() {
+        return Timestemp;
+    }
+
+    public void setTimestemp(String timestemp) {
+        Timestemp = timestemp;
+    }
 
     public int getDate() {
         return date;

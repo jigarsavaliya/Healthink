@@ -10,16 +10,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
@@ -63,6 +65,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     boolean IsSelectedStep = true, IsSelectedCaleroie = false, IsSelectedTime = false, IsSelectedDistance = false;
     int date, month, year;
 
+    long firstdayofmonth, lastdayofmonth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +75,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         Steplist = new ArrayList<stepcountModel>();
         StepWeeklist = new ArrayList<stepcountModel>();
         Stepmonthlist = new ArrayList<stepcountModel>();
-
 
         date = rightNow.get(Calendar.DATE);
         month = rightNow.get(Calendar.MONTH) + 1;
@@ -82,6 +85,23 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         userHeight = StorageManager.getInstance().getHeight();
         userWeight = StorageManager.getInstance().getWeight();
 
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = 1;
+        c.set(year, month, day);
+        int numOfDaysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
+        firstdayofmonth = c.getTimeInMillis();
+        c.add(Calendar.DAY_OF_MONTH, numOfDaysInMonth - 1);
+        lastdayofmonth = c.getTimeInMillis();
+//        Log.e("Last", "Last Day of month: " + c.getTimeInMillis());
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         init();
     }
 
@@ -90,6 +110,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         mToolbar.setTitle("Report");
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         chart = (BarChart) findViewById(R.id.chart1);
         tvTotal = findViewById(R.id.tvTotal);
@@ -306,7 +333,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
-//                Log.e("TAG", "hours: " + Steplist.get(i).getDuration() + "step" + Steplist.get(i).getStep() + "date" + Steplist.get(i).getDate());
                 entries.add(new BarEntry(Steplist.get(i).getDuration(), Steplist.get(i).getStep()));
             }
         }
@@ -356,16 +382,26 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     }
 
-    private BarDataSet setMonthData() {
+    public static int getMaxDaysInMonth(int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        // Note: 0-based months
+        cal.set(year, month, 1);
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
 
-        Stepmonthlist = dbManager.getCurrentMonthStepcountlist(1, 31, rightNow.get(Calendar.MONTH) + 1);
+    private BarDataSet setMonthData() {
+        int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
+        Log.e("TAG", a + "total days");
+
+        Stepmonthlist = dbManager.getMonthstepdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
+
         int sumvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Stepmonthlist != null) {
             for (int i = 0; i < Stepmonthlist.size(); i++) {
-                Log.e("TAG", "hours: " + Stepmonthlist.get(i).getDistance() + "step" + Stepmonthlist.get(i).getStep() + "date" + Stepmonthlist.get(i).getDate());
-                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Stepmonthlist.get(i).getStep()));
-                sumvalue = sumvalue + Stepmonthlist.get(i).getStep();
+//                Log.e("TAG", "hours: " + Stepmonthlist.get(i).getDistance() + "step" + Stepmonthlist.get(i).getStep() + "date" + Stepmonthlist.get(i).getDate());
+                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Stepmonthlist.get(i).getSumstep()));
+                sumvalue = sumvalue + Stepmonthlist.get(i).getSumstep();
             }
         }
 
@@ -504,13 +540,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setDayCaloriesData() {
+        int sumvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
 //                Log.e("TAG", "hours: " + Steplist.get(i).getDuration() + "step" + Steplist.get(i).getStep() + "date" + Steplist.get(i).getDate());
                 entries.add(new BarEntry(Steplist.get(i).getDuration(), Float.parseFloat(Steplist.get(i).getCalorie())));
+                sumvalue = sumvalue + Integer.parseInt(Steplist.get(i).getCalorie());
             }
         }
+        tvTotal.setText(sumvalue + "");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -558,17 +597,20 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthCaloriesData() {
+        int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
+        Log.e("TAG", a + "total days");
 
-        Stepmonthlist = dbManager.getCurrentMonthStepcountlist(1, 31, rightNow.get(Calendar.MONTH) + 1);
-
+        Stepmonthlist = dbManager.getMonthCaloriesdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
+        int sumvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Stepmonthlist != null) {
             for (int i = 0; i < Stepmonthlist.size(); i++) {
 //                Log.e("TAG", "hours: " + Stepmonthlist.get(i).getDistance() + "step" + Stepmonthlist.get(i).getStep() + "date" + Stepmonthlist.get(i).getDate());
-                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Float.parseFloat(Stepmonthlist.get(i).getCalorie())));
+                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Stepmonthlist.get(i).getSumcalorie()));
+                sumvalue = sumvalue + Stepmonthlist.get(i).getSumcalorie();
             }
         }
-
+        tvTotal.setText(sumvalue + "");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -749,19 +791,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
         chart.setDrawValueAboveBar(true);
-
     }
 
     private BarDataSet setMonthTimeData() {
+        int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
+        Stepmonthlist = dbManager.getMonthstepdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
 
-        Stepmonthlist = dbManager.getCurrentMonthStepcountlist(1, 31, rightNow.get(Calendar.MONTH) + 1);
-
-        Stepmonthlist = dbManager.getCurrentMonthStepcountlist(1, 31, rightNow.get(Calendar.MONTH) + 1);
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Stepmonthlist != null) {
             for (int i = 0; i < Stepmonthlist.size(); i++) {
-//                Log.e("TAG", "hours: " + Stepmonthlist.get(i).getDistance() + "step" + Stepmonthlist.get(i).getStep() + "date" + Stepmonthlist.get(i).getDate());
-                int totalSecs = (int) (Stepmonthlist.get(i).getStep() * 1.66);
+                int totalSecs = (int) (Stepmonthlist.get(i).getSumstep() * 1.66);
                 entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), totalSecs));
             }
         }
@@ -894,13 +933,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setDayDistanceData() {
+        float sumvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
 //                Log.e("TAG", "hours: " + Steplist.get(i).getDuration() + "step" + Steplist.get(i).getStep() + "date" + Steplist.get(i).getDate());
                 entries.add(new BarEntry(Steplist.get(i).getDuration(), Float.parseFloat(Steplist.get(i).getDistance())));
+                sumvalue = sumvalue + Float.parseFloat(Steplist.get(i).getDistance());
             }
         }
+        tvTotal.setText(sumvalue + "");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -948,17 +990,20 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthDistanceData() {
+        int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
 
-        Stepmonthlist = dbManager.getCurrentMonthStepcountlist(1, 31, rightNow.get(Calendar.MONTH) + 1);
+        int sumvalue = 0;
+        Stepmonthlist = dbManager.getMonthDistancedata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
 
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Stepmonthlist != null) {
             for (int i = 0; i < Stepmonthlist.size(); i++) {
-                Log.e("TAG", "hours: " + Stepmonthlist.get(i).getDistance() + "step" + Stepmonthlist.get(i).getStep() + "date" + Stepmonthlist.get(i).getDate());
-                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Float.parseFloat(Stepmonthlist.get(i).getDistance())));
+//                Log.e("TAG", "hours: " + Stepmonthlist.get(i).getDistance() + "step" + Stepmonthlist.get(i).getStep() + "date" + Stepmonthlist.get(i).getDate());
+                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Stepmonthlist.get(i).getSumdistance()));
+                sumvalue = sumvalue + Stepmonthlist.get(i).getSumdistance();
             }
         }
-
+        tvTotal.setText(sumvalue + "");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -1067,6 +1112,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     public void showEditStepDailog() {
         stepcountModel = new stepcountModel();
 
+        String[] Time = {"00:00 - 01:00", "01:00 - 02:00", "02:00 - 03:00", "03:00 - 04:00", "04:00 - 05:00", "05:00 - 06:00", "06:00 - 07:00", "07:00 - 08:00",
+                "08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00",
+                "16:00 - 17:00", "17:00 - 18:00", "18:00 - 19:00", "19:00 - 20:00", "20:00 - 21:00", "21:00 - 22:00", "22:00 - 23:00", "23:00 - 24:00"};
+
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View d = inflater.inflate(R.layout.dailog_edit, null);
@@ -1076,9 +1125,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         Button mBtnSave = (Button) d.findViewById(R.id.btnSave);
         Button mBtnCancel = (Button) d.findViewById(R.id.btnCancel);
         LinearLayout llView = (LinearLayout) d.findViewById(R.id.datepicker);
-        LinearLayout llTime = (LinearLayout) d.findViewById(R.id.llTime);
+        Spinner spinner = (Spinner) d.findViewById(R.id.spinner);
         EditText stepvalue = (EditText) d.findViewById(R.id.stepvalue);
-        TextView time = (TextView) d.findViewById(R.id.time);
 
         Calendar rightNow = Calendar.getInstance();
         int hours = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -1086,18 +1134,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int mMonth = rightNow.get(Calendar.MONTH) + 1;
         int mYear = rightNow.get(Calendar.YEAR);
 
-        final int[] saveHour = {0};
-        for (int i = 0; i < 24; i++) {
-            if (hours == i) {
-                int a = hours + 1;
-                time.setText(hours + ":00 - " + a + ":00");
-                saveHour[0] = hours;
-            }
-        }
-
-        final int[] selectedyear = {0};
-        final int[] selectedmonth = {0};
-        final int[] selectedday = {0};
+        final int[] saveHour = {hours};
+        final int[] selectedyear = {mYear};
+        final int[] selectedmonth = {mMonth};
+        final int[] selectedday = {dayOfMonth};
 
         llView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1115,127 +1155,79 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
             }
         });
 
-        llTime.setOnClickListener(new View.OnClickListener() {
+        ArrayList<String> stringArrayList = new ArrayList<>();
+        for (int i = 0; i < hours + 1; i++) {
+            stringArrayList.add(Time[i]);
+//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
+        }
+
+        //Creating the ArrayAdapter instance having the country list
+        ArrayAdapter aa = new ArrayAdapter(this, android.R.layout.simple_spinner_item, stringArrayList);
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spinner.setAdapter(aa);
+        spinner.setSelection(stringArrayList.size() - 1);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                //creating a popup menu
-                PopupMenu popup = new PopupMenu(StepReportActivity.this, llTime);
-                //inflating menu from xml resource
-                popup.inflate(R.menu.hours_menu);
-                //adding click listener
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.hr0:
-                                time.setText("00:00 - 01:00");
-                                saveHour[0] = 0;
-                                return true;
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = adapterView.getItemAtPosition(i).toString();
+                if (item.equals("00:00 - 01:00")) {
+                    saveHour[0] = 0;
+                } else if (item.equals("01:00 - 02:00")) {
+                    saveHour[0] = 1;
+                } else if (item.equals("02:00 - 03:00")) {
+                    saveHour[0] = 2;
+                } else if (item.equals("03:00 - 04:00")) {
+                    saveHour[0] = 3;
+                } else if (item.equals("04:00 - 05:00")) {
+                    saveHour[0] = 4;
+                } else if (item.equals("05:00 - 06:00")) {
+                    saveHour[0] = 5;
+                } else if (item.equals("06:00 - 07:00")) {
+                    saveHour[0] = 6;
+                } else if (item.equals("07:00 - 08:00")) {
+                    saveHour[0] = 7;
+                } else if (item.equals("08:00 - 09:00")) {
+                    saveHour[0] = 8;
+                } else if (item.equals("09:00 - 10:00")) {
+                    saveHour[0] = 9;
+                } else if (item.equals("10:00 - 11:00")) {
+                    saveHour[0] = 10;
+                } else if (item.equals("11:00 - 12:00")) {
+                    saveHour[0] = 11;
+                } else if (item.equals("12:00 - 13:00")) {
+                    saveHour[0] = 12;
+                } else if (item.equals("13:00 - 14:00")) {
+                    saveHour[0] = 13;
+                } else if (item.equals("14:00 - 15:00")) {
+                    saveHour[0] = 14;
+                } else if (item.equals("15:00 - 16:00")) {
+                    saveHour[0] = 15;
+                } else if (item.equals("16:00 - 17:00")) {
+                    saveHour[0] = 16;
+                } else if (item.equals("17:00 - 18:00")) {
+                    saveHour[0] = 17;
+                } else if (item.equals("18:00 - 19:00")) {
+                    saveHour[0] = 18;
+                } else if (item.equals("19:00 - 20:00")) {
+                    saveHour[0] = 19;
+                } else if (item.equals("20:00 - 21:00")) {
+                    saveHour[0] = 20;
+                } else if (item.equals("21:00 - 22:00")) {
+                    saveHour[0] = 21;
+                } else if (item.equals("22:00 - 23:00")) {
+                    saveHour[0] = 22;
+                } else if (item.equals("23:00 - 24:00")) {
+                    saveHour[0] = 23;
+                }
+            }
 
-                            case R.id.hr1:
-                                time.setText("01:00 - 02:00");
-                                saveHour[0] = 1;
-                                return true;
-                            case R.id.hr2:
-                                time.setText("02:00 - 03:00");
-                                saveHour[0] = 2;
-                                return true;
-                            case R.id.hr3:
-                                time.setText("03:00 - 04:00");
-                                saveHour[0] = 3;
-                                return true;
-                            case R.id.hr4:
-                                time.setText("04:00 - 05:00");
-                                saveHour[0] = 4;
-                                return true;
-                            case R.id.hr5:
-                                time.setText("05:00 - 06:00");
-                                saveHour[0] = 5;
-                                return true;
-                            case R.id.hr6:
-                                time.setText("06:00 - 7:00");
-                                saveHour[0] = 6;
-                                return true;
-                            case R.id.hr7:
-                                time.setText("07:00 - 08:00");
-                                saveHour[0] = 7;
-                                return true;
-                            case R.id.hr8:
-                                time.setText("08:00 - 09:00");
-                                saveHour[0] = 8;
-                                return true;
-                            case R.id.hr9:
-                                time.setText("09:00 - 10:00");
-                                saveHour[0] = 9;
-                                return true;
-                            case R.id.hr10:
-                                time.setText("10:00 - 11:00");
-                                saveHour[0] = 10;
-                                return true;
-                            case R.id.hr11:
-                                time.setText("11:00 - 12:00");
-                                saveHour[0] = 11;
-                                return true;
-                            case R.id.hr12:
-                                time.setText("012:00 - 13:00");
-                                saveHour[0] = 12;
-                                return true;
-                            case R.id.hr13:
-                                time.setText("13:00 - 14:00");
-                                saveHour[0] = 13;
-                                return true;
-                            case R.id.hr14:
-                                time.setText("14:00 - 15:00");
-                                saveHour[0] = 14;
-                                return true;
-                            case R.id.hr15:
-                                time.setText("15:00 - 16:00");
-                                saveHour[0] = 15;
-                                return true;
-                            case R.id.hr16:
-                                time.setText("16:00 - 17:00");
-                                saveHour[0] = 16;
-                                return true;
-                            case R.id.hr17:
-                                time.setText("17:00 - 18:00");
-                                saveHour[0] = 17;
-                                return true;
-                            case R.id.hr18:
-                                time.setText("18:00 - 19:00");
-                                saveHour[0] = 18;
-                                return true;
-                            case R.id.hr19:
-                                time.setText("19:00 - 20:00");
-                                saveHour[0] = 19;
-                                return true;
-                            case R.id.hr20:
-                                time.setText("20:00 - 21:00");
-                                saveHour[0] = 20;
-                                return true;
-                            case R.id.hr21:
-                                time.setText("21:00 - 22:00");
-                                saveHour[0] = 21;
-                                return true;
-                            case R.id.hr22:
-                                time.setText("22:00 - 23:00");
-                                saveHour[0] = 22;
-                                return true;
-                            case R.id.hr23:
-                                time.setText("23:00 - 24:00");
-                                saveHour[0] = 23;
-                                return true;
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
-
-                            default:
-                                return false;
-                        }
-                    }
-                });
-                //displaying the popup
-                popup.show();
             }
         });
-
 
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1246,6 +1238,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 } else {
                     String Calories = String.valueOf(commanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
                     String Distance = String.valueOf(commanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
+                    String ts = String.valueOf(System.currentTimeMillis());
 
                     stepcountModel.setStep(Integer.valueOf(numSteps));
                     stepcountModel.setDate(selectedday[0]);
@@ -1254,18 +1247,20 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     stepcountModel.setDistance(Distance);
                     stepcountModel.setCalorie(Calories);
                     stepcountModel.setDuration(saveHour[0]);
-//                    dbManager.addStepcountData(stepcountModel);
+                    stepcountModel.setTimestemp(ts);
+                    dbManager.addStepcountData(stepcountModel);
                 }
+                onResume();
                 alertDialog.dismiss();
             }
         });
+
         mBtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
             }
         });
-
 
         alertDialog.show();
     }

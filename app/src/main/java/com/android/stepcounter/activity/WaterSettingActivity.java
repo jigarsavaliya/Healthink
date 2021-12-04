@@ -30,6 +30,13 @@ public class WaterSettingActivity extends AppCompatActivity {
         mToolbar.setTitle("Water tracker setting");
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         goalmenu();
 

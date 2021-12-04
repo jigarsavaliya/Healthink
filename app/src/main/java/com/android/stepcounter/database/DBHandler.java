@@ -26,7 +26,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String KEY_WATER_HOURS = "WaterHours";
     public static final String KEY_WATER_MINITS = "WaterMinits";
     public static final String KEY_WATER_ML = "WaterMl";
-
+    public static final String KEY_WATER_TIMESTMP = "WaterTimeStemp";
 
     // Table Name
     public static final String TABLE_STEPCOUNT = "Table_DayWiseStep";
@@ -49,6 +49,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String KEY_WEIGHT_MONTH = "Weightmonth";
     public static final String KEY_WEIGHT_YEAR = "WeightYear";
     public static final String KEY_WEIGHT_KG = "WeightKg";
+    public static final String KEY_WEIGHT_TIMESTMP = "WeightTimeStemp";
 
     // Database Information
     static final String DB_NAME = "StepCounter.db";
@@ -72,6 +73,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 + KEY_WATER_YEAR + " INTEGER,"
                 + KEY_WATER_HOURS + " INTEGER,"
                 + KEY_WATER_MINITS + " INTEGER,"
+                + KEY_WATER_TIMESTMP + " TEXT,"
                 + KEY_WATER_ML + " TEXT)";
 
         String StepTable = "CREATE TABLE " + TABLE_STEPCOUNT + " ("
@@ -90,6 +92,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 + KEY_WEIGHT_DATE + " INTEGER,"
                 + KEY_WEIGHT_MONTH + " INTEGER,"
                 + KEY_WEIGHT_YEAR + " INTEGER,"
+                + KEY_WEIGHT_TIMESTMP + " TEXT,"
                 + KEY_WEIGHT_KG + " INTEGER)";
 
         // at last we are calling a exec sql
@@ -121,6 +124,7 @@ public class DBHandler extends SQLiteOpenHelper {
         initialValues.put(KEY_WATER_HOURS, waterlevel.getHour());
         initialValues.put(KEY_WATER_MINITS, waterlevel.getMin());
         initialValues.put(KEY_WATER_ML, waterlevel.getUnit());
+        initialValues.put(KEY_WATER_TIMESTMP, waterlevel.getTimestemp());
 
         try {
             int i = updateWaterData(waterlevel);
@@ -149,6 +153,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_WATER_HOURS, model.getHour());
         values.put(KEY_WATER_MINITS, model.getMin());
         values.put(KEY_WATER_ML, model.getUnit());
+        values.put(KEY_WATER_TIMESTMP, model.getTimestemp());
 
         return values;
     }
@@ -171,7 +176,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     private String[] getWaterlistColumns() {
-        return new String[]{KEY_WATER_DATE, KEY_WATER_MONTH, KEY_WATER_YEAR, KEY_WATER_HOURS, KEY_WATER_MINITS, KEY_WATER_ML};
+        return new String[]{KEY_WATER_DATE, KEY_WATER_MONTH, KEY_WATER_YEAR, KEY_WATER_HOURS, KEY_WATER_MINITS, KEY_WATER_ML, KEY_WATER_TIMESTMP};
     }
 
     private ArrayList<waterlevel> getWaterlistFromCursor(Cursor c) {
@@ -184,6 +189,7 @@ public class DBHandler extends SQLiteOpenHelper {
             int iKEY_STEP_HOUR = c.getColumnIndex(KEY_WATER_HOURS);
             int iKEY_STEP_MINITS = c.getColumnIndex(KEY_WATER_MINITS);
             int iKEY_STEP_UNIT = c.getColumnIndex(KEY_WATER_ML);
+            int iKEY_STEP_TIMESTMP = c.getColumnIndex(KEY_WATER_TIMESTMP);
 
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 waterlevel model = new waterlevel();
@@ -194,6 +200,8 @@ public class DBHandler extends SQLiteOpenHelper {
                 model.setHour(c.getInt(iKEY_STEP_HOUR));
                 model.setMin(c.getInt(iKEY_STEP_MINITS));
                 model.setUnit(c.getString(iKEY_STEP_UNIT));
+                model.setTimestemp(c.getString(iKEY_STEP_TIMESTMP));
+
                 list.add(model);
             }
         } finally {
@@ -222,22 +230,53 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public int getSumOfWaterList(int date, int month, int year) {
-        int sum;
+    public ArrayList<waterlevel> getweekWaterdata(String fristdate, String lastdate) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String s = "select sum(" + KEY_WATER_ML + ")  as total from " + TABLE_WATER + " where " + KEY_WATER_DATE + " = " + date + " AND " + KEY_WATER_MONTH +
-                " = " + month + " AND  " + KEY_WATER_YEAR + " = " + year;
-
+        String s = "SELECT " + KEY_WATER_DATE + " , sum(" + KEY_WATER_ML + ") as total FROM " + TABLE_WATER + " where " + KEY_WATER_TIMESTMP
+                + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_WATER_DATE;
+        Log.e("list", "" + s);
         Cursor c = db.rawQuery(s, null);
 
-        c.moveToFirst();
-        do {
+        ArrayList<waterlevel> temp = new ArrayList<waterlevel>();
+        ArrayList<waterlevel> list = new ArrayList<waterlevel>();
+
+        int iKEY_STEP_DATE = c.getColumnIndex(KEY_WATER_DATE);
+        int sum;
+
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            waterlevel model = new waterlevel();
             sum = c.getInt(c.getColumnIndex("total"));
-        } while (c.moveToNext());
+
+            model.setDate(c.getInt(iKEY_STEP_DATE));
+            model.setSumwater(sum);
+            temp.add(model);
+        }
+//        Log.e("list", "" + list.size());
+
+        int j = 0;
+        for (int i = 0; i < 7; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                waterlevel model = new waterlevel();
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setTimestemp("0");
+                model.setSumwater(0);
+                list.add(model);
+            }
+        }
 
         c.close();
-        return sum;
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
     }
 
     public void DeleteCurrentDayWaterData(int date, int month, int year) {
@@ -322,6 +361,96 @@ public class DBHandler extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     private ArrayList<stepcountModel> getCategorylistFromCursor(Cursor c) {
+        ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
+        ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
+        try {
+            int iKEY_STEP_COUNT = c.getColumnIndex(KEY_STEP_COUNT);
+            int iKEY_STEP_DATE = c.getColumnIndex(KEY_STEP_DATE);
+            int iKEY_STEP_MONTH = c.getColumnIndex(KEY_STEP_MONTH);
+            int iKEY_STEP_YEAR = c.getColumnIndex(KEY_STEP_YEAR);
+            int iKEY_STEP_CALORIES = c.getColumnIndex(KEY_STEP_CALORIES);
+            int iKEY_STEP_DISTANCE = c.getColumnIndex(KEY_STEP_DISTANCE);
+            int iKEY_STEP_DURATION = c.getColumnIndex(KEY_STEP_DURATION);
+            int iKEY_STEP_TIMESTMP = c.getColumnIndex(KEY_STEP_TIMESTMP);
+
+            for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                stepcountModel model = new stepcountModel();
+
+                model.setStep(c.getInt(iKEY_STEP_COUNT));
+                model.setDate(c.getInt(iKEY_STEP_DATE));
+                model.setMonth(c.getInt(iKEY_STEP_MONTH));
+                model.setYear(c.getInt(iKEY_STEP_YEAR));
+                model.setCalorie(c.getString(iKEY_STEP_CALORIES));
+                model.setDistance(c.getString(iKEY_STEP_DISTANCE));
+                model.setDuration(c.getInt(iKEY_STEP_DURATION));
+                model.setTimestemp(c.getString(iKEY_STEP_TIMESTMP));
+                temp.add(model);
+            }
+
+            int j = 0;
+            for (int i = 0; i < 24; i++) {
+                if (j < temp.size() && i == temp.get(j).getDuration()) {
+                    list.add(temp.get(j));
+                    j++;
+                } else {
+                    stepcountModel model = new stepcountModel();
+                    model.setStep(0);
+                    model.setDate(0);
+                    model.setMonth(0);
+                    model.setYear(0);
+                    model.setCalorie("0");
+                    model.setDistance("0");
+                    model.setDuration(i);
+                    model.setTimestemp("0");
+                    list.add(model);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("TAG", "getCategorylistFromCursor: " + e.getMessage());
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        return list;
+    }
+
+    public ArrayList<stepcountModel> getCurrentDayStepcountlist(int date, int month, int year) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "select * from " + TABLE_STEPCOUNT + " where " + KEY_STEP_DATE + " = " + date + " AND " + KEY_STEP_MONTH +
+                " = " + month + " AND  " + KEY_STEP_YEAR + " = " + year + " ORDER BY " + KEY_STEP_DURATION + " ASC ";
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<stepcountModel> list = getCategorylistFromCursor(c);
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+
+    }
+
+    public ArrayList<stepcountModel> getCurrentDayHoursStepcountlist(int date, int month, int year, int hour) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "select * from " + TABLE_STEPCOUNT + " where " + KEY_STEP_DATE + " = " + date + " AND " + KEY_STEP_MONTH +
+                " = " + month + " AND  " + KEY_STEP_YEAR + " = " + year + " AND  " + KEY_STEP_DURATION + " = " + hour;
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<stepcountModel> list = getHoursSteplistFromCursor(c);
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+
+    }
+
+    private ArrayList<stepcountModel> getHoursSteplistFromCursor(Cursor c) {
         ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
         try {
             int iKEY_STEP_COUNT = c.getColumnIndex(KEY_STEP_COUNT);
@@ -354,60 +483,6 @@ public class DBHandler extends SQLiteOpenHelper {
         return list;
     }
 
-    public ArrayList<stepcountModel> getCurrentDayStepcountlist(int date, int month, int year) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String s = "select * from " + TABLE_STEPCOUNT + " where " + KEY_STEP_DATE + " = " + date + " AND " + KEY_STEP_MONTH +
-                " = " + month + " AND  " + KEY_STEP_YEAR + " = " + year;
-
-        Cursor c = db.rawQuery(s, null);
-
-        ArrayList<stepcountModel> list = getCategorylistFromCursor(c);
-
-        if (list != null && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
-
-    }
-
-    public ArrayList<stepcountModel> getCurrentDayHoursStepcountlist(int date, int month, int year, int hour) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String s = "select * from " + TABLE_STEPCOUNT + " where " + KEY_STEP_DATE + " = " + date + " AND " + KEY_STEP_MONTH +
-                " = " + month + " AND  " + KEY_STEP_YEAR + " = " + year + " AND  " + KEY_STEP_DURATION + " = " + hour;
-
-        Cursor c = db.rawQuery(s, null);
-
-        ArrayList<stepcountModel> list = getCategorylistFromCursor(c);
-
-        if (list != null && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
-
-    }
-
-    public ArrayList<stepcountModel> getCurrentMonthStepcountlist(int fristdate, int lastdate, int month) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String s = "SELECT * FROM " + TABLE_STEPCOUNT + " where " + KEY_STEP_DATE + " BETWEEN " + fristdate + " AND " + lastdate +
-                " AND  " + KEY_STEP_MONTH + " = " + month;
-
-        Cursor c = db.rawQuery(s, null);
-
-        ArrayList<stepcountModel> list = getCategorylistFromCursor(c);
-
-        if (list != null && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
-
-    }
-
     @SuppressLint("Range")
     public ArrayList<stepcountModel> getweekstepdata(String fristdate, String lastdate) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -417,6 +492,7 @@ public class DBHandler extends SQLiteOpenHelper {
         Log.e("list", "" + s);
         Cursor c = db.rawQuery(s, null);
 
+        ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
         ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
 
         int iKEY_STEP_DATE = c.getColumnIndex(KEY_STEP_DATE);
@@ -428,9 +504,30 @@ public class DBHandler extends SQLiteOpenHelper {
 
             model.setDate(c.getInt(iKEY_STEP_DATE));
             model.setSumstep(sum);
-            list.add(model);
+            temp.add(model);
         }
 //        Log.e("list", "" + list.size());
+
+        int j = 0;
+        for (int i = 0; i < 7; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                stepcountModel model = new stepcountModel();
+                model.setStep(0);
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setCalorie("0");
+                model.setDistance("0");
+                model.setDuration(0);
+                model.setTimestemp("0");
+                model.setSumstep(0);
+                list.add(model);
+            }
+        }
+
         c.close();
 
         if (list != null && list.size() > 0) {
@@ -449,6 +546,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(s, null);
 
+        ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
         ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
 
         int iKEY_STEP_DATE = c.getColumnIndex(KEY_STEP_DATE);
@@ -458,7 +556,27 @@ public class DBHandler extends SQLiteOpenHelper {
 
             model.setDate(c.getInt(iKEY_STEP_DATE));
             model.setSumcalorie(sum);
-            list.add(model);
+            temp.add(model);
+        }
+
+        int j = 0;
+        for (int i = 0; i < 7; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                stepcountModel model = new stepcountModel();
+                model.setStep(0);
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setCalorie("0");
+                model.setDistance("0");
+                model.setDuration(0);
+                model.setTimestemp("0");
+                model.setSumcalorie(0);
+                list.add(model);
+            }
         }
         c.close();
 
@@ -478,6 +596,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(s, null);
 
+        ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
         ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
 
         int iKEY_STEP_DATE = c.getColumnIndex(KEY_STEP_DATE);
@@ -489,7 +608,27 @@ public class DBHandler extends SQLiteOpenHelper {
 
             model.setDate(c.getInt(iKEY_STEP_DATE));
             model.setSumdistance(sum);
-            list.add(model);
+            temp.add(model);
+        }
+
+        int j = 0;
+        for (int i = 0; i < 7; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                stepcountModel model = new stepcountModel();
+                model.setStep(0);
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setCalorie("0");
+                model.setDistance("0");
+                model.setDuration(0);
+                model.setTimestemp("0");
+                model.setSumdistance(0);
+                list.add(model);
+            }
         }
         c.close();
 
@@ -499,6 +638,163 @@ public class DBHandler extends SQLiteOpenHelper {
             return null;
         }
     }
+
+    @SuppressLint("Range")
+    public ArrayList<stepcountModel> getMonthstepdata(String fristdate, String lastdate, int a) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "SELECT " + KEY_STEP_DATE + " , sum(" + KEY_STEP_COUNT + ") as total FROM " + TABLE_STEPCOUNT + " where " + KEY_STEP_TIMESTMP
+                + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_STEP_DATE;
+        Log.e("list", "" + s);
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
+        ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
+
+        int iKEY_STEP_DATE = c.getColumnIndex(KEY_STEP_DATE);
+        int sum;
+
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            stepcountModel model = new stepcountModel();
+            sum = c.getInt(c.getColumnIndex("total"));
+
+            model.setDate(c.getInt(iKEY_STEP_DATE));
+            model.setSumstep(sum);
+            temp.add(model);
+        }
+//        Log.e("list", "" + list.size());
+
+        int j = 0;
+        for (int i = 0; i < a; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                stepcountModel model = new stepcountModel();
+                model.setStep(0);
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setCalorie("0");
+                model.setDistance("0");
+                model.setDuration(0);
+                model.setTimestemp("0");
+                model.setSumstep(0);
+                list.add(model);
+            }
+        }
+
+        c.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressLint("Range")
+    public ArrayList<stepcountModel> getMonthCaloriesdata(String fristdate, String lastdate, int a) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "SELECT " + KEY_STEP_DATE + ", sum(" + KEY_STEP_CALORIES + ") as total FROM " + TABLE_STEPCOUNT + " where " + KEY_STEP_TIMESTMP + " BETWEEN " + fristdate + " AND " +
+                lastdate + " GROUP BY " + KEY_STEP_DATE;
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
+        ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
+
+        int iKEY_STEP_DATE = c.getColumnIndex(KEY_STEP_DATE);
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            stepcountModel model = new stepcountModel();
+            int sum = c.getInt(c.getColumnIndex("total"));
+
+            model.setDate(c.getInt(iKEY_STEP_DATE));
+            model.setSumcalorie(sum);
+            temp.add(model);
+        }
+
+        int j = 0;
+        for (int i = 0; i < a; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                stepcountModel model = new stepcountModel();
+                model.setStep(0);
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setCalorie("0");
+                model.setDistance("0");
+                model.setDuration(0);
+                model.setTimestemp("0");
+                model.setSumcalorie(0);
+                list.add(model);
+            }
+        }
+        c.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressLint("Range")
+    public ArrayList<stepcountModel> getMonthDistancedata(String fristdate, String lastdate, int a) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "SELECT " + KEY_STEP_DATE + ", sum (" + KEY_STEP_DISTANCE + ") as total FROM " + TABLE_STEPCOUNT + " where " + KEY_STEP_TIMESTMP + " BETWEEN " + fristdate + " AND " +
+                lastdate + " GROUP BY " + KEY_STEP_DATE;
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
+        ArrayList<stepcountModel> list = new ArrayList<stepcountModel>();
+
+        int iKEY_STEP_DATE = c.getColumnIndex(KEY_STEP_DATE);
+
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            stepcountModel model = new stepcountModel();
+
+            int sum = c.getInt(c.getColumnIndex("total"));
+
+            model.setDate(c.getInt(iKEY_STEP_DATE));
+            model.setSumdistance(sum);
+            temp.add(model);
+        }
+
+        int j = 0;
+        for (int i = 0; i < a; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                stepcountModel model = new stepcountModel();
+                model.setStep(0);
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setCalorie("0");
+                model.setDistance("0");
+                model.setDuration(0);
+                model.setTimestemp("0");
+                model.setSumdistance(0);
+                list.add(model);
+            }
+        }
+        c.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
 
     @SuppressLint("Range")
     public int getSumOfStepList(int date, int month, int year) {
@@ -575,26 +871,6 @@ public class DBHandler extends SQLiteOpenHelper {
         return list;
     }
 
-    @SuppressLint("Range")
-    public int getSumOfHoursStepList(int date, int month, int year, int hours) {
-        int sum;
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String s = "select sum(" + KEY_STEP_COUNT + ")  as total from " + TABLE_STEPCOUNT + " where " + KEY_STEP_DATE + " = " + date + " AND " + KEY_STEP_MONTH +
-                " = " + month + " AND  " + KEY_STEP_YEAR + " = " + year + " AND  " + KEY_STEP_DURATION + " = " + hours;
-
-        Cursor c = db.rawQuery(s, null);
-
-        c.moveToFirst();
-        do {
-            sum = c.getInt(c.getColumnIndex("total"));
-        } while (c.moveToNext());
-
-
-        c.close();
-        return sum;
-    }
-
     public void DeleteCurrentDayStepCountData(int date, int month, int year) {
         SQLiteDatabase db = this.getWritableDatabase();
         int b = db.delete(TABLE_STEPCOUNT, KEY_STEP_DATE + " = ?  AND "
@@ -616,6 +892,7 @@ public class DBHandler extends SQLiteOpenHelper {
         initialValues.put(KEY_WEIGHT_MONTH, weightModel.getMonth());
         initialValues.put(KEY_WEIGHT_YEAR, weightModel.getYear());
         initialValues.put(KEY_WEIGHT_KG, weightModel.getKg());
+        initialValues.put(KEY_WEIGHT_TIMESTMP, weightModel.getTimestemp());
 
         try {
             int i = updateWeightData(weightModel);
@@ -642,6 +919,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_WEIGHT_MONTH, model.getMonth());
         values.put(KEY_WEIGHT_YEAR, model.getYear());
         values.put(KEY_WEIGHT_KG, model.getKg());
+        values.put(KEY_WEIGHT_TIMESTMP, model.getTimestemp());
 
         return values;
     }
@@ -664,7 +942,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     private String[] getWeightlistColumns() {
-        return new String[]{KEY_WEIGHT_DATE, KEY_WEIGHT_MONTH, KEY_WEIGHT_YEAR, KEY_WEIGHT_KG};
+        return new String[]{KEY_WEIGHT_DATE, KEY_WEIGHT_MONTH, KEY_WEIGHT_YEAR, KEY_WEIGHT_KG, KEY_WEIGHT_TIMESTMP};
     }
 
     private ArrayList<WeightModel> getWeightlistFromCursor(Cursor c) {
@@ -675,6 +953,7 @@ public class DBHandler extends SQLiteOpenHelper {
             int iKEY_WEIGHT_MONTH = c.getColumnIndex(KEY_WEIGHT_MONTH);
             int iKEY_WEIGHT_YEAR = c.getColumnIndex(KEY_WEIGHT_YEAR);
             int iKEY_WEIGHT_KG = c.getColumnIndex(KEY_WEIGHT_KG);
+            int iKEY_WEIGHT_TIMESTMP = c.getColumnIndex(KEY_WEIGHT_TIMESTMP);
 
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 WeightModel model = new WeightModel();
@@ -683,6 +962,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 model.setMonth(c.getInt(iKEY_WEIGHT_MONTH));
                 model.setYear(c.getInt(iKEY_WEIGHT_YEAR));
                 model.setKg(c.getInt(iKEY_WEIGHT_KG));
+                model.setTimestemp(c.getString(iKEY_WEIGHT_TIMESTMP));
 
                 list.add(model);
             }
@@ -711,5 +991,54 @@ public class DBHandler extends SQLiteOpenHelper {
 
     }
 
+    @SuppressLint("Range")
+    public ArrayList<WeightModel> getMonthWeightdata(String fristdate, String lastdate) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "SELECT " + KEY_WEIGHT_DATE + " , " + KEY_WEIGHT_KG + " FROM " + TABLE_WEIGHT + " where " + KEY_WEIGHT_TIMESTMP
+                + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_WEIGHT_DATE;
+
+        Log.e("list", "" + s);
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<WeightModel> temp = new ArrayList<WeightModel>();
+        ArrayList<WeightModel> list = new ArrayList<WeightModel>();
+
+        int iKEY_WEIGHT_DATE = c.getColumnIndex(KEY_WEIGHT_DATE);
+        int iKEY_WEIGHT_KG = c.getColumnIndex(KEY_WEIGHT_KG);
+
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            WeightModel model = new WeightModel();
+
+            model.setDate(c.getInt(iKEY_WEIGHT_DATE));
+            model.setKg(c.getInt(iKEY_WEIGHT_KG));
+            temp.add(model);
+        }
+
+        int j = 0;
+        for (int i = 0; i < 7; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                WeightModel model = new WeightModel();
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setTimestemp("0");
+                model.setKg(0);
+                list.add(model);
+            }
+        }
+
+        c.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
 
 }

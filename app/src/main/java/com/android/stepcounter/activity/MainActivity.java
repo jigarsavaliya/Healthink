@@ -16,11 +16,14 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
@@ -61,12 +63,9 @@ import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, DatePickerListener {
 
@@ -93,8 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<stepcountModel> getoldSteplist;
     ArrayList<waterlevel> waterlist;
     stepcountModel stepcountModel;
-    ArrayList<Integer> DaywiseSteplist;
-    ArrayList<Float> DaywiseWaterlist;
     CircleProgress Watercircle_progress;
     TextView addWeightDailog;
     LineChart WeightChart;
@@ -106,7 +103,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     final float[] value = {0};
     int waterml = 0;
 
-    String selectedDate, seletedMonth, selecetedYear;
+    String selectedDate;
+    String seletedMonth;
+    String selecetedYear;
+
+    EditText etweight;
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -142,8 +143,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startService(i);
         Steplist = new ArrayList<stepcountModel>();
         getoldSteplist = new ArrayList<stepcountModel>();
-        DaywiseSteplist = new ArrayList<Integer>();
-        DaywiseWaterlist = new ArrayList<Float>();
         dbManager = new DBHandler(this);
 
         myReceiver = new MyReceiver();
@@ -334,10 +333,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         tvwatergoal.setText("/" + StorageManager.getInstance().getWaterGoal());
 
+        String ts = String.valueOf(System.currentTimeMillis());
         WeightModel weightModel = new WeightModel();
         weightModel.setDate(date);
         weightModel.setMonth(month);
         weightModel.setYear(year);
+        weightModel.setTimestemp(ts);
         weightModel.setKg((int) userWeight);
         dbManager.addWeightData(weightModel);
 
@@ -345,6 +346,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setWeightChart() {
+        Calendar cal = Calendar.getInstance();
+        long fristdate = cal.getTimeInMillis();
+        cal.add(Calendar.DATE, -30);
+        long last30day = cal.getTimeInMillis();
+
         ArrayList<WeightModel> weightModels = new ArrayList<>();
         ArrayList<WeightModel> modelArrayList = new ArrayList<>();
         ArrayList<Entry> weightModelArrayList = new ArrayList<>();
@@ -352,6 +358,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         weightModels = dbManager.getWeightlist();
 
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
+
         if (modelArrayList.size() != 0) {
             for (int i = 0; i < modelArrayList.size(); i++) {
                 tvuserWeight.setText("" + modelArrayList.get(i).getKg());
@@ -359,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             tvuserWeight.setText("" + 0);
         }
+
         int cuurrvalue = Integer.parseInt(tvuserWeight.getText().toString());
         int diff = cuurrvalue - weightModels.get(weightModels.size() - 1).getKg();
         mtvlastdaydiffvalue.setText(diff + "KG");
@@ -405,12 +413,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         yAxis.setAxisMaximum(200f);
         yAxis.setAxisMinimum(0);
 
+        ArrayList<WeightModel> waterlevelArrayList = new ArrayList<>();
+        waterlevelArrayList = dbManager.getMonthWeightdata(String.valueOf(fristdate), String.valueOf(last30day));
+
         for (int i = 0; i < weightModels.size(); i++) {
             weightModelArrayList.add(new Entry(weightModels.get(i).getDate(), weightModels.get(i).getKg(), getResources().getDrawable(R.drawable.star)));
+//            weightModelArrayList.add(new Entry(waterlevelArrayList.get(i).getDate(), waterlevelArrayList.get(i).getKg(), getResources().getDrawable(R.drawable.star)));
         }
 
      /*   ArrayList<Entry> values = new ArrayList<>();
-
         for (int i = 0; i < count; i++) {
             float val = (float) (Math.random() * range) - 30;
             values.add(new Entry(i, val, getResources().getDrawable(R.drawable.star)));
@@ -488,13 +499,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setDailyGoal() {
 
-        String s1 = getCurrentDateWeek(rightNow);
-
-        String[] strings = s1.split("-");
-        String date1 = strings[0];
-        String date2 = strings[1];
-
-        /*String s = getCurrentWeek(rightNow);
+        String s = getCurrentWeek(rightNow);
 //        Log.e("TAG", "date: " + s);
         String[] Weekdate = s.split("-");
         int stepnumber;
@@ -503,37 +508,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ArrayList<stepcountModel> stepcountModelArrayList = new ArrayList<>();
 
-        stepcountModelArrayList = dbManager.getSumOfStepList(fristdate, lastdate);
+//        stepcountModelArrayList = dbManager.getSumOfStepList(fristdate, lastdate);
+        stepcountModelArrayList = dbManager.getweekstepdata(fristdate, lastdate);
 
-        for (int i = 0; i < 7; i++) {
-//            Log.e("TAG", "date: " + i + " " + DaywiseSteplist.get(i));
-            monday.setProgress(stepcountModelArrayList.get(0).getSumstep() != 0 ? stepcountModelArrayList.get(0).getSumstep() : 0);
-            tuesday.setProgress(stepcountModelArrayList.get(1).getSumstep() != 0 ? stepcountModelArrayList.get(1).getSumstep() : 0);
-            wednesday.setProgress(stepcountModelArrayList.get(2).getSumstep() != 0 ? stepcountModelArrayList.get(2).getSumstep() : 0);
-            thrusday.setProgress(stepcountModelArrayList.get(3).getSumstep() != 0 ? stepcountModelArrayList.get(3).getSumstep() : 0);
-            friday.setProgress(stepcountModelArrayList.get(4).getSumstep() != 0 ? stepcountModelArrayList.get(4).getSumstep() : 0);
-            saturday.setProgress(stepcountModelArrayList.get(5).getSumstep() != 0 ? stepcountModelArrayList.get(5).getSumstep() : 0);
-            sunday.setProgress(stepcountModelArrayList.get(6).getSumstep() != 0 ? stepcountModelArrayList.get(6).getSumstep() : 0);
+        for (int i = 0; i < stepcountModelArrayList.size(); i++) {
+            monday.setProgress(stepcountModelArrayList.get(0).getSumstep());
+            tuesday.setProgress(stepcountModelArrayList.get(1).getSumstep());
+            wednesday.setProgress(stepcountModelArrayList.get(2).getSumstep());
+            thrusday.setProgress(stepcountModelArrayList.get(3).getSumstep());
+            friday.setProgress(stepcountModelArrayList.get(4).getSumstep());
+            saturday.setProgress(stepcountModelArrayList.get(5).getSumstep());
+            sunday.setProgress(stepcountModelArrayList.get(6).getSumstep());
         }
-*/
-       /* //waterChart value get from database
-        int DayWiseWater;
-        for (int i = fristdate; i <= lastdate; i++) {
-            DayWiseWater = dbManager.getSumOfWaterList(i, month, year);
-//            Log.e("TAG", "date: " + i + " " + DayWiseWater);
-            DaywiseWaterlist.add(Float.valueOf(DayWiseWater));
-        }
+
+        //waterChart value get from database
+        ArrayList<waterlevel> DaywiseWaterlist = new ArrayList<>();
+        DaywiseWaterlist = dbManager.getweekWaterdata(fristdate, lastdate);
 
         for (int i = 0; i < DaywiseWaterlist.size(); i++) {
-//            Log.e("TAG", "date: " + i + " " + DaywiseSteplist.get(i));
-            watermonday.setProgress(DaywiseWaterlist.get(0));
-            watertuesday.setProgress(DaywiseWaterlist.get(1));
-            waterwednesday.setProgress(DaywiseWaterlist.get(2));
-            waterthrusday.setProgress(DaywiseWaterlist.get(3));
-            waterfriday.setProgress(DaywiseWaterlist.get(4));
-            watersaturday.setProgress(DaywiseWaterlist.get(5));
-            watersunday.setProgress(DaywiseWaterlist.get(6));
-        }*/
+            watermonday.setProgress(DaywiseWaterlist.get(0).getSumwater());
+            watertuesday.setProgress(DaywiseWaterlist.get(1).getSumwater());
+            waterwednesday.setProgress(DaywiseWaterlist.get(2).getSumwater());
+            waterthrusday.setProgress(DaywiseWaterlist.get(3).getSumwater());
+            waterfriday.setProgress(DaywiseWaterlist.get(4).getSumwater());
+            watersaturday.setProgress(DaywiseWaterlist.get(5).getSumwater());
+            watersunday.setProgress(DaywiseWaterlist.get(6).getSumwater());
+        }
 
     }
 
@@ -563,38 +563,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return mDateMonday + " - " + mDateSunday;
     }
 
-    public static String getCurrentDateWeek(Calendar mCalendar) {
-        Date date = new Date();
-        mCalendar.setTime(date);
-
-        // 1 = Sunday, 2 = Monday, etc.
-        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
-
-        int monday_offset;
-        if (day_of_week == 1) {
-            monday_offset = -6;
-        } else
-            monday_offset = (2 - day_of_week); // need to minus back
-        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
-
-        Date mDateMonday = mCalendar.getTime();
-
-        // return 6 the next days of current day (object cal save current day)
-        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
-
-        Date mDateSunday = mCalendar.getTime();
-
-        //Get format date
-        String strDateFormat = "dd/MM/yyyy";
-        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
-
-        String MONDAY = sdf.format(mDateMonday);
-        String SUNDAY = sdf.format(mDateSunday);
-
-        Log.e("getCurrentDateWeek", "getCurrentDateWeek: " + MONDAY + "getCurrentDateWeek: " + SUNDAY);
-
-        return MONDAY + " - " + SUNDAY;
-    }
 
     private void setSharedPreferences() {
         userHeight = StorageManager.getInstance().getHeight();
@@ -647,7 +615,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     waterml = 0;
                 }
                 String WaterUnit = StorageManager.getInstance().getWaterUnit();
-
+                String ts = String.valueOf(System.currentTimeMillis());
                 if (WaterUnit.contains("ml")) {
                     tvwaterlevel.setText(waterml + "");
                     if (waterml < Integer.parseInt(WaterGoalValue[0])) {
@@ -657,6 +625,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         waterlevel.setYear(year);
                         waterlevel.setHour(hour);
                         waterlevel.setMin(min);
+                        waterlevel.setTimestemp(ts);
                         double covertinml;
                         if (DefultCupValue[1].contains("fl")) {
                             value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
@@ -692,6 +661,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         waterlevel.setYear(year);
                         waterlevel.setHour(hour);
                         waterlevel.setMin(min);
+                        waterlevel.setTimestemp(ts);
                         double covertinml;
                         if (DefultCupValue[1].contains("fl")) {
                             value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
@@ -740,11 +710,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         CardView mllLb = (CardView) d.findViewById(R.id.llLb);
         CardView mllKB = (CardView) d.findViewById(R.id.llKB);
-        EditText etweight = (EditText) d.findViewById(R.id.etweight);
+        etweight = (EditText) d.findViewById(R.id.etweight);
 
         final boolean[] iskg = {true};
 
         mllKB.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
+        etweight.setText("" + userWeight);
 
         mllLb.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -790,10 +761,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String ts = String.valueOf(System.currentTimeMillis());
                 WeightModel weightModel = new WeightModel();
                 weightModel.setDate(Integer.parseInt(selectedDate));
                 weightModel.setMonth(Integer.parseInt(seletedMonth));
                 weightModel.setYear(Integer.parseInt(selecetedYear));
+                weightModel.setTimestemp(ts);
                 if (iskg[0]) {
                     weightModel.setKg(Integer.parseInt(etweight.getText().toString()));
                 } else {
@@ -825,6 +798,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         selectedDate = newdate[2];
         selecetedYear = newdate[0];
         seletedMonth = newdate[1];
+
+        ArrayList<WeightModel> modelArrayList = new ArrayList<>();
+
+        modelArrayList = dbManager.getCurrentDayWeightlist(Integer.parseInt(selectedDate), Integer.parseInt(seletedMonth), Integer.parseInt(selecetedYear));
+        if (modelArrayList != null) {
+            for (int i = 0; i < modelArrayList.size(); i++) {
+                etweight.setText("" + modelArrayList.get(i).getKg());
+            }
+        } else {
+            etweight.setText("" + 0);
+        }
+
+
     }
 
     @Override
@@ -906,6 +892,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void showEditStepDailog() {
         stepcountModel = new stepcountModel();
+        String[] Time = {"00:00 - 01:00", "01:00 - 02:00", "02:00 - 03:00", "03:00 - 04:00", "04:00 - 05:00", "05:00 - 06:00", "06:00 - 07:00", "07:00 - 08:00",
+                "08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00",
+                "16:00 - 17:00", "17:00 - 18:00", "18:00 - 19:00", "19:00 - 20:00", "20:00 - 21:00", "21:00 - 22:00", "22:00 - 23:00", "23:00 - 24:00"};
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -916,9 +905,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button mBtnSave = (Button) d.findViewById(R.id.btnSave);
         Button mBtnCancel = (Button) d.findViewById(R.id.btnCancel);
         LinearLayout llView = (LinearLayout) d.findViewById(R.id.datepicker);
-        LinearLayout llTime = (LinearLayout) d.findViewById(R.id.llTime);
+        Spinner spinner = (Spinner) d.findViewById(R.id.spinner);
         EditText stepvalue = (EditText) d.findViewById(R.id.stepvalue);
-        TextView time = (TextView) d.findViewById(R.id.time);
 
         Calendar rightNow = Calendar.getInstance();
         int hours = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -927,18 +915,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int mYear = rightNow.get(Calendar.YEAR);
 
         final int[] saveHour = {hours};
-        for (int i = 0; i < 24; i++) {
-            if (hours == i) {
-                int a = hours + 1;
-                time.setText(hours + ":00 - " + a + ":00");
-                saveHour[0] = hours;
-            }
-        }
-
         final int[] selectedyear = {mYear};
         final int[] selectedmonth = {mMonth};
         final int[] selectedday = {dayOfMonth};
-
 
         llView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -956,125 +935,79 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        llTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //creating a popup menu
-                PopupMenu popup = new PopupMenu(MainActivity.this, llTime);
-                //inflating menu from xml resource
-                popup.inflate(R.menu.hours_menu);
-                //adding click listener
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.hr0:
-                                time.setText("00:00 - 01:00");
-                                saveHour[0] = 0;
-                                return true;
+        ArrayList<String> stringArrayList = new ArrayList<>();
+        for (int i = 0; i < hours + 1; i++) {
+            stringArrayList.add(Time[i]);
+//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
+        }
 
-                            case R.id.hr1:
-                                time.setText("01:00 - 02:00");
-                                saveHour[0] = 1;
-                                return true;
-                            case R.id.hr2:
-                                time.setText("02:00 - 03:00");
-                                saveHour[0] = 2;
-                                return true;
-                            case R.id.hr3:
-                                time.setText("03:00 - 04:00");
-                                saveHour[0] = 3;
-                                return true;
-                            case R.id.hr4:
-                                time.setText("04:00 - 05:00");
-                                saveHour[0] = 4;
-                                return true;
-                            case R.id.hr5:
-                                time.setText("05:00 - 06:00");
-                                saveHour[0] = 5;
-                                return true;
-                            case R.id.hr6:
-                                time.setText("06:00 - 7:00");
-                                saveHour[0] = 6;
-                                return true;
-                            case R.id.hr7:
-                                time.setText("07:00 - 08:00");
-                                saveHour[0] = 7;
-                                return true;
-                            case R.id.hr8:
-                                time.setText("08:00 - 09:00");
-                                saveHour[0] = 8;
-                                return true;
-                            case R.id.hr9:
-                                time.setText("09:00 - 10:00");
-                                saveHour[0] = 9;
-                                return true;
-                            case R.id.hr10:
-                                time.setText("10:00 - 11:00");
-                                saveHour[0] = 10;
-                                return true;
-                            case R.id.hr11:
-                                time.setText("11:00 - 12:00");
-                                saveHour[0] = 11;
-                                return true;
-                            case R.id.hr12:
-                                time.setText("012:00 - 13:00");
-                                saveHour[0] = 12;
-                                return true;
-                            case R.id.hr13:
-                                time.setText("13:00 - 14:00");
-                                saveHour[0] = 13;
-                                return true;
-                            case R.id.hr14:
-                                time.setText("14:00 - 15:00");
-                                saveHour[0] = 14;
-                                return true;
-                            case R.id.hr15:
-                                time.setText("15:00 - 16:00");
-                                saveHour[0] = 15;
-                                return true;
-                            case R.id.hr16:
-                                time.setText("16:00 - 17:00");
-                                saveHour[0] = 16;
-                                return true;
-                            case R.id.hr17:
-                                time.setText("17:00 - 18:00");
-                                saveHour[0] = 17;
-                                return true;
-                            case R.id.hr18:
-                                time.setText("18:00 - 19:00");
-                                saveHour[0] = 18;
-                                return true;
-                            case R.id.hr19:
-                                time.setText("19:00 - 20:00");
-                                saveHour[0] = 19;
-                                return true;
-                            case R.id.hr20:
-                                time.setText("20:00 - 21:00");
-                                saveHour[0] = 20;
-                                return true;
-                            case R.id.hr21:
-                                time.setText("21:00 - 22:00");
-                                saveHour[0] = 21;
-                                return true;
-                            case R.id.hr22:
-                                time.setText("22:00 - 23:00");
-                                saveHour[0] = 22;
-                                return true;
-                            case R.id.hr23:
-                                time.setText("23:00 - 24:00");
-                                saveHour[0] = 23;
-                                return true;
-                            default:
-                                return false;
-                        }
-                    }
-                });
-                //displaying the popup
-                popup.show();
+        //Creating the ArrayAdapter instance having the country list
+        ArrayAdapter aa = new ArrayAdapter(this, android.R.layout.simple_spinner_item, stringArrayList);
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spinner.setAdapter(aa);
+        spinner.setSelection(stringArrayList.size() - 1);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = adapterView.getItemAtPosition(i).toString();
+                if (item.equals("00:00 - 01:00")) {
+                    saveHour[0] = 0;
+                } else if (item.equals("01:00 - 02:00")) {
+                    saveHour[0] = 1;
+                } else if (item.equals("02:00 - 03:00")) {
+                    saveHour[0] = 2;
+                } else if (item.equals("03:00 - 04:00")) {
+                    saveHour[0] = 3;
+                } else if (item.equals("04:00 - 05:00")) {
+                    saveHour[0] = 4;
+                } else if (item.equals("05:00 - 06:00")) {
+                    saveHour[0] = 5;
+                } else if (item.equals("06:00 - 07:00")) {
+                    saveHour[0] = 6;
+                } else if (item.equals("07:00 - 08:00")) {
+                    saveHour[0] = 7;
+                } else if (item.equals("08:00 - 09:00")) {
+                    saveHour[0] = 8;
+                } else if (item.equals("09:00 - 10:00")) {
+                    saveHour[0] = 9;
+                } else if (item.equals("10:00 - 11:00")) {
+                    saveHour[0] = 10;
+                } else if (item.equals("11:00 - 12:00")) {
+                    saveHour[0] = 11;
+                } else if (item.equals("12:00 - 13:00")) {
+                    saveHour[0] = 12;
+                } else if (item.equals("13:00 - 14:00")) {
+                    saveHour[0] = 13;
+                } else if (item.equals("14:00 - 15:00")) {
+                    saveHour[0] = 14;
+                } else if (item.equals("15:00 - 16:00")) {
+                    saveHour[0] = 15;
+                } else if (item.equals("16:00 - 17:00")) {
+                    saveHour[0] = 16;
+                } else if (item.equals("17:00 - 18:00")) {
+                    saveHour[0] = 17;
+                } else if (item.equals("18:00 - 19:00")) {
+                    saveHour[0] = 18;
+                } else if (item.equals("19:00 - 20:00")) {
+                    saveHour[0] = 19;
+                } else if (item.equals("20:00 - 21:00")) {
+                    saveHour[0] = 20;
+                } else if (item.equals("21:00 - 22:00")) {
+                    saveHour[0] = 21;
+                } else if (item.equals("22:00 - 23:00")) {
+                    saveHour[0] = 22;
+                } else if (item.equals("23:00 - 24:00")) {
+                    saveHour[0] = 23;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
-
 
         int finalOldsteptotal = oldsteptotal;
         mBtnSave.setOnClickListener(new View.OnClickListener() {

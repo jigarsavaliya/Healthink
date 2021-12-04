@@ -73,7 +73,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     ArrayList<waterlevel> waterlist;
     int StepGoal;
     String Watergoal, WaterUnit, Watercup;
-
+    EditText etweight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +96,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         mToolbar.setTitle("Health Tracker");
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         WeightChart = findViewById(R.id.WeightChart);
         muserWeight = findViewById(R.id.userWeight);
@@ -182,6 +188,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             @Override
             public void onClick(View view) {
                 double covertinml;
+                String ts = String.valueOf(System.currentTimeMillis());
 
                 waterlevel = new waterlevel();
                 waterlevel.setDate(date);
@@ -189,6 +196,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 waterlevel.setYear(year);
                 waterlevel.setHour(hour);
                 waterlevel.setMin(min);
+                waterlevel.setTimestemp(ts);
 
                 if (DefultCupValue[1].contains("fl")) {
                     value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
@@ -224,12 +232,14 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         llRemovewater.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String ts = String.valueOf(System.currentTimeMillis());
                 waterlevel = new waterlevel();
                 waterlevel.setDate(date);
                 waterlevel.setMonth(month);
                 waterlevel.setYear(year);
                 waterlevel.setHour(hour);
                 waterlevel.setMin(min);
+                waterlevel.setTimestemp(ts);
 
                 //database mathi mius krvanu baki
                 if (DefultCupValue[1].contains("fl")) {
@@ -414,11 +424,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
         CardView mllLb = (CardView) d.findViewById(R.id.llLb);
         CardView mllKB = (CardView) d.findViewById(R.id.llKB);
-        EditText etweight = (EditText) d.findViewById(R.id.etweight);
+        etweight = (EditText) d.findViewById(R.id.etweight);
 
         final boolean[] iskg = {true};
 
         mllKB.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
+        etweight.setText("" + userWeight);
 
         mllLb.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -463,16 +474,20 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String ts = String.valueOf(System.currentTimeMillis());
+
                 WeightModel weightModel = new WeightModel();
                 weightModel.setDate(date);
                 weightModel.setMonth(month);
                 weightModel.setYear(year);
+                weightModel.setTimestemp(ts);
                 if (iskg[0]) {
                     weightModel.setKg(Integer.parseInt(etweight.getText().toString()));
                 } else {
                     weightModel.setKg((int) Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
                 }
                 dbManager.addWeightData(weightModel);
+                setWeightChart();
                 alertDialog.dismiss();
             }
         });
@@ -496,6 +511,17 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         selectedDate = newdate[2];
         selecetedYear = newdate[0];
         seletedMonth = newdate[1];
+
+        ArrayList<WeightModel> modelArrayList = new ArrayList<>();
+
+        modelArrayList = dbManager.getCurrentDayWeightlist(Integer.parseInt(selectedDate), Integer.parseInt(seletedMonth), Integer.parseInt(selecetedYear));
+        if (modelArrayList != null) {
+            for (int i = 0; i < modelArrayList.size(); i++) {
+                etweight.setText("" + modelArrayList.get(i).getKg());
+            }
+        } else {
+            etweight.setText("" + 0);
+        }
     }
 
     private void setWeightChart() {
@@ -506,6 +532,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         weightModels = dbManager.getWeightlist();
 
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
+
         for (int i = 0; i < modelArrayList.size(); i++) {
             muserWeight.setText("" + modelArrayList.get(i).getKg());
         }

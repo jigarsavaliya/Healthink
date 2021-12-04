@@ -5,6 +5,15 @@ public class WeightModel {
     int month;
     int year;
     int kg;
+    String Timestemp;
+
+    public String getTimestemp() {
+        return Timestemp;
+    }
+
+    public void setTimestemp(String timestemp) {
+        Timestemp = timestemp;
+    }
 
     public int getDate() {
         return date;
