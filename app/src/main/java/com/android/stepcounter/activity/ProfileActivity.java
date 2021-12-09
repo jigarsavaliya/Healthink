@@ -18,6 +18,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
+import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 
 import static android.content.ContentValues.TAG;
@@ -37,17 +38,14 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        sharedpreferences = getSharedPreferences(constant.prferancename, Context.MODE_PRIVATE);
-        editor = sharedpreferences.edit();
         setSharedPreferences();
         init();
     }
 
     private void setSharedPreferences() {
-        sharedpreferences = getApplicationContext().getSharedPreferences(constant.prferancename, 0);
-        Gender = sharedpreferences.getString("Gender", "male");
-        userHeight = sharedpreferences.getFloat("Height", constant.DEFAULT_HEIGHT);
-        userWeight = sharedpreferences.getFloat("Weight", constant.DEFAULT_WEIGHT);
+        Gender = StorageManager.getInstance().getGender();
+        userHeight = StorageManager.getInstance().getHeight();
+        userWeight = StorageManager.getInstance().getWeight();
     }
 
     private void init() {
@@ -67,7 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
         llLenght = findViewById(R.id.llLenght);
         llWeight = findViewById(R.id.llWeight);
         llUnit = findViewById(R.id.llUnit);
-        llweek = findViewById(R.id.llweek);
+//        llweek = findViewById(R.id.llweek);
 
         tvWeight = findViewById(R.id.tvWeight);
         tvGender = findViewById(R.id.tvGender);

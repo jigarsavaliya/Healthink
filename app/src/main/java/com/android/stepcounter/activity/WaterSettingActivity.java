@@ -1,22 +1,33 @@
 package com.android.stepcounter.activity;
 
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
+import com.android.stepcounter.sevices.AlarmReceiver;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class WaterSettingActivity extends AppCompatActivity {
     Toolbar mToolbar;
     String unitvalue = "ml";
+    RelativeLayout rlReminder;
+    int LAUNCH_SECOND_ACTIVITY = 101;
+    TextView mtvReminder, mtvHours;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +46,18 @@ public class WaterSettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 onBackPressed();
+            }
+        });
+
+        mtvReminder = findViewById(R.id.tvreminder);
+        mtvHours = findViewById(R.id.tvhours);
+        rlReminder = findViewById(R.id.rlReminder);
+        rlReminder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                startActivity(new Intent(WaterSettingActivity.this, WaterReminderSettingActivity.class));
+                Intent i = new Intent(WaterSettingActivity.this, WaterReminderSettingActivity.class);
+                startActivityForResult(i, LAUNCH_SECOND_ACTIVITY);
             }
         });
 
@@ -122,7 +145,7 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         final ArrayAdapter adapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, list);
         spin.setAdapter(adapter);
-        spin.setSelection(((ArrayAdapter<String>) spin.getAdapter()).getPosition( StorageManager.getInstance().getWaterGoal()));
+        spin.setSelection(((ArrayAdapter<String>) spin.getAdapter()).getPosition(StorageManager.getInstance().getWaterGoal()));
 
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -164,7 +187,7 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         final ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, list1);
         spinner.setAdapter(arrayAdapter);
-        spinner.setSelection(((ArrayAdapter<String>) spinner.getAdapter()).getPosition( StorageManager.getInstance().getWaterCup()));
+        spinner.setSelection(((ArrayAdapter<String>) spinner.getAdapter()).getPosition(StorageManager.getInstance().getWaterCup()));
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -181,4 +204,26 @@ public class WaterSettingActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == LAUNCH_SECOND_ACTIVITY) {
+            if (resultCode == Activity.RESULT_OK) {
+                String result = data.getStringExtra("result");
+                String hours = data.getStringExtra("hours");
+                mtvReminder.setText(result);
+                mtvHours.setText(hours);
+
+                Calendar calendar = Calendar.getInstance();
+                Intent intent1 = new Intent(WaterSettingActivity.this, AlarmReceiver.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+                AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000 * 60, pendingIntent);
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                // Write your code if there's no result
+            }
+        }
+    }
 }

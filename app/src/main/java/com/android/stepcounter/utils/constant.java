@@ -11,6 +11,7 @@ public class constant {
     public static Boolean IsProfile = false;
 
     public static int NOTIFICATION_ID_FOR_STEP = 1001;
+    public static int NOTIFICATION_ID_FOR_WATER = 1002;
     public static final String CHANNEL_ID_FOR_STEP = "Location Update";
     public static final String CHANNEL_NAME_FOR_STEP = "Location Update Channel";
 

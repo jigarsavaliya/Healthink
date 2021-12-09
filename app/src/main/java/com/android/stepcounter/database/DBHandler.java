@@ -127,10 +127,10 @@ public class DBHandler extends SQLiteOpenHelper {
         initialValues.put(KEY_WATER_TIMESTMP, waterlevel.getTimestemp());
 
         try {
-            int i = updateWaterData(waterlevel);
-            if (i == 0) {
-                db.insert(TABLE_WATER, null, initialValues);
-            }
+//            int i = updateWaterData(waterlevel);
+//            if (i == 0) {
+            db.insert(TABLE_WATER, null, initialValues);
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -230,12 +230,48 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
+    public ArrayList<waterlevel> getDayWaterdata(int date, int month, int year) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "select " + KEY_WATER_DATE + " ,sum(" + KEY_WATER_ML + ")  as total from " + TABLE_WATER + " where " + KEY_WATER_DATE + " = " + date + " AND " + KEY_WATER_MONTH +
+                " = " + month + " AND  " + KEY_WATER_YEAR + " = " + year + " GROUP BY " + KEY_WATER_DATE;
+
+        Log.e("list", "" + s);
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<waterlevel> list = new ArrayList<waterlevel>();
+
+        int iKEY_STEP_DATE = c.getColumnIndex(KEY_WATER_DATE);
+        int sum;
+
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            waterlevel model = new waterlevel();
+            sum = c.getInt(c.getColumnIndex("total"));
+
+            model.setDate(c.getInt(iKEY_STEP_DATE));
+            model.setSumwater(sum);
+            list.add(model);
+        }
+
+        c.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressLint("Range")
     public ArrayList<waterlevel> getweekWaterdata(String fristdate, String lastdate) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         String s = "SELECT " + KEY_WATER_DATE + " , sum(" + KEY_WATER_ML + ") as total FROM " + TABLE_WATER + " where " + KEY_WATER_TIMESTMP
                 + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_WATER_DATE;
-        Log.e("list", "" + s);
+
+//        Log.e("list", "" + s);
+
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<waterlevel> temp = new ArrayList<waterlevel>();
@@ -279,6 +315,60 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
+    @SuppressLint("Range")
+    public ArrayList<waterlevel> getMonthWaterdata(String fristdate, String lastdate, int a) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "SELECT " + KEY_WATER_DATE + " , sum(" + KEY_WATER_ML + ") as total FROM " + TABLE_WATER + " where " + KEY_WATER_TIMESTMP
+                + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_WATER_DATE;
+
+        Log.e("list", "" + s);
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<waterlevel> temp = new ArrayList<waterlevel>();
+        ArrayList<waterlevel> list = new ArrayList<waterlevel>();
+
+        int iKEY_WATER_DATE = c.getColumnIndex(KEY_WATER_DATE);
+        int sum;
+
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            waterlevel model = new waterlevel();
+            sum = c.getInt(c.getColumnIndex("total"));
+
+            model.setDate(c.getInt(iKEY_WATER_DATE));
+            model.setSumwater(sum);
+            temp.add(model);
+        }
+//        Log.e("list", "" + list.size());
+
+        int j = 0;
+        for (int i = 0; i < a; i++) {
+            if (j < temp.size() && i == temp.get(j).getDate()) {
+                list.add(temp.get(j));
+                j++;
+            } else {
+                waterlevel model = new waterlevel();
+                model.setDate(i);
+                model.setMonth(0);
+                model.setYear(0);
+                model.setHour(0);
+                model.setMin(0);
+                model.setTimestemp("0");
+                model.setSumwater(0);
+                list.add(model);
+            }
+        }
+
+        c.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
     public void DeleteCurrentDayWaterData(int date, int month, int year) {
         SQLiteDatabase db = this.getWritableDatabase();
         int b = db.delete(TABLE_WATER, KEY_WATER_DATE + " = ?  AND "
@@ -288,6 +378,13 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void DeletelastWaterData(String time) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int b = db.delete(TABLE_WATER,
+                KEY_WATER_TIMESTMP + " =?",
+                new String[]{time});
+        db.close();
+    }
     ///step count
 
     public void addStepcountData(stepcountModel stepcountModel) {
@@ -489,7 +586,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         String s = "SELECT " + KEY_STEP_DATE + " , sum(" + KEY_STEP_COUNT + ") as total FROM " + TABLE_STEPCOUNT + " where " + KEY_STEP_TIMESTMP
                 + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_STEP_DATE;
-        Log.e("list", "" + s);
+//        Log.e("list", "" + s);
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
@@ -645,7 +742,9 @@ public class DBHandler extends SQLiteOpenHelper {
 
         String s = "SELECT " + KEY_STEP_DATE + " , sum(" + KEY_STEP_COUNT + ") as total FROM " + TABLE_STEPCOUNT + " where " + KEY_STEP_TIMESTMP
                 + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_STEP_DATE;
-        Log.e("list", "" + s);
+
+//        Log.e("list", "" + s);
+
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<stepcountModel> temp = new ArrayList<stepcountModel>();
@@ -979,6 +1078,8 @@ public class DBHandler extends SQLiteOpenHelper {
         String s = "select * from " + TABLE_WEIGHT + " where " + KEY_WEIGHT_DATE + " = " + date + " AND " + KEY_WEIGHT_MONTH +
                 " = " + month + " AND  " + KEY_WEIGHT_YEAR + " = " + year;
 
+//        Log.e("list", "" + s);
+
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<WeightModel> list = getWeightlistFromCursor(c);
@@ -998,7 +1099,7 @@ public class DBHandler extends SQLiteOpenHelper {
         String s = "SELECT " + KEY_WEIGHT_DATE + " , " + KEY_WEIGHT_KG + " FROM " + TABLE_WEIGHT + " where " + KEY_WEIGHT_TIMESTMP
                 + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + KEY_WEIGHT_DATE;
 
-        Log.e("list", "" + s);
+        Log.e("TAG", "getMonthWeightdata: " + s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -1017,7 +1118,7 @@ public class DBHandler extends SQLiteOpenHelper {
         }
 
         int j = 0;
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 30; i++) {
             if (j < temp.size() && i == temp.get(j).getDate()) {
                 list.add(temp.get(j));
                 j++;

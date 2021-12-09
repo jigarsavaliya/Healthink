@@ -20,6 +20,10 @@ public class StorageManager {
 
     public static final String PREF_APP_KEY_STEP = "StepGoalcount";
 
+    public static final String PREF_APP_KEY_WATER_STARTTIME = "WaterReminderStarttime";
+    public static final String PREF_APP_KEY_WATER_ENDTIME = "WaterReminderEndStarttime";
+    public static final String PREF_APP_KEY_WATER_INTERVAL = "WaterReminderInterval";
+
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
 
@@ -103,5 +107,30 @@ public class StorageManager {
 
     public Integer getStepCountGoalUnit() {
         return preferences.getInt(StorageManager.PREF_APP_KEY_STEP, 1000);
+    }
+
+    public void setWaterReminderStart(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_WATER_STARTTIME, message).apply();
+    }
+
+    public String getWaterReminderStart() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_WATER_STARTTIME, "9:00 AM");
+    }
+
+
+    public void setWaterReminderEnd(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_WATER_ENDTIME, message).apply();
+    }
+
+    public String getWaterReminderEnd() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_WATER_ENDTIME, "9:00 PM");
+    }
+
+    public void setWaterinterval(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_WATER_INTERVAL, message).apply();
+    }
+
+    public String getWaterinterval() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_WATER_INTERVAL, "1");
     }
 }

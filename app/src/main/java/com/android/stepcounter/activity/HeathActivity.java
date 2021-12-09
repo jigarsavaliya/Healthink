@@ -13,11 +13,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
@@ -32,10 +34,14 @@ import com.android.stepcounter.utils.constant;
 import com.github.jhonnyx2012.horizontalpicker.DatePickerListener;
 import com.github.jhonnyx2012.horizontalpicker.HorizontalPicker;
 import com.github.lzyzsd.circleprogress.ArcProgress;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -46,11 +52,13 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
-public class HeathActivity extends AppCompatActivity implements DatePickerListener {
-    TextView muserWeight, mAddWeightDailog, meditHeightWeight, mtvlastdaydiff, mbmistatus;
+public class HeathActivity extends AppCompatActivity implements DatePickerListener, View.OnClickListener {
+    TextView muserWeight, mAddWeightDailog, meditHeightWeight, mtvlastdaydiff, mbmistatus, mtvwaterCount;
     Calendar rightNow;
     int hour, min, date, month, year;
     DBHandler dbManager;
@@ -71,9 +79,19 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     String waterGoal, DefualtCup;
     waterlevel waterlevel;
     ArrayList<waterlevel> waterlist;
+    ArrayList<waterlevel> watermonthlist;
     int StepGoal;
     String Watergoal, WaterUnit, Watercup;
     EditText etweight;
+    private BarChart chart;
+    TextView tvchartdate;
+    ImageView ivBackDate, ivForwardDate;
+    long firstdayofmonth, lastdayofmonth;
+    SwitchCompat scWaterNotification;
+    double covertinml;
+    int waterml = 0;
+    float[] value = {0};
+    String[] WaterGoalValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +99,19 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         setContentView(R.layout.activity_heath);
         dbManager = new DBHandler(this);
         waterlist = new ArrayList<>();
+        watermonthlist = new ArrayList<>();
+
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = 1;
+
+        c.set(year, month, day);
+        int numOfDaysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
+        firstdayofmonth = c.getTimeInMillis();
+        c.add(Calendar.DAY_OF_MONTH, numOfDaysInMonth - 1);
+        lastdayofmonth = c.getTimeInMillis();
     }
 
     private void init() {
@@ -91,6 +122,10 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         date = rightNow.get(Calendar.DATE);
         month = rightNow.get(Calendar.MONTH) + 1;
         year = rightNow.get(Calendar.YEAR);
+
+        selectedDate = String.valueOf(date);
+        seletedMonth = String.valueOf(month);
+        selecetedYear = String.valueOf(year);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle("Health Tracker");
@@ -108,6 +143,17 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         mAddWeightDailog = findViewById(R.id.addWeight);
         meditHeightWeight = findViewById(R.id.editHeightWeight);
         mtvlastdaydiff = findViewById(R.id.tvlastdaydiff);
+        mtvwaterCount = findViewById(R.id.tv_water);
+
+        scWaterNotification = findViewById(R.id.scWaterNoti);
+        chart = (BarChart) findViewById(R.id.waterchart);
+        tvchartdate = findViewById(R.id.tvchartdate);
+        ivBackDate = findViewById(R.id.ivBackDate);
+        ivForwardDate = findViewById(R.id.ivForwardDate);
+
+        ivBackDate.setOnClickListener(this);
+        ivForwardDate.setOnClickListener(this);
+        scWaterNotification.setOnClickListener(this);
 
         mbmistatus = findViewById(R.id.bmistatus);
 
@@ -116,7 +162,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
         muserWeight.setText(userWeight + "");
 
-      /*  ArrayList<WeightModel> modelArrayList = new ArrayList<>();
+        /*ArrayList<WeightModel> modelArrayList = new ArrayList<>();
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
         if (modelArrayList.size() != 0) {
             for (int i = 0; i < modelArrayList.size(); i++) {
@@ -131,7 +177,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         waterGoal = StorageManager.getInstance().getWaterGoal();
         DefualtCup = StorageManager.getInstance().getWaterCup();
 
-        String[] WaterGoalValue = waterGoal.split(" ");
+        WaterGoalValue = waterGoal.split(" ");
 
         waterlist = dbManager.getCurrentDayWatercountlist(date, month, year);
 
@@ -139,55 +185,14 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
         arcProgress.setMax(Integer.parseInt(WaterGoalValue[0]));
 
-        int waterml = 0;
-        if (waterlist != null) {
-            for (int i = 0; i < waterlist.size(); i++) {
-                waterml = (int) Float.parseFloat(waterlist.get(i).getUnit());
-//                Log.e("TAG", "date: " + waterml);
-            }
-        } else {
-            waterml = 0;
-        }
-        String WaterUnit = StorageManager.getInstance().getWaterUnit();
-
-        final float[] value = {0};
-
-        if (WaterUnit.contains("ml")) {
-            if (waterml == 0.0) {
-                arcProgress.setProgress(0);
-                value[0] = 0;
-            } else {
-                if (waterml < Integer.parseInt(WaterGoal[0])) {
-                    arcProgress.setProgress(waterml);
-                    value[0] = waterml;
-                } else {
-                    arcProgress.setProgress(Integer.parseInt(WaterGoal[0]));
-                    value[0] = Integer.parseInt(WaterGoal[0]);
-                }
-            }
-        } else {
-            if (waterml == 0.0) {
-                arcProgress.setProgress(0);
-                value[0] = 0;
-            } else {
-                double newMlValue = commanMethod.getMlToFloz(Float.valueOf(waterml));
-                if (newMlValue < Integer.parseInt(WaterGoal[0])) {
-                    arcProgress.setProgress((int) Math.round(newMlValue));
-                    value[0] = (int) Math.round(newMlValue);
-                } else {
-                    arcProgress.setProgress(Integer.parseInt(WaterGoal[0]));
-                    value[0] = Integer.parseInt(WaterGoal[0]);
-                }
-            }
-        }
-
         String[] DefultCupValue = DefualtCup.split(" ");
 
+
+        setdatainprogress();
 
         lladdwater.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                double covertinml;
                 String ts = String.valueOf(System.currentTimeMillis());
 
                 waterlevel = new waterlevel();
@@ -198,76 +203,44 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 waterlevel.setMin(min);
                 waterlevel.setTimestemp(ts);
 
+                float[] value = {0};
+
                 if (DefultCupValue[1].contains("fl")) {
                     value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
-                    if (value[0] < Integer.parseInt(WaterGoalValue[0])) {
-                        arcProgress.setProgress((int) value[0]);
-                    } else {
-                        arcProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                    }
                     covertinml = commanMethod.getFlozToMl(value[0]);
                     waterlevel.setUnit(String.valueOf(covertinml));
                 } else {
-                    Log.e("TAG", "old: " + value[0]);
+//                    Log.e("TAG", "old: " + value[0]);
                     value[0] = value[0] + Integer.parseInt(DefultCupValue[0]);
-                    Log.e("TAG", "new: " + value[0]);
-                    if (value[0] < Integer.parseInt(WaterGoalValue[0])) {
-                        arcProgress.setProgress((int) value[0]);
-                    } else {
-                        arcProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                    }
+//                    Log.e("TAG", "new: " + value[0]);
                     waterlevel.setUnit(String.valueOf(value[0]));
                 }
-
                 dbManager.addWaterData(waterlevel);
+                setdatainprogress();
+                SetMonthwiseWaterChart();
             }
         });
 
-        final Float[] finalWaterml = {(float) waterml};
-        double covertvalue = commanMethod.getMlToFloz(finalWaterml[0]);
-        final float[] newvalue = {(int) Math.round(covertvalue)};
-        final float ints = Float.parseFloat(String.valueOf(DefultCupValue[0]));
-        Log.e("init", "init: " + newvalue[0] + ints);
 
         llRemovewater.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String ts = String.valueOf(System.currentTimeMillis());
-                waterlevel = new waterlevel();
-                waterlevel.setDate(date);
-                waterlevel.setMonth(month);
-                waterlevel.setYear(year);
-                waterlevel.setHour(hour);
-                waterlevel.setMin(min);
-                waterlevel.setTimestemp(ts);
+                ArrayList<waterlevel> waterlevelArrayList = new ArrayList<>();
+                waterlevelArrayList = dbManager.getWatercountlist();
+                String lastentry = null;
 
-                //database mathi mius krvanu baki
-                if (DefultCupValue[1].contains("fl")) {
-                    Log.e("TAG", "old: " + newvalue[0]);
-                    newvalue[0] = newvalue[0] - ints;
-                    Log.e("TAG", "new: " + newvalue[0]);
-                    if (newvalue[0] < 0) {
-                        newvalue[0] = 0;
-                        arcProgress.setProgress(0);
-                        waterlevel.setUnit(0 + "");
-                    } else {
-                        arcProgress.setProgress((int) newvalue[0]);
-                        waterlevel.setUnit(String.valueOf(newvalue[0]));
+                if (waterlevelArrayList != null) {
+                    for (int i = 0; i < waterlevelArrayList.size(); i++) {
+                        Log.e("TAG", "init: " + waterlevelArrayList.get(waterlevelArrayList.size() - 1).getUnit());
+                        lastentry = waterlevelArrayList.get(waterlevelArrayList.size() - 1).getTimestemp();
+
                     }
                 } else {
-                    Log.e("TAG", "old: " + finalWaterml[0]);
-                    finalWaterml[0] = finalWaterml[0] - ints;
-                    Log.e("TAG", "new: " + finalWaterml[0]);
-                    if (finalWaterml[0] < 0) {
-                        finalWaterml[0] = Float.valueOf(0);
-                        arcProgress.setProgress(0);
-                        waterlevel.setUnit(0 + "");
-                    } else {
-                        arcProgress.setProgress(Math.round(finalWaterml[0]));
-                        waterlevel.setUnit(Math.round(finalWaterml[0]) + "");
-                    }
+                    setdatainprogress();
                 }
-                dbManager.addWaterData(waterlevel);
+                dbManager.DeletelastWaterData(lastentry);
+                setdatainprogress();
+                SetMonthwiseWaterChart();
             }
         });
 
@@ -285,8 +258,54 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             }
         });
 
-        setWeightChart();
-        BMIReport();
+    }
+
+    private void setdatainprogress() {
+        ArrayList<waterlevel> waterlevelArrayList = new ArrayList<>();
+
+        waterlevelArrayList = dbManager.getDayWaterdata(rightNow.get(Calendar.DATE), rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
+
+        if (WaterUnit.equals("ml")) {
+            int lastentry = 0;
+            if (waterlevelArrayList != null) {
+                for (int i = 0; i < waterlevelArrayList.size(); i++) {
+                    Log.e("TAG", "init: " + waterlevelArrayList.get(i).getSumwater());
+                    lastentry = waterlevelArrayList.get(i).getSumwater();
+                }
+
+                if (lastentry != 0) {
+                    if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
+                        arcProgress.setProgress(lastentry);
+                    } else {
+                        arcProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+                    }
+                }
+                mtvwaterCount.setText(lastentry + "");
+            } else {
+                arcProgress.setProgress(0);
+                mtvwaterCount.setText(0 + "");
+            }
+        } else {
+            double lastentry = 0;
+            if (waterlevelArrayList != null) {
+                for (int i = 0; i < waterlevelArrayList.size(); i++) {
+                    Log.e("TAG", "init: " + waterlevelArrayList.get(i).getSumwater());
+                    lastentry = Math.round(commanMethod.getMlToFloz(Float.valueOf(waterlevelArrayList.get(i).getSumwater())));
+                }
+
+                if (lastentry != 0) {
+                    if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
+                        arcProgress.setProgress((int) lastentry);
+                    } else {
+                        arcProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+                    }
+                }
+                mtvwaterCount.setText(lastentry + "");
+            } else {
+                arcProgress.setProgress(0);
+                mtvwaterCount.setText(0 + "");
+            }
+        }
     }
 
     private void showEditHeightWeightDailog() {
@@ -386,20 +405,23 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                         Math.round(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))));
 
                 StorageManager.getInstance().setHeight((float) Math.round(commanMethod.feetToCmConverter(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString())), value)));
-                alertDialog.dismiss();
-                onResume();
-               /* WeightModel weightModel = new WeightModel();
+
+                WeightModel weightModel = new WeightModel();
                 weightModel.setDate(Integer.parseInt(selectedDate));
                 weightModel.setMonth(Integer.parseInt(seletedMonth));
                 weightModel.setYear(Integer.parseInt(selecetedYear));
                 if (iskg[0]) {
-                    weightModel.setKg(Integer.parseInt(etweight.getText().toString()));
+                    weightModel.setKg(Math.round(Float.parseFloat(etweight.getText().toString())));
                 } else {
                     weightModel.setKg((int) Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
                 }
                 dbManager.addWeightData(weightModel);
+                if (Integer.parseInt(selectedDate) == Calendar.DATE) {
+                    StorageManager.getInstance().setHeight(Float.parseFloat(etHeight.getText().toString()));
+                    StorageManager.getInstance().setWeight(Float.parseFloat(etweight.getText().toString()));
+                }
                 setWeightChart();
-                alertDialog.dismiss();*/
+                alertDialog.dismiss();
             }
         });
 
@@ -474,19 +496,30 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String ts = String.valueOf(System.currentTimeMillis());
+
+                Calendar c = Calendar.getInstance();
+                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+                c.set(Calendar.DATE, Integer.parseInt(selectedDate));
+                c.set(Calendar.MONTH, Integer.parseInt(seletedMonth));
+                c.set(Calendar.YEAR, Integer.parseInt(selecetedYear));
+                c.set(Calendar.HOUR, c.get(Calendar.HOUR));
+
+                s.format(new Date(c.getTimeInMillis()));
 
                 WeightModel weightModel = new WeightModel();
-                weightModel.setDate(date);
-                weightModel.setMonth(month);
-                weightModel.setYear(year);
-                weightModel.setTimestemp(ts);
+                weightModel.setDate(Integer.parseInt(selectedDate));
+                weightModel.setMonth(Integer.parseInt(seletedMonth));
+                weightModel.setYear(Integer.parseInt(selecetedYear));
+                weightModel.setTimestemp(String.valueOf(c.getTimeInMillis()));
                 if (iskg[0]) {
                     weightModel.setKg(Integer.parseInt(etweight.getText().toString()));
                 } else {
                     weightModel.setKg((int) Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
                 }
                 dbManager.addWeightData(weightModel);
+                if (Integer.parseInt(selectedDate) == Calendar.DATE) {
+                    StorageManager.getInstance().setWeight(Float.parseFloat(etweight.getText().toString()));
+                }
                 setWeightChart();
                 alertDialog.dismiss();
             }
@@ -525,23 +558,48 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     }
 
     private void setWeightChart() {
+        Calendar cal = Calendar.getInstance();
+        long fristdate = cal.getTimeInMillis();
+        cal.add(Calendar.DATE, -30);
+        long last30day = cal.getTimeInMillis();
+
         ArrayList<WeightModel> weightModels = new ArrayList<>();
         ArrayList<WeightModel> modelArrayList = new ArrayList<>();
+        ArrayList<WeightModel> arrayList = new ArrayList<>();
         ArrayList<Entry> weightModelArrayList = new ArrayList<>();
 
         weightModels = dbManager.getWeightlist();
 
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
 
-        for (int i = 0; i < modelArrayList.size(); i++) {
-            muserWeight.setText("" + modelArrayList.get(i).getKg());
+        if (modelArrayList.size() != 0) {
+            for (int i = 0; i < modelArrayList.size(); i++) {
+                muserWeight.setText("" + modelArrayList.get(i).getKg());
+            }
+        } else {
+            muserWeight.setText("" + 0);
         }
 
-        Log.e("TAG", "setWeightChart: " + weightModels.get(weightModels.size() - 1).getKg());
+        int pervalue = 0;
+        arrayList = dbManager.getCurrentDayWeightlist(date - 1, month, year);
+
+        /*if (arrayList.size() != 0) {
+            for (int i = 0; i < arrayList.size(); i++) {
+                pervalue = arrayList.get(i).getKg();
+            }
+        }*/
 
         int cuurrvalue = Integer.parseInt(muserWeight.getText().toString());
-        int diff = cuurrvalue - weightModels.get(weightModels.size() - 1).getKg();
-        mtvlastdaydiff.setText(diff + "KG");
+
+        int diff = 0;
+        diff = cuurrvalue - pervalue;
+
+//        Log.e("TAG", pervalue + "setWeightChart: " + cuurrvalue);
+        if (diff < 0) {
+            mtvlastdaydiff.setText(diff + "KG");
+        } else {
+            mtvlastdaydiff.setText("0 KG");
+        }
 
         WeightChart.setBackgroundColor(Color.WHITE);
 
@@ -560,7 +618,11 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         WeightChart.setMarker(mv);
         WeightChart.setDragEnabled(true);
         WeightChart.setScaleEnabled(true);
-        WeightChart.setPinchZoom(true);
+        WeightChart.setPinchZoom(false);
+
+        WeightChart.getAxisLeft().setDrawGridLines(false);
+        WeightChart.getAxisRight().setDrawGridLines(false);
+        WeightChart.getXAxis().setDrawGridLines(false);
 
         XAxis xAxis;
         xAxis = WeightChart.getXAxis();
@@ -569,8 +631,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         xAxis.enableGridDashedLine(10f, 10f, 0f);
 
         // axis range
-        xAxis.setAxisMaximum(31f);
-        xAxis.setAxisMinimum(0);
+        xAxis.setAxisMaximum(cal.get(Calendar.DAY_OF_MONTH));
+        xAxis.setAxisMinimum(cal.get(Calendar.DAY_OF_MONTH) - 30);
 
         YAxis yAxis;
         yAxis = WeightChart.getAxisLeft();
@@ -585,12 +647,15 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         yAxis.setAxisMaximum(200f);
         yAxis.setAxisMinimum(0);
 
-        for (int i = 0; i < weightModels.size(); i++) {
-            weightModelArrayList.add(new Entry(weightModels.get(i).getDate(), weightModels.get(i).getKg(), getResources().getDrawable(R.drawable.star)));
+        ArrayList<WeightModel> waterlevelArrayList = new ArrayList<>();
+        waterlevelArrayList = dbManager.getMonthWeightdata(String.valueOf(last30day), String.valueOf(fristdate));
+
+        for (int i = 0; i < waterlevelArrayList.size(); i++) {
+//            weightModelArrayList.add(new Entry(weightModels.get(i).getDate(), weightModels.get(i).getKg(), getResources().getDrawable(R.drawable.star)));
+            weightModelArrayList.add(new Entry(waterlevelArrayList.get(i).getDate(), waterlevelArrayList.get(i).getKg(), getResources().getDrawable(R.drawable.star)));
         }
 
      /*   ArrayList<Entry> values = new ArrayList<>();
-
         for (int i = 0; i < count; i++) {
             float val = (float) (Math.random() * range) - 30;
             values.add(new Entry(i, val, getResources().getDrawable(R.drawable.star)));
@@ -686,6 +751,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         super.onResume();
         setSharedPreferences();
         init();
+        SetMonthwiseWaterChart();
+        setWeightChart();
+        BMIReport();
     }
 
     private void setSharedPreferences() {
@@ -729,5 +797,263 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             mbmiprogress.setProgress(40);
         }
         mbmistatus.setText(BMI_Cat);
+    }
+
+    public static String getCurrentWeekdate(Calendar mCalendar) {
+//        Date date = new Date();
+//        mCalendar.setTime(date);
+
+        // 1 = Sunday, 2 = Monday, etc.
+        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
+
+        int monday_offset;
+        if (day_of_week == 1) {
+            monday_offset = -6;
+        } else
+            monday_offset = (2 - day_of_week); // need to minus back
+        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
+
+        Date mDateMonday = mCalendar.getTime();
+
+        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
+        // return 6 the next days of current day (object cal save current day)
+        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
+        Date mDateSunday = mCalendar.getTime();
+
+        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
+
+        //Get format date
+        String strDateFormat = "dd MMM";
+        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+
+        String MONDAY = sdf.format(mDateMonday);
+        String SUNDAY = sdf.format(mDateSunday);
+
+        // Sub String
+        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
+            MONDAY = MONDAY.substring(0, 2);
+        }
+
+        return MONDAY + " - " + SUNDAY;
+    }
+
+
+    private void SetMonthwiseWaterChart() {
+
+        Legend L;
+        L = chart.getLegend();
+        L.setEnabled(false);
+
+        YAxis leftAxis = chart.getAxisLeft();
+        YAxis rightAxis = chart.getAxisRight();
+        XAxis xAxis = chart.getXAxis();
+
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextSize(10f);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setDrawGridLines(false);
+
+//        leftAxis.setTextSize(10f);
+//        leftAxis.setDrawLabels(false);
+//        leftAxis.setDrawAxisLine(true);
+//        leftAxis.setDrawGridLines(false);
+
+//        LimitLine ll1 = new LimitLine(Integer.parseInt(Watergoal));
+//        ll1.setLineWidth(1f);
+//        ll1.enableDashedLine(1f, 1f, 0f);
+
+        rightAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+//        rightAxis.addLimitLine(ll1);
+        rightAxis.setDrawAxisLine(false);
+        rightAxis.setAxisMaximum(6000);
+        rightAxis.setAxisMinimum(0);
+        rightAxis.setDrawGridLines(false);
+        rightAxis.setDrawLabels(false);
+
+        BarData data = new BarData(setMonthData());
+        data.setBarWidth(0.9f); // set custom bar width
+        chart.setData(data);
+
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
+        chart.setFitBars(true); // make the x-axis fit exactly all bars
+        chart.invalidate(); // refresh
+        chart.setScaleEnabled(false);
+        chart.setDoubleTapToZoomEnabled(false);
+        chart.setBackgroundColor(Color.rgb(255, 255, 255));
+        chart.animateXY(2000, 2000);
+        chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
+        chart.setDrawValueAboveBar(true);
+
+    }
+
+    public static String getCurrentWeek(Calendar mCalendar) {
+//        Date date = new Date();
+//        mCalendar.setTime(date);
+
+        // 1 = Sunday, 2 = Monday, etc.
+        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
+
+        int monday_offset;
+        if (day_of_week == 1) {
+            monday_offset = -6;
+        } else
+            monday_offset = (2 - day_of_week); // need to minus back
+        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
+
+//        Date mDateMonday = mCalendar.getTime();
+        long mDateMonday = mCalendar.getTimeInMillis();
+
+        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
+        // return 6 the next days of current day (object cal save current day)
+        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
+//        Date mDateSunday = mCalendar.getTime();
+        long mDateSunday = mCalendar.getTimeInMillis();
+
+        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
+
+        //Get format date
+        String strDateFormat = "dd MMM";
+        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+
+        String MONDAY = sdf.format(mDateMonday);
+        String SUNDAY = sdf.format(mDateSunday);
+
+        // Sub String
+        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
+            MONDAY = MONDAY.substring(0, 2);
+        }
+
+//        return MONDAY + " - " + SUNDAY;
+        return mDateMonday + " - " + mDateSunday;
+    }
+
+    private BarDataSet setMonthData() {
+        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
+        int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
+        Log.e("TAG", a + "total days");
+
+      /*  String s1 = getCurrentWeekdate(rightNow);
+        String[] Weekdate1 = s1.split("-");
+        tvchartdate.setText(Weekdate1[0] + " - " + Weekdate1[1]);
+
+        String s = getCurrentWeek(rightNow);
+        String[] Weekdate = s.split("-");
+        Log.e("TAG", "date: " + Weekdate[0]);
+        Log.e("TAG", "date: " + Weekdate[1]);
+        String fristdate = Weekdate[0];
+        String lastdate = Weekdate[1];*/
+
+
+        watermonthlist = dbManager.getMonthWaterdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
+//        watermonthlist = dbManager.getweekWaterdata(fristdate, lastdate);
+
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        if (watermonthlist != null) {
+            for (int i = 0; i < watermonthlist.size(); i++) {
+                Log.e("TAG", watermonthlist.get(i).getDate() + "total days" + watermonthlist.get(i).getSumwater());
+                entries.add(new BarEntry(watermonthlist.get(i).getDate(), watermonthlist.get(i).getSumwater()));
+            }
+        }
+
+
+        BarDataSet set = new BarDataSet(entries, "");
+        set.setColor(Color.rgb(155, 155, 155));
+        set.setValueTextColor(Color.rgb(155, 155, 155));
+
+        return set;
+    }
+
+    public static int getMaxDaysInMonth(int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        // Note: 0-based months
+        cal.set(year, month, 1);
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.ivBackDate:
+                rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) - 1);
+                Log.e("TAG", "ivBackDate: " + rightNow.get(Calendar.MONTH));
+                month = rightNow.get(Calendar.MONTH) + 1;
+                Log.e("TAG", "ivBackDate: " + month + " date " + date);
+                tvchartdate.setText(month + "");
+
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+                c.set(Calendar.YEAR, rightNow.get(Calendar.YEAR));
+//                    int year = c.get(Calendar.YEAR);
+//                    int month = c.get(Calendar.MONTH);
+                int day = 1;
+
+                c.set(Calendar.DAY_OF_MONTH, day);
+
+                int numOfDaysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
+                firstdayofmonth = c.getTimeInMillis();
+                c.add(Calendar.DAY_OF_MONTH, numOfDaysInMonth - 1);
+                lastdayofmonth = c.getTimeInMillis();
+
+               /* SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+                rightNow.add(Calendar.DAY_OF_YEAR, -7);
+                rightNow.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+                date = rightNow.get(Calendar.DATE);
+                month = rightNow.get(Calendar.MONTH) + 1;
+                year = rightNow.get(Calendar.YEAR);
+                s.format(new Date(rightNow.getTimeInMillis()));
+                Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
+                Log.e("Start", "Start Date = " + s.format(new Date(rightNow.getTimeInMillis())));*/
+
+                SetMonthwiseWaterChart();
+
+                break;
+            case R.id.ivForwardDate:
+                rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) + 1);
+                month = rightNow.get(Calendar.MONTH) + 1;
+                Log.e("TAG", "ivForwardDate : " + month + " date " + date);
+                tvchartdate.setText(month + "");
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+                calendar.set(Calendar.YEAR, rightNow.get(Calendar.YEAR));
+//                    int year = c.get(Calendar.YEAR);
+//                    int month = c.get(Calendar.MONTH);
+                int i = 1;
+
+                calendar.set(Calendar.DAY_OF_MONTH, i);
+
+                int maximum = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
+                firstdayofmonth = calendar.getTimeInMillis();
+                calendar.add(Calendar.DAY_OF_MONTH, maximum - 1);
+                lastdayofmonth = calendar.getTimeInMillis();
+
+               /* SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                rightNow.add(Calendar.DAY_OF_YEAR, +7);
+                rightNow.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+                date = rightNow.get(Calendar.DATE);
+                month = rightNow.get(Calendar.MONTH) + 1;
+                year = rightNow.get(Calendar.YEAR);
+                simpleDateFormat.format(new Date(rightNow.getTimeInMillis()));
+                Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
+                Log.e("Start", "Start Date = " + simpleDateFormat.format(new Date(rightNow.getTimeInMillis())));*/
+
+                SetMonthwiseWaterChart();
+                break;
+            case R.id.scWaterNoti:
+                //waternotfication service
+                break;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

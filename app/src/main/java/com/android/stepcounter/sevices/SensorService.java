@@ -13,6 +13,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
@@ -27,7 +28,6 @@ import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.commanMethod;
 import com.android.stepcounter.utils.constant;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -75,8 +75,12 @@ public class SensorService extends Service implements SensorEventListener, StepL
         // Get default sensor type
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        int Display = 0;
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        int Display = 0;
 
         Steplist = dbManager.getCurrentDayHoursStepcountlist(date, month, year, hour);
         int TotalStepCount = dbManager.getSumOfStepList(date, month, year);
@@ -89,12 +93,9 @@ public class SensorService extends Service implements SensorEventListener, StepL
         }
 
         String Calories = String.valueOf(commanMethod.calculateCalories(Display, userWeight, userHeight));
+//        Log.e("TAG", Display + "onStartCommand: " + Calories);
 
         showNotification(Display, Integer.parseInt(Calories));
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
 
         // Get sensor manager on starting the service.
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);

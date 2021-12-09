@@ -20,6 +20,11 @@
                 android:title="Edit steps"
                 app:showAsAction="ifRoom" />
             <item
+                android:id="@+id/action_history"
+                android:icon="@drawable/ic_baseline_history_24"
+                android:title="History"
+                app:showAsAction="ifRoom" />
+            <item
                 android:id="@+id/action_reset"
                 android:icon="@drawable/ic_baseline_delete_24"
                 android:title="Reset"

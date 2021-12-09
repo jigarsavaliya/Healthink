@@ -1,5 +1,6 @@
 package com.android.stepcounter.activity;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.graphics.RectF;
@@ -15,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -25,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
+import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DBHandler;
 import com.android.stepcounter.model.stepcountModel;
@@ -32,6 +35,7 @@ import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.commanMethod;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -47,12 +51,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class StepReportActivity extends AppCompatActivity implements OnChartValueSelectedListener {
+public class StepReportActivity extends AppCompatActivity implements OnChartValueSelectedListener, View.OnClickListener {
     Toolbar mToolbar;
     DBHandler dbManager;
     private BarChart chart;
     CardView mcvDay, mcvWeek, mcvMonth, mcvStep, mcvCalories, mcvTime, mcvDistance;
-    TextView tvTotal;
+    TextView tvTotal, tvchartdate;
+    ImageView ivBackDate, ivForwardDate;
     ArrayList<stepcountModel> Steplist;
     ArrayList<stepcountModel> StepWeeklist;
     ArrayList<stepcountModel> Stepmonthlist;
@@ -63,7 +68,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     Calendar rightNow = Calendar.getInstance();
     boolean IsSelectedDay = true, IsSelectedMonth = false, IsSelectedWeek = false;
     boolean IsSelectedStep = true, IsSelectedCaleroie = false, IsSelectedTime = false, IsSelectedDistance = false;
-    int date, month, year;
+    int date, month, year, StepGoal;
 
     long firstdayofmonth, lastdayofmonth;
 
@@ -80,7 +85,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         month = rightNow.get(Calendar.MONTH) + 1;
         year = rightNow.get(Calendar.YEAR);
 
-        Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
+//        Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
 
         userHeight = StorageManager.getInstance().getHeight();
         userWeight = StorageManager.getInstance().getWeight();
@@ -89,6 +94,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = 1;
+
         c.set(year, month, day);
         int numOfDaysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
 //        Log.e("First", "First Day of month: " + c.getTimeInMillis());
@@ -96,13 +102,17 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         c.add(Calendar.DAY_OF_MONTH, numOfDaysInMonth - 1);
         lastdayofmonth = c.getTimeInMillis();
 //        Log.e("Last", "Last Day of month: " + c.getTimeInMillis());
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        setSharedPreferences();
         init();
+    }
+
+    private void setSharedPreferences() {
+        StepGoal = StorageManager.getInstance().getStepCountGoalUnit();
     }
 
     private void init() {
@@ -120,6 +130,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         chart = (BarChart) findViewById(R.id.chart1);
         tvTotal = findViewById(R.id.tvTotal);
+
+        tvchartdate = findViewById(R.id.tvchartdate);
+        ivBackDate = findViewById(R.id.ivBackDate);
+        ivForwardDate = findViewById(R.id.ivForwardDate);
+
+        ivBackDate.setOnClickListener(this);
+        ivForwardDate.setOnClickListener(this);
 
         mcvDay = findViewById(R.id.cvDay);
         mcvWeek = findViewById(R.id.cvWeek);
@@ -313,6 +330,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         rightAxis.setDrawAxisLine(false);
         rightAxis.setDrawGridLines(false);
         rightAxis.setDrawLabels(false);
+        rightAxis.setDrawZeroLine(false);
 
         BarData data = new BarData(setDayData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -327,9 +345,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setDrawBorders(false);
         chart.setDrawValueAboveBar(true);
 
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
+
     }
 
     private BarDataSet setDayData() {
+        Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
+        tvchartdate.setText(date + " " + month);
+
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
@@ -363,13 +388,24 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 //        leftAxis.setDrawAxisLine(true);
 //        leftAxis.setDrawGridLines(false);
 
+        LimitLine ll1 = new LimitLine(StepGoal);
+        ll1.setLineWidth(1f);
+        ll1.enableDashedLine(1f, 1f, 0f);
+
+        rightAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+        rightAxis.addLimitLine(ll1);
         rightAxis.setDrawAxisLine(false);
+        rightAxis.setAxisMaximum(6000);
+        rightAxis.setAxisMinimum(0);
         rightAxis.setDrawGridLines(false);
         rightAxis.setDrawLabels(false);
 
         BarData data = new BarData(setMonthData());
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
+
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -378,6 +414,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+//        chart.getXAxis().setEnabled(false);
+//        chart.getAxisRight().setAxisMaximum(StepGoal);
+//        chart.getAxisRight().setAxisMinimum(0);
         chart.setDrawValueAboveBar(true);
 
     }
@@ -390,8 +429,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthData() {
+        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
-        Log.e("TAG", a + "total days");
+//        Log.e("TAG", a + "total days");
 
         Stepmonthlist = dbManager.getMonthstepdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
 
@@ -400,7 +440,11 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         if (Stepmonthlist != null) {
             for (int i = 0; i < Stepmonthlist.size(); i++) {
 //                Log.e("TAG", "hours: " + Stepmonthlist.get(i).getDistance() + "step" + Stepmonthlist.get(i).getStep() + "date" + Stepmonthlist.get(i).getDate());
-                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Stepmonthlist.get(i).getSumstep()));
+                if (rightNow.get(Calendar.DATE) == Stepmonthlist.get(i).getDate()) {
+                    entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Stepmonthlist.get(i).getSumstep(), getResources().getColor(R.color.colorPrimaryDark)));
+                } else {
+                    entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), Stepmonthlist.get(i).getSumstep()));
+                }
                 sumvalue = sumvalue + Stepmonthlist.get(i).getSumstep();
             }
         }
@@ -416,7 +460,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private void SetWeekwiseStepChart() {
 
-    /*    final ArrayList<String> xAxisLabel = new ArrayList<>();
+       /* final ArrayList<String> xAxisLabel = new ArrayList<>();
         xAxisLabel.add("Mon");
         xAxisLabel.add("Tue");
         xAxisLabel.add("Wed");
@@ -457,6 +501,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -469,12 +516,14 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setWeekData() {
+        String s1 = getCurrentWeekdate(rightNow);
+        String[] Weekdate1 = s1.split("-");
+        tvchartdate.setText(Weekdate1[0] + " - " + Weekdate1[1]);
 
         String s = getCurrentWeek(rightNow);
-//        Log.e("TAG", "date: " + s);
         String[] Weekdate = s.split("-");
-//        Log.e("TAG", "date: " + Weekdate[0]);
-//        Log.e("TAG", "date: " + Weekdate[1]);
+        Log.e("TAG", "date: " + Weekdate[0]);
+        Log.e("TAG", "date: " + Weekdate[1]);
         String fristdate = Weekdate[0];
         String lastdate = Weekdate[1];
 
@@ -540,13 +589,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setDayCaloriesData() {
-        int sumvalue = 0;
+        Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
+        tvchartdate.setText(date + " " + month);
+
+        Float sumvalue = Float.valueOf(0);
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
 //                Log.e("TAG", "hours: " + Steplist.get(i).getDuration() + "step" + Steplist.get(i).getStep() + "date" + Steplist.get(i).getDate());
                 entries.add(new BarEntry(Steplist.get(i).getDuration(), Float.parseFloat(Steplist.get(i).getCalorie())));
-                sumvalue = sumvalue + Integer.parseInt(Steplist.get(i).getCalorie());
+                sumvalue = sumvalue + Float.valueOf(Steplist.get(i).getCalorie());
             }
         }
         tvTotal.setText(sumvalue + "");
@@ -585,6 +637,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -597,6 +652,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthCaloriesData() {
+        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
         Log.e("TAG", a + "total days");
 
@@ -661,6 +717,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -673,6 +732,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setWeekCaloriesData() {
+        String s1 = getCurrentWeekdate(rightNow);
+        String[] Weekdate1 = s1.split("-");
+        tvchartdate.setText(Weekdate1[0] + " - " + Weekdate1[1]);
+
         String s = getCurrentWeek(rightNow);
 //        Log.e("TAG", "date: " + s);
         String[] Weekdate = s.split("-");
@@ -740,12 +803,21 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setDayTimeData() {
+        Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
+        tvchartdate.setText(date + " " + month);
+
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
 //                Log.e("TAG", "hours: " + Steplist.get(i).getDuration() + "step" + Steplist.get(i).getStep() + "date" + Steplist.get(i).getDate());
                 int totalSecs = (int) (Steplist.get(i).getStep() * 1.66);
-                entries.add(new BarEntry(Steplist.get(i).getDuration(), totalSecs));
+                if (totalSecs < 60) {
+                    entries.add(new BarEntry(Steplist.get(i).getDuration(), totalSecs));
+                } else {
+                    int min = totalSecs / 60;
+//                    int sec = totalSecs % 60;
+                    entries.add(new BarEntry(Steplist.get(i).getDuration(), min));
+                }
             }
         }
         BarDataSet set = new BarDataSet(entries, "");
@@ -763,12 +835,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         YAxis leftAxis = chart.getAxisLeft();
         YAxis rightAxis = chart.getAxisRight();
+
         XAxis xAxis = chart.getXAxis();
+
+//        IAxisValueFormatter xAxisFormatter = new DayAxisValueFormatter(chart);
 
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextSize(10f);
         xAxis.setDrawAxisLine(true);
         xAxis.setDrawGridLines(false);
+//        xAxis.setValueFormatter((ValueFormatter) xAxisFormatter);
 
 //        leftAxis.setTextSize(10f);
 //        leftAxis.setDrawLabels(false);
@@ -783,6 +859,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
+       /* XYMarkerView mv = new XYMarkerView(this, xAxisFormatter);
+        mv.setChartView(chart);*/ // For bounds control
+        chart.setMarker(mv);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -794,6 +877,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthTimeData() {
+        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
         Stepmonthlist = dbManager.getMonthstepdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
 
@@ -801,7 +885,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         if (Stepmonthlist != null) {
             for (int i = 0; i < Stepmonthlist.size(); i++) {
                 int totalSecs = (int) (Stepmonthlist.get(i).getSumstep() * 1.66);
-                entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), totalSecs));
+                if (totalSecs < 60) {
+                    entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), totalSecs));
+                } else {
+                    int min = totalSecs / 60;
+//                    int sec = totalSecs % 60;
+                    entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), min));
+                }
             }
         }
 
@@ -855,6 +945,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -867,6 +960,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setWeekTimeData() {
+        String s1 = getCurrentWeekdate(rightNow);
+        String[] Weekdate1 = s1.split("-");
+        tvchartdate.setText(Weekdate1[0] + " - " + Weekdate1[1]);
+
         String s = getCurrentWeek(rightNow);
 //        Log.e("TAG", "date: " + s);
         String[] Weekdate = s.split("-");
@@ -881,7 +978,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
             for (int i = 0; i < StepWeeklist.size(); i++) {
 //                Log.e("TAG", "hours: " + StepWeeklist.get(i).getDistance() + "step" + StepWeeklist.get(i).getStep() + "date" + StepWeeklist.get(i).getDate());
                 int totalSecs = (int) (StepWeeklist.get(i).getSumstep() * 1.66);
-                entries.add(new BarEntry(StepWeeklist.get(i).getDate(), totalSecs));
+                if (totalSecs < 60) {
+                    entries.add(new BarEntry(StepWeeklist.get(i).getDate(), totalSecs));
+                } else {
+                    int min = totalSecs / 60;
+//                    int sec = totalSecs % 60;
+                    entries.add(new BarEntry(StepWeeklist.get(i).getDate(), min));
+                }
             }
         }
 
@@ -933,6 +1036,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setDayDistanceData() {
+        Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
+        tvchartdate.setText(date + " " + month);
+
         float sumvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
@@ -942,7 +1048,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 sumvalue = sumvalue + Float.parseFloat(Steplist.get(i).getDistance());
             }
         }
-        tvTotal.setText(sumvalue + "");
+        tvTotal.setText(String.format("%.2f", sumvalue) + "");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -978,6 +1084,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -990,9 +1099,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthDistanceData() {
+        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
 
-        int sumvalue = 0;
+        float sumvalue = 0;
         Stepmonthlist = dbManager.getMonthDistancedata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
 
         ArrayList<BarEntry> entries = new ArrayList<>();
@@ -1003,7 +1113,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 sumvalue = sumvalue + Stepmonthlist.get(i).getSumdistance();
             }
         }
-        tvTotal.setText(sumvalue + "");
+        tvTotal.setText(String.format("%.2f", sumvalue) + "");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -1054,6 +1164,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -1066,13 +1179,17 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setWeekDistanceData() {
+        String s1 = getCurrentWeekdate(rightNow);
+        String[] Weekdate1 = s1.split("-");
+        tvchartdate.setText(Weekdate1[0] + " - " + Weekdate1[1]);
+
         String s = getCurrentWeek(rightNow);
 //        Log.e("TAG", "date: " + s);
         String[] Weekdate = s.split("-");
         int stepnumber;
         String fristdate = Weekdate[0];
         String lastdate = Weekdate[1];
-        int sumvalue = 0;
+        float sumvalue = 0;
         StepWeeklist = dbManager.getweekDistancedata(fristdate, lastdate);
 
         ArrayList<BarEntry> entries = new ArrayList<>();
@@ -1084,7 +1201,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
             }
         }
 
-        tvTotal.setText(sumvalue + "");
+        tvTotal.setText(String.format("%.2f", sumvalue) + "");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -1127,6 +1244,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         LinearLayout llView = (LinearLayout) d.findViewById(R.id.datepicker);
         Spinner spinner = (Spinner) d.findViewById(R.id.spinner);
         EditText stepvalue = (EditText) d.findViewById(R.id.stepvalue);
+        TextView tvdate = (TextView) d.findViewById(R.id.tvdate);
 
         Calendar rightNow = Calendar.getInstance();
         int hours = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -1139,33 +1257,55 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         final int[] selectedmonth = {mMonth};
         final int[] selectedday = {dayOfMonth};
 
+        ArrayList<String> stringArrayList = new ArrayList<>();
+        if (selectedday[0] != dayOfMonth && selectedmonth[0] != mMonth && selectedyear[0] != mYear) {
+            for (int i = 0; i < 24; i++) {
+                stringArrayList.add(Time[i]);
+//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
+            }
+        } else {
+            for (int i = 0; i < hours + 1; i++) {
+                stringArrayList.add(Time[i]);
+//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
+            }
+        }
+
+        //Creating the ArrayAdapter instance having the country list
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, stringArrayList);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spinner.setAdapter(arrayAdapter);
+
+
         llView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(StepReportActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
+                            @SuppressLint("SetTextI18n")
                             @Override
                             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                                 selectedyear[0] = year;
                                 selectedmonth[0] = month;
                                 selectedday[0] = day;
+                                tvdate.setText(selectedday[0] + " - " + selectedmonth[0]);
+
+                                if (selectedday[0] != dayOfMonth) {
+                                    for (int i = 0; i < 24; i++) {
+                                        stringArrayList.add(Time[i]);
+                                    }
+                                } else {
+                                    for (int i = 0; i < hours + 1; i++) {
+                                        stringArrayList.add(Time[i]);
+                                    }
+                                }
+                                arrayAdapter.notifyDataSetChanged();
                             }
-                        }, mYear, mMonth, dayOfMonth);
+                        }, mYear, mMonth - 1, dayOfMonth);
                 datePickerDialog.show();
             }
         });
 
-        ArrayList<String> stringArrayList = new ArrayList<>();
-        for (int i = 0; i < hours + 1; i++) {
-            stringArrayList.add(Time[i]);
-//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
-        }
-
-        //Creating the ArrayAdapter instance having the country list
-        ArrayAdapter aa = new ArrayAdapter(this, android.R.layout.simple_spinner_item, stringArrayList);
-        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Setting the ArrayAdapter data on the Spinner
-        spinner.setAdapter(aa);
         spinner.setSelection(stringArrayList.size() - 1);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -1238,7 +1378,18 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 } else {
                     String Calories = String.valueOf(commanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
                     String Distance = String.valueOf(commanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
-                    String ts = String.valueOf(System.currentTimeMillis());
+
+                    Calendar c = Calendar.getInstance();
+                    SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+                    c.set(Calendar.DATE, selectedday[0]);
+                    c.set(Calendar.MONTH, selectedmonth[0]);
+                    c.set(Calendar.YEAR, selectedyear[0]);
+                    c.set(Calendar.HOUR, saveHour[0]);
+
+                    s.format(new Date(c.getTimeInMillis()));
+
+//                    Log.e("Start", "Start Date = " + c.getTimeInMillis());
+//                    String ts = String.valueOf(System.currentTimeMillis());
 
                     stepcountModel.setStep(Integer.valueOf(numSteps));
                     stepcountModel.setDate(selectedday[0]);
@@ -1247,7 +1398,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     stepcountModel.setDistance(Distance);
                     stepcountModel.setCalorie(Calories);
                     stepcountModel.setDuration(saveHour[0]);
-                    stepcountModel.setTimestemp(ts);
+                    stepcountModel.setTimestemp(String.valueOf(c.getTimeInMillis()));
                     dbManager.addStepcountData(stepcountModel);
                 }
                 onResume();
@@ -1294,8 +1445,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     public static String getCurrentWeek(Calendar mCalendar) {
-        Date date = new Date();
-        mCalendar.setTime(date);
+//        Date date = new Date();
+//        mCalendar.setTime(date);
 
         // 1 = Sunday, 2 = Monday, etc.
         int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
@@ -1334,4 +1485,193 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         return mDateMonday + " - " + mDateSunday;
     }
 
+    public static String getCurrentWeekdate(Calendar mCalendar) {
+//        Date date = new Date();
+//        mCalendar.setTime(date);
+
+        // 1 = Sunday, 2 = Monday, etc.
+        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
+
+        int monday_offset;
+        if (day_of_week == 1) {
+            monday_offset = -6;
+        } else
+            monday_offset = (2 - day_of_week); // need to minus back
+        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
+
+        Date mDateMonday = mCalendar.getTime();
+
+        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
+        // return 6 the next days of current day (object cal save current day)
+        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
+        Date mDateSunday = mCalendar.getTime();
+
+        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
+
+        //Get format date
+        String strDateFormat = "dd MMM";
+        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+
+        String MONDAY = sdf.format(mDateMonday);
+        String SUNDAY = sdf.format(mDateSunday);
+
+        // Sub String
+        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
+            MONDAY = MONDAY.substring(0, 2);
+        }
+
+        return MONDAY + " - " + SUNDAY;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.ivBackDate:
+                if (IsSelectedDay) {
+                    rightNow.set(Calendar.DATE, rightNow.get(Calendar.DATE) - 1);
+                    date = rightNow.get(Calendar.DATE);
+                    month = rightNow.get(Calendar.MONTH) + 1;
+                    Log.e("TAG", "onClick: " + date);
+                    tvchartdate.setText(date + " " + month);
+
+                    if (IsSelectedStep) {
+                        SetDaywiseStepChart();
+                    } else if (IsSelectedCaleroie) {
+                        SetDaywiseCaloriesChart();
+                    } else if (IsSelectedTime) {
+                        SetDaywiseTimeChart();
+                    } else if (IsSelectedDistance) {
+                        SetDaywiseDistanceChart();
+                    }
+                } else if (IsSelectedWeek) {
+
+                    SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+                    rightNow.add(Calendar.DAY_OF_YEAR, -7);
+                    rightNow.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+                    date = rightNow.get(Calendar.DATE);
+                    month = rightNow.get(Calendar.MONTH) + 1;
+                    year = rightNow.get(Calendar.YEAR);
+                    s.format(new Date(rightNow.getTimeInMillis()));
+                    Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
+                    Log.e("Start", "Start Date = " + s.format(new Date(rightNow.getTimeInMillis())));
+//
+//                    rightNow.set(Calendar.DATE, rightNow.get(Calendar.DATE) + 6);
+//                    s.format(new Date(rightNow.getTimeInMillis()));
+//                    Log.e("End", "End Date = " + rightNow.getTimeInMillis());
+//                    Log.e("End", "End Date = " + s.format(new Date(rightNow.getTimeInMillis())));
+
+                    if (IsSelectedStep) {
+                        SetWeekwiseStepChart();
+                    } else if (IsSelectedCaleroie) {
+                        SetWeekwiseCaloriesChart();
+                    } else if (IsSelectedTime) {
+                        SetWeekwiseTimeChart();
+                    } else if (IsSelectedDistance) {
+                        SetWeekwiseDistanceChart();
+                    }
+                } else if (IsSelectedMonth) {
+                    rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) - 1);
+                    Log.e("TAG", "ivBackDate: " + rightNow.get(Calendar.MONTH));
+                    month = rightNow.get(Calendar.MONTH) + 1;
+                    Log.e("TAG", "ivBackDate: " + month + " date " + date);
+                    tvchartdate.setText(month + "");
+
+                    Calendar c = Calendar.getInstance();
+                    c.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+                    c.set(Calendar.YEAR, rightNow.get(Calendar.YEAR));
+//                    int year = c.get(Calendar.YEAR);
+//                    int month = c.get(Calendar.MONTH);
+                    int day = 1;
+
+                    c.set(Calendar.DAY_OF_MONTH, day);
+
+                    int numOfDaysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
+                    firstdayofmonth = c.getTimeInMillis();
+                    c.add(Calendar.DAY_OF_MONTH, numOfDaysInMonth - 1);
+                    lastdayofmonth = c.getTimeInMillis();
+
+                    if (IsSelectedStep) {
+                        SetMonthwiseStepChart();
+                    } else if (IsSelectedCaleroie) {
+                        SetMonthwiseCaloriesChart();
+                    } else if (IsSelectedTime) {
+                        SetMonthwiseTimeChart();
+                    } else if (IsSelectedDistance) {
+                        SetMonthwiseDistanceChart();
+                    }
+                }
+                break;
+            case R.id.ivForwardDate:
+                if (IsSelectedDay) {
+                    rightNow.set(Calendar.DATE, rightNow.get(Calendar.DATE) + 1);
+                    date = rightNow.get(Calendar.DATE);
+                    month = rightNow.get(Calendar.MONTH) + 1;
+                    Log.e("TAG", "onClick: " + rightNow.get(Calendar.MONTH));
+                    tvchartdate.setText(date + " " + month);
+
+                    if (IsSelectedDay) {
+                        SetDaywiseStepChart();
+                    } else if (IsSelectedCaleroie) {
+                        SetDaywiseCaloriesChart();
+                    } else if (IsSelectedTime) {
+                        SetDaywiseTimeChart();
+                    } else if (IsSelectedDistance) {
+                        SetDaywiseDistanceChart();
+                    }
+                } else if (IsSelectedWeek) {
+
+                    SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+                    rightNow.add(Calendar.DAY_OF_YEAR, +7);
+                    rightNow.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+                    date = rightNow.get(Calendar.DATE);
+                    month = rightNow.get(Calendar.MONTH) + 1;
+                    year = rightNow.get(Calendar.YEAR);
+                    s.format(new Date(rightNow.getTimeInMillis()));
+                    Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
+                    Log.e("Start", "Start Date = " + s.format(new Date(rightNow.getTimeInMillis())));
+
+                    if (IsSelectedStep) {
+                        SetWeekwiseStepChart();
+                    } else if (IsSelectedCaleroie) {
+                        SetWeekwiseCaloriesChart();
+                    } else if (IsSelectedTime) {
+                        SetWeekwiseTimeChart();
+                    } else if (IsSelectedDistance) {
+                        SetWeekwiseDistanceChart();
+                    }
+                } else if (IsSelectedMonth) {
+                    rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) + 1);
+                    month = rightNow.get(Calendar.MONTH) + 1;
+                    Log.e("TAG", "ivForwardDate : " + month + " date " + date);
+                    tvchartdate.setText(month + "");
+
+                    Calendar c = Calendar.getInstance();
+                    c.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+                    c.set(Calendar.YEAR, rightNow.get(Calendar.YEAR));
+//                    int year = c.get(Calendar.YEAR);
+//                    int month = c.get(Calendar.MONTH);
+                    int day = 1;
+
+                    c.set(Calendar.DAY_OF_MONTH, day);
+
+                    int numOfDaysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
+                    firstdayofmonth = c.getTimeInMillis();
+                    c.add(Calendar.DAY_OF_MONTH, numOfDaysInMonth - 1);
+                    lastdayofmonth = c.getTimeInMillis();
+
+                    if (IsSelectedStep) {
+                        SetMonthwiseStepChart();
+                    } else if (IsSelectedCaleroie) {
+                        SetMonthwiseCaloriesChart();
+                    } else if (IsSelectedTime) {
+                        SetMonthwiseTimeChart();
+                    } else if (IsSelectedDistance) {
+                        SetMonthwiseDistanceChart();
+                    }
+                }
+                break;
+        }
+    }
 }
