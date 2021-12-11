@@ -1,8 +1,6 @@
 package com.android.stepcounter.activity;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -16,11 +14,9 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
-import com.android.stepcounter.sevices.AlarmReceiver;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class WaterSettingActivity extends AppCompatActivity {
     Toolbar mToolbar;
@@ -33,7 +29,6 @@ public class WaterSettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_water_setting);
-        init();
     }
 
     private void init() {
@@ -50,6 +45,12 @@ public class WaterSettingActivity extends AppCompatActivity {
         });
 
         mtvReminder = findViewById(R.id.tvreminder);
+
+        if (StorageManager.getInstance().getReminder()) {
+            mtvReminder.setText(StorageManager.getInstance().getWaterReminderStart() + " - " + StorageManager.getInstance().getWaterReminderEnd());
+        } else {
+            mtvReminder.setText("off");
+        }
         mtvHours = findViewById(R.id.tvhours);
         rlReminder = findViewById(R.id.rlReminder);
         rlReminder.setOnClickListener(new View.OnClickListener() {
@@ -145,13 +146,19 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         final ArrayAdapter adapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, list);
         spin.setAdapter(adapter);
-        spin.setSelection(((ArrayAdapter<String>) spin.getAdapter()).getPosition(StorageManager.getInstance().getWaterGoal()));
+
+//        Log.e("TAG", "onItemSelected: " + StorageManager.getInstance().getgoalIndex());
+
+        spin.setSelection(StorageManager.getInstance().getgoalIndex());
 
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String value = adapterView.getItemAtPosition(i).toString();
                 StorageManager.getInstance().setWaterGoal(value);
+                long a = adapterView.getItemIdAtPosition(i);
+                StorageManager.getInstance().setgoalIndex((int) a);
+//                Log.e("TAG", "onItemSelected: " + (int) a);
             }
 
             @Override
@@ -187,13 +194,15 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         final ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, list1);
         spinner.setAdapter(arrayAdapter);
-        spinner.setSelection(((ArrayAdapter<String>) spinner.getAdapter()).getPosition(StorageManager.getInstance().getWaterCup()));
+        spinner.setSelection(StorageManager.getInstance().getDefultcupIndex());
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String value = adapterView.getItemAtPosition(i).toString();
                 StorageManager.getInstance().setWaterCup(value);
+                long a = adapterView.getItemIdAtPosition(i);
+                StorageManager.getInstance().setDefultcupIndex((int) a);
             }
 
             @Override
@@ -210,20 +219,21 @@ public class WaterSettingActivity extends AppCompatActivity {
 
         if (requestCode == LAUNCH_SECOND_ACTIVITY) {
             if (resultCode == Activity.RESULT_OK) {
+
                 String result = data.getStringExtra("result");
                 String hours = data.getStringExtra("hours");
                 mtvReminder.setText(result);
-                mtvHours.setText(hours);
-
-                Calendar calendar = Calendar.getInstance();
-                Intent intent1 = new Intent(WaterSettingActivity.this, AlarmReceiver.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
-                AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000 * 60, pendingIntent);
+                mtvHours.setText("Every " + hours + " hour");
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 // Write your code if there's no result
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        init();
     }
 }

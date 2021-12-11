@@ -203,8 +203,7 @@
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingLeft="@dimen/_10sdp"
-                        android:paddingRight="@dimen/_10sdp"
-                        android:weightSum="7">
+                        android:paddingRight="@dimen/_10sdp">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -213,197 +212,16 @@
                             android:text="Daily goal "
                             android:textSize="@dimen/_12sdp" />
 
-                        <LinearLayout
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvStepChart"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingLeft="@dimen/_10sdp"
-                            android:paddingRight="@dimen/_10sdp"
-                            android:weightSum="7">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/sunday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="S"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/monday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="M"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/tuesday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="T"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/wednesday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="W"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/thrusday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="T"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/friday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="F"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/saturday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="S"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                        </LinearLayout>
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="@dimen/_10sdp" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_10sdp"
                         android:layout_marginBottom="@dimen/_5sdp"
                         android:gravity="center"
                         android:orientation="horizontal">
@@ -642,8 +460,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/llwaterdisplay"
                         android:gravity="center"
-                        android:orientation="vertical"
-                        android:weightSum="7">
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -652,191 +469,11 @@
                             android:text="Daily goal "
                             android:textSize="@dimen/_12sdp" />
 
-                        <LinearLayout
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvWaterChart"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingLeft="@dimen/_10sdp"
-                            android:paddingRight="@dimen/_10sdp"
-                            android:weightSum="7">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/waterSunday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="S"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/waterMonday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="M"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/waterTuesday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="T"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/waterWednesday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="W"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/waterThursday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="T"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/waterFriday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="F"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/waterSaturday"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="@dimen/_30sdp"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="3dp"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="3dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="S"
-                                    android:textSize="@dimen/_12sdp" />
-                            </LinearLayout>
-
-                        </LinearLayout>
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="@dimen/_10sdp" />
                     </LinearLayout>
                 </RelativeLayout>
 

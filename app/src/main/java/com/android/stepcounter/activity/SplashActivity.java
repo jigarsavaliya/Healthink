@@ -53,7 +53,7 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 handlePermission();
             }
-        }, secondsDelayed * 3000);
+        }, secondsDelayed * 100);
 
         /*stepcountModel stepcountModel= new stepcountModel();
         DBHandler dbManager= new DBHandler(this);

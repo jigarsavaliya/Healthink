@@ -309,23 +309,25 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int TotalStepCount = dbManager.getSumOfStepList(date, month, year);
         tvTotal.setText(TotalStepCount + "");
 
-        Legend L;
-        L = chart.getLegend();
-        L.setEnabled(false);
+        chart.setPinchZoom(false);
+        chart.setScaleEnabled(false);
+        chart.setDrawBarShadow(false);
+        chart.setDrawValueAboveBar(true);
 
-        YAxis leftAxis = chart.getAxisLeft();
+        chart.getDescription().setEnabled(false);
+        chart.setDrawGridBackground(false);
+
         YAxis rightAxis = chart.getAxisRight();
         XAxis xAxis = chart.getXAxis();
 
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextSize(10f);
-        xAxis.setDrawAxisLine(true);
         xAxis.setDrawGridLines(false);
-
-//        leftAxis.setTextSize(10f);
-//        leftAxis.setDrawLabels(false);
-//        leftAxis.setDrawAxisLine(true);
-//        leftAxis.setDrawGridLines(false);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setCenterAxisLabels(true);
+        Legend L;
+        L = chart.getLegend();
+        L.setEnabled(false);
 
         rightAxis.setDrawAxisLine(false);
         rightAxis.setDrawGridLines(false);
@@ -336,6 +338,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(chart);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -343,11 +348,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
-        chart.setDrawValueAboveBar(true);
-
         chart.getAxisLeft().setDrawGridLines(false);
         chart.getAxisRight().setDrawGridLines(false);
         chart.getXAxis().setDrawGridLines(false);
+        chart.setDrawValueAboveBar(true);
+
+        chart.invalidate();
 
     }
 
@@ -358,7 +364,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
-                entries.add(new BarEntry(Steplist.get(i).getDuration(), Steplist.get(i).getStep()));
+                entries.add(new BarEntry(i, Steplist.get(i).getStep(),Steplist.get(i).getDuration()));
             }
         }
         BarDataSet set = new BarDataSet(entries, "");
@@ -806,6 +812,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
         tvchartdate.setText(date + " " + month);
 
+        int sumvalue = 0;
+        int minitvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
@@ -813,13 +821,17 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 int totalSecs = (int) (Steplist.get(i).getStep() * 1.66);
                 if (totalSecs < 60) {
                     entries.add(new BarEntry(Steplist.get(i).getDuration(), totalSecs));
+                    sumvalue = sumvalue + totalSecs;
                 } else {
                     int min = totalSecs / 60;
 //                    int sec = totalSecs % 60;
                     entries.add(new BarEntry(Steplist.get(i).getDuration(), min));
+                    minitvalue = minitvalue + min;
                 }
+
             }
         }
+        tvTotal.setText(minitvalue + "m " + sumvalue + "s");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -881,19 +893,25 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
         Stepmonthlist = dbManager.getMonthstepdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
 
+        int sumvalue = 0;
+        int minitvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Stepmonthlist != null) {
             for (int i = 0; i < Stepmonthlist.size(); i++) {
                 int totalSecs = (int) (Stepmonthlist.get(i).getSumstep() * 1.66);
                 if (totalSecs < 60) {
                     entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), totalSecs));
+                    sumvalue = sumvalue + totalSecs;
                 } else {
                     int min = totalSecs / 60;
 //                    int sec = totalSecs % 60;
                     entries.add(new BarEntry(Stepmonthlist.get(i).getDate(), min));
+                    minitvalue = minitvalue + min;
                 }
             }
         }
+
+        tvTotal.setText(minitvalue + "m " + sumvalue + "s");
 
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
@@ -973,6 +991,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         StepWeeklist = dbManager.getweekstepdata(fristdate, lastdate);
 
+        int sumvalue = 0;
+        int minitvalue = 0;
+
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (StepWeeklist != null) {
             for (int i = 0; i < StepWeeklist.size(); i++) {
@@ -980,14 +1001,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 int totalSecs = (int) (StepWeeklist.get(i).getSumstep() * 1.66);
                 if (totalSecs < 60) {
                     entries.add(new BarEntry(StepWeeklist.get(i).getDate(), totalSecs));
+                    sumvalue = sumvalue + totalSecs;
                 } else {
                     int min = totalSecs / 60;
 //                    int sec = totalSecs % 60;
                     entries.add(new BarEntry(StepWeeklist.get(i).getDate(), min));
+                    minitvalue = minitvalue + min;
                 }
             }
         }
-
+        tvTotal.setText(minitvalue + "m " + sumvalue + "s");
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
@@ -1393,7 +1416,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
                     stepcountModel.setStep(Integer.valueOf(numSteps));
                     stepcountModel.setDate(selectedday[0]);
-                    stepcountModel.setMonth(selectedmonth[0]);
+                    stepcountModel.setMonth(selectedmonth[0] + 1);
                     stepcountModel.setYear(selectedyear[0]);
                     stepcountModel.setDistance(Distance);
                     stepcountModel.setCalorie(Calories);

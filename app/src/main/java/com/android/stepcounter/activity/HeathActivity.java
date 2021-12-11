@@ -23,6 +23,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
+import com.airbnb.lottie.L;
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DBHandler;
@@ -46,7 +47,9 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import org.joda.time.DateTime;
@@ -217,7 +220,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 }
                 dbManager.addWaterData(waterlevel);
                 setdatainprogress();
-                SetMonthwiseWaterChart();
+                SetWeekwiseWaterChart();
             }
         });
 
@@ -240,7 +243,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 }
                 dbManager.DeletelastWaterData(lastentry);
                 setdatainprogress();
-                SetMonthwiseWaterChart();
+                SetWeekwiseWaterChart();
             }
         });
 
@@ -751,7 +754,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         super.onResume();
         setSharedPreferences();
         init();
-        SetMonthwiseWaterChart();
+        SetWeekwiseWaterChart();
         setWeightChart();
         BMIReport();
     }
@@ -815,12 +818,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
         Date mDateMonday = mCalendar.getTime();
 
-        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
+//        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
         // return 6 the next days of current day (object cal save current day)
         mCalendar.add(Calendar.DAY_OF_YEAR, 6);
         Date mDateSunday = mCalendar.getTime();
 
-        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
+//        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
 
         //Get format date
         String strDateFormat = "dd MMM";
@@ -838,39 +841,65 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     }
 
 
-    private void SetMonthwiseWaterChart() {
+    private void SetWeekwiseWaterChart() {
 
-        Legend L;
-        L = chart.getLegend();
+        final ArrayList<String> xAxisLabel = new ArrayList<>();
+        xAxisLabel.add("Mon");
+        xAxisLabel.add("Tue");
+        xAxisLabel.add("Wed");
+        xAxisLabel.add("Thu");
+        xAxisLabel.add("Fri");
+        xAxisLabel.add("Sat");
+        xAxisLabel.add("Sun");
+
+        chart.setPinchZoom(false);
+        chart.setScaleEnabled(false);
+        chart.setDrawBarShadow(false);
+        chart.setDrawValueAboveBar(true);
+
+        chart.getDescription().setEnabled(false);
+
+        chart.setDrawGridBackground(false);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                try {
+                    IBarDataSet dataSet = chart.getData().getDataSetByIndex(0);
+                    return dataSet.getEntryForIndex((int) value).getData().toString();
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+        });
+
+        Legend L = chart.getLegend();
         L.setEnabled(false);
 
-        YAxis leftAxis = chart.getAxisLeft();
-        YAxis rightAxis = chart.getAxisRight();
-        XAxis xAxis = chart.getXAxis();
+        YAxis leftAxis = chart.getAxisRight();
+        leftAxis.setLabelCount(4, false);
+        leftAxis.setDrawGridLines(false);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawZeroLine(false); // draw a zero line
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(6000F);
+        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
 
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(10f);
-        xAxis.setDrawAxisLine(true);
-        xAxis.setDrawGridLines(false);
-
-//        leftAxis.setTextSize(10f);
-//        leftAxis.setDrawLabels(false);
-//        leftAxis.setDrawAxisLine(true);
-//        leftAxis.setDrawGridLines(false);
-
-//        LimitLine ll1 = new LimitLine(Integer.parseInt(Watergoal));
+        //        LimitLine ll1 = new LimitLine(Integer.parseInt(Watergoal));
 //        ll1.setLineWidth(1f);
 //        ll1.enableDashedLine(1f, 1f, 0f);
 
-        rightAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-//        rightAxis.addLimitLine(ll1);
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setAxisMaximum(6000);
-        rightAxis.setAxisMinimum(0);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setDrawLabels(false);
+        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+//        leftAxis.addLimitLine(ll1);
+        leftAxis.setDrawLabels(false);
 
-        BarData data = new BarData(setMonthData());
+
+        BarData data = new BarData(setWeekData());
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
@@ -888,6 +917,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         chart.getAxisRight().setDrawGridLines(false);
         chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
+
+        chart.invalidate();
 
     }
 
@@ -908,13 +939,13 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 //        Date mDateMonday = mCalendar.getTime();
         long mDateMonday = mCalendar.getTimeInMillis();
 
-        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
+//        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
         // return 6 the next days of current day (object cal save current day)
         mCalendar.add(Calendar.DAY_OF_YEAR, 6);
 //        Date mDateSunday = mCalendar.getTime();
         long mDateSunday = mCalendar.getTimeInMillis();
 
-        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
+//        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
 
         //Get format date
         String strDateFormat = "dd MMM";
@@ -932,38 +963,43 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         return mDateMonday + " - " + mDateSunday;
     }
 
-    private BarDataSet setMonthData() {
-        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
-        int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
-        Log.e("TAG", a + "total days");
-
-      /*  String s1 = getCurrentWeekdate(rightNow);
+    private BarDataSet setWeekData() {
+        String s1 = getCurrentWeekdate(rightNow);
         String[] Weekdate1 = s1.split("-");
         tvchartdate.setText(Weekdate1[0] + " - " + Weekdate1[1]);
 
         String s = getCurrentWeek(rightNow);
         String[] Weekdate = s.split("-");
-        Log.e("TAG", "date: " + Weekdate[0]);
-        Log.e("TAG", "date: " + Weekdate[1]);
+//        Log.e("TAG", "date: " + Weekdate[0]);
+//        Log.e("TAG", "date: " + Weekdate[1]);
         String fristdate = Weekdate[0];
-        String lastdate = Weekdate[1];*/
+        String lastdate = Weekdate[1];
 
-
-        watermonthlist = dbManager.getMonthWaterdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
-//        watermonthlist = dbManager.getweekWaterdata(fristdate, lastdate);
+        watermonthlist = dbManager.getweekWaterdata(fristdate, lastdate);
 
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (watermonthlist != null) {
             for (int i = 0; i < watermonthlist.size(); i++) {
-                Log.e("TAG", watermonthlist.get(i).getDate() + "total days" + watermonthlist.get(i).getSumwater());
-                entries.add(new BarEntry(watermonthlist.get(i).getDate(), watermonthlist.get(i).getSumwater()));
+//                Log.e("TAG", watermonthlist.get(i).getDate() + "total days" + watermonthlist.get(i).getSumwater());
+                /*SimpleDateFormat inFormat = new SimpleDateFormat("dd-MM-yyyy");
+                String dayName = null;
+                try {
+                    Date myDate = inFormat.parse(watermonthlist.get(i).getDate() + "-" + watermonthlist.get(i).getMonth() + "-" + watermonthlist.get(i).getYear());
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE");
+                    dayName = simpleDateFormat.format(myDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }*/
+                entries.add(new BarEntry(i, watermonthlist.get(i).getSumwater(), watermonthlist.get(i).getDate()));
             }
         }
-
 
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
+
 
         return set;
     }
@@ -979,28 +1015,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ivBackDate:
-                rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) - 1);
-                Log.e("TAG", "ivBackDate: " + rightNow.get(Calendar.MONTH));
-                month = rightNow.get(Calendar.MONTH) + 1;
-                Log.e("TAG", "ivBackDate: " + month + " date " + date);
-                tvchartdate.setText(month + "");
-
-                Calendar c = Calendar.getInstance();
-                c.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
-                c.set(Calendar.YEAR, rightNow.get(Calendar.YEAR));
-//                    int year = c.get(Calendar.YEAR);
-//                    int month = c.get(Calendar.MONTH);
-                int day = 1;
-
-                c.set(Calendar.DAY_OF_MONTH, day);
-
-                int numOfDaysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
-                firstdayofmonth = c.getTimeInMillis();
-                c.add(Calendar.DAY_OF_MONTH, numOfDaysInMonth - 1);
-                lastdayofmonth = c.getTimeInMillis();
-
-               /* SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
                 rightNow.add(Calendar.DAY_OF_YEAR, -7);
                 rightNow.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
                 date = rightNow.get(Calendar.DATE);
@@ -1008,33 +1023,14 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 year = rightNow.get(Calendar.YEAR);
                 s.format(new Date(rightNow.getTimeInMillis()));
                 Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
-                Log.e("Start", "Start Date = " + s.format(new Date(rightNow.getTimeInMillis())));*/
+                Log.e("Start", "Start Date = " + s.format(new Date(rightNow.getTimeInMillis())));
 
-                SetMonthwiseWaterChart();
+                SetWeekwiseWaterChart();
 
                 break;
             case R.id.ivForwardDate:
-                rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) + 1);
-                month = rightNow.get(Calendar.MONTH) + 1;
-                Log.e("TAG", "ivForwardDate : " + month + " date " + date);
-                tvchartdate.setText(month + "");
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
-                calendar.set(Calendar.YEAR, rightNow.get(Calendar.YEAR));
-//                    int year = c.get(Calendar.YEAR);
-//                    int month = c.get(Calendar.MONTH);
-                int i = 1;
-
-                calendar.set(Calendar.DAY_OF_MONTH, i);
-
-                int maximum = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-//        Log.e("First", "First Day of month: " + c.getTimeInMillis());
-                firstdayofmonth = calendar.getTimeInMillis();
-                calendar.add(Calendar.DAY_OF_MONTH, maximum - 1);
-                lastdayofmonth = calendar.getTimeInMillis();
-
-               /* SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 rightNow.add(Calendar.DAY_OF_YEAR, +7);
                 rightNow.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
                 date = rightNow.get(Calendar.DATE);
@@ -1042,9 +1038,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 year = rightNow.get(Calendar.YEAR);
                 simpleDateFormat.format(new Date(rightNow.getTimeInMillis()));
                 Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
-                Log.e("Start", "Start Date = " + simpleDateFormat.format(new Date(rightNow.getTimeInMillis())));*/
+                Log.e("Start", "Start Date = " + simpleDateFormat.format(new Date(rightNow.getTimeInMillis())));
 
-                SetMonthwiseWaterChart();
+                SetWeekwiseWaterChart();
                 break;
             case R.id.scWaterNoti:
                 //waternotfication service

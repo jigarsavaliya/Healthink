@@ -24,6 +24,10 @@ public class StorageManager {
     public static final String PREF_APP_KEY_WATER_ENDTIME = "WaterReminderEndStarttime";
     public static final String PREF_APP_KEY_WATER_INTERVAL = "WaterReminderInterval";
 
+    public static final String PREF_APP_KEY_WATER_INDEX_GOAL = "WaterGoalindex";
+    public static final String PREF_APP_KEY_WATER_INDEX_DEFULT_CUP = "WaterDefultcupindex";
+    public static final String PREF_APP_KEY_WATER_REMINDER = "WaterReminder";
+
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
 
@@ -117,7 +121,6 @@ public class StorageManager {
         return preferences.getString(StorageManager.PREF_APP_KEY_WATER_STARTTIME, "9:00 AM");
     }
 
-
     public void setWaterReminderEnd(String message) {
         editor.putString(StorageManager.PREF_APP_KEY_WATER_ENDTIME, message).apply();
     }
@@ -132,5 +135,29 @@ public class StorageManager {
 
     public String getWaterinterval() {
         return preferences.getString(StorageManager.PREF_APP_KEY_WATER_INTERVAL, "1");
+    }
+
+    public void setgoalIndex(Integer message) {
+        editor.putInt(StorageManager.PREF_APP_KEY_WATER_INDEX_GOAL, message).apply();
+    }
+
+    public Integer getgoalIndex() {
+        return preferences.getInt(StorageManager.PREF_APP_KEY_WATER_INDEX_GOAL, 1);
+    }
+
+    public void setDefultcupIndex(Integer message) {
+        editor.putInt(StorageManager.PREF_APP_KEY_WATER_INDEX_DEFULT_CUP, message).apply();
+    }
+
+    public Integer getDefultcupIndex() {
+        return preferences.getInt(StorageManager.PREF_APP_KEY_WATER_INDEX_DEFULT_CUP, 1);
+    }
+
+    public void setReminder(Boolean message) {
+        editor.putBoolean(StorageManager.PREF_APP_KEY_WATER_REMINDER, message).apply();
+    }
+
+    public Boolean getReminder() {
+        return preferences.getBoolean(StorageManager.PREF_APP_KEY_WATER_REMINDER, false);
     }
 }

@@ -13,7 +13,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
@@ -215,10 +214,11 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
         numSteps++;
 
+        String DisplayCalories = String.valueOf(commanMethod.calculateCalories(Display, userWeight, userHeight));
         String Calories = String.valueOf(commanMethod.calculateCalories(numSteps, userWeight, userHeight));
         String Distance = String.valueOf(commanMethod.calculateDistance(numSteps, userHeight));
 
-        showNotification(Display, Integer.parseInt(Calories));
+        showNotification(Display, Integer.parseInt(DisplayCalories));
 
         Intent sendLevel = new Intent();
         sendLevel.setAction("GET_SIGNAL_STRENGTH");
@@ -257,6 +257,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
                 .setContent(contentView)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
+                .setSilent(true)
                 .setAutoCancel(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -271,6 +272,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
             NotificationChannel channel = new NotificationChannel(constant.CHANNEL_ID_FOR_STEP,
                     constant.CHANNEL_NAME_FOR_STEP,
                     NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
             channel.setShowBadge(false);
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(Context.NOTIFICATION_SERVICE);

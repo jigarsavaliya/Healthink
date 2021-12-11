@@ -31,9 +31,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
+import com.android.stepcounter.adpter.StepWeekChartAdapter;
+import com.android.stepcounter.adpter.WaterWeekChartAdapter;
 import com.android.stepcounter.database.DBHandler;
 import com.android.stepcounter.model.WeightModel;
 import com.android.stepcounter.model.stepcountModel;
@@ -111,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<WeightModel> arrayList = new ArrayList<>();
     ArrayList<Entry> weightModelArrayList = new ArrayList<>();
     ArrayList<WeightModel> waterlevelArrayList = new ArrayList<>();
+    RecyclerView rvSteplist, rvWaterlist;
+    StepWeekChartAdapter stepWeekChartAdapter;
+    WaterWeekChartAdapter waterWeekChartAdapter;
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -132,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tvkcal.setText(calories);
             }
 
-            setDailyGoal();
+            setRecyclerView();
         }
     }
 
@@ -175,40 +182,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mcvWater = findViewById(R.id.cvWater);
 
+        rvSteplist = findViewById(R.id.rvStepChart);
+        rvWaterlist = findViewById(R.id.rvWaterChart);
+
+        setRecyclerView();
+
         progress = findViewById(R.id.progressBar);
         WeightChart = findViewById(R.id.WeightChart);
-        sunday = findViewById(R.id.sunday);
-        monday = findViewById(R.id.monday);
-        tuesday = findViewById(R.id.tuesday);
-        wednesday = findViewById(R.id.wednesday);
-        thrusday = findViewById(R.id.thrusday);
-        friday = findViewById(R.id.friday);
-        saturday = findViewById(R.id.saturday);
-
-        sunday.setProgressMax(StepGoal);
-        monday.setProgressMax(StepGoal);
-        tuesday.setProgressMax(StepGoal);
-        wednesday.setProgressMax(StepGoal);
-        thrusday.setProgressMax(StepGoal);
-        friday.setProgressMax(StepGoal);
-        saturday.setProgressMax(StepGoal);
-
-        //waterChart
-        watersunday = findViewById(R.id.waterSunday);
-        watermonday = findViewById(R.id.waterMonday);
-        watertuesday = findViewById(R.id.waterTuesday);
-        waterwednesday = findViewById(R.id.waterWednesday);
-        waterthrusday = findViewById(R.id.waterThursday);
-        waterfriday = findViewById(R.id.waterFriday);
-        watersaturday = findViewById(R.id.waterSaturday);
-
-        watersunday.setProgressMax(Float.parseFloat(WaterGoalValue[0]));
-        watermonday.setProgressMax(Float.parseFloat(WaterGoalValue[0]));
-        watertuesday.setProgressMax(Float.parseFloat(WaterGoalValue[0]));
-        waterwednesday.setProgressMax(Float.parseFloat(WaterGoalValue[0]));
-        waterthrusday.setProgressMax(Float.parseFloat(WaterGoalValue[0]));
-        waterfriday.setProgressMax(Float.parseFloat(WaterGoalValue[0]));
-        watersaturday.setProgressMax(Float.parseFloat(WaterGoalValue[0]));
 
         addWeightDailog = findViewById(R.id.addWeight);
         ivaddwater = findViewById(R.id.ivaddwater);
@@ -278,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         calories = String.valueOf(commanMethod.calculateCalories(TotalStepCount, userWeight, userHeight));
         tvkcal.setText(calories);
 
-        setDailyGoal();
 
         getoldSteplist = dbManager.getCurrentDayHoursStepcountlist(date, month, year, hour);
         if (getoldSteplist != null) {
@@ -291,51 +270,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            Log.e("TAG", "date: " + oldsteptotal);
         }
 
-       /* waterlist = dbManager.getCurrentDayWatercountlist(date, month, year);
-
-        Watercircle_progress.setMax(Integer.parseInt(WaterGoalValue[0]));
-
-
-        if (waterlist != null) {
-            for (int i = 0; i < waterlist.size(); i++) {
-                waterml = (int) Float.parseFloat(waterlist.get(i).getUnit());
-                Log.e("TAG", "date: " + waterml);
-            }
-        } else {
-            waterml = 0;
-//            Log.e("TAG", "date: " + waterml);
-        }
-
-        if (WaterUnit.contains("ml")) {
-            if (waterml == 0.0) {
-                Watercircle_progress.setProgress(0);
-                tvwaterlevel.setText(0 + "");
-            } else {
-                if (waterml < Integer.parseInt(WaterGoalValue[0])) {
-                    Watercircle_progress.setProgress(waterml);
-                    tvwaterlevel.setText(waterml + "");
-                } else {
-                    Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                    tvwaterlevel.setText(Integer.parseInt(WaterGoalValue[0]) + "");
-                }
-
-            }
-        } else {
-            if (waterml == 0.0) {
-                Watercircle_progress.setProgress(0);
-                tvwaterlevel.setText(0 + "");
-            } else {
-                double watermlvalue = commanMethod.getMlToFloz(Float.valueOf(waterml));
-                if (watermlvalue < Integer.parseInt(WaterGoalValue[0])) {
-                    Watercircle_progress.setProgress((int) Math.round(watermlvalue));
-                    tvwaterlevel.setText((int) Math.round(watermlvalue) + "");
-                } else {
-                    Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                    tvwaterlevel.setText(Integer.parseInt(WaterGoalValue[0]) + "");
-                }
-
-            }
-        }*/
         setdatainprogress();
 
         tvwatergoal.setText("/" + StorageManager.getInstance().getWaterGoal());
@@ -350,6 +284,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dbManager.addWeightData(weightModel);
 
         setWeightChart();
+    }
+
+    private void setRecyclerView() {
+        ArrayList<stepcountModel> stepcountModelArrayList = new ArrayList<>();
+        ArrayList<waterlevel> DaywiseWaterlist = new ArrayList<>();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DATE, rightNow.get(Calendar.DATE) - 6);
+
+        Log.e("TAG", calendar.getTimeInMillis() + "setRecyclerView: " + rightNow.getTimeInMillis());
+
+        String fristdate = String.valueOf(calendar.getTimeInMillis());
+        String lastdate = String.valueOf(rightNow.getTimeInMillis());
+
+        stepcountModelArrayList = dbManager.getweekstepdata(fristdate, lastdate);
+
+        stepWeekChartAdapter = new StepWeekChartAdapter(this, stepcountModelArrayList);
+        rvSteplist.setHasFixedSize(true);
+        rvSteplist.setLayoutManager(new GridLayoutManager(this, 7));
+        rvSteplist.setAdapter(stepWeekChartAdapter);
+
+        DaywiseWaterlist = dbManager.getweekWaterdata(fristdate, lastdate);
+
+        waterWeekChartAdapter = new WaterWeekChartAdapter(this, DaywiseWaterlist);
+        rvWaterlist.setHasFixedSize(true);
+        rvWaterlist.setLayoutManager(new GridLayoutManager(this, 7));
+        rvWaterlist.setAdapter(waterWeekChartAdapter);
     }
 
     private void setWeightChart() {
@@ -509,74 +470,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         l.setForm(Legend.LegendForm.LINE);
     }
 
-    @SuppressLint("LongLogTag")
-    private void setDailyGoal() {
-
-        String s = getCurrentWeek(rightNow);
-//        Log.e("TAG", "date: " + s);
-        String[] Weekdate = s.split("-");
-        int stepnumber;
-        String fristdate = Weekdate[0];
-        String lastdate = Weekdate[1];
-
-        ArrayList<stepcountModel> stepcountModelArrayList = new ArrayList<>();
-
-//        stepcountModelArrayList = dbManager.getSumOfStepList(fristdate, lastdate);
-        stepcountModelArrayList = dbManager.getweekstepdata(fristdate, lastdate);
-
-        for (int i = 0; i < stepcountModelArrayList.size(); i++) {
-//            Log.e("TAG", stepcountModelArrayList.get(i).getDate() + "setDailyGoal: " + stepcountModelArrayList.get(i).getSumstep());
-            monday.setProgress(stepcountModelArrayList.get(0).getSumstep());
-            tuesday.setProgress(stepcountModelArrayList.get(1).getSumstep());
-            wednesday.setProgress(stepcountModelArrayList.get(2).getSumstep());
-            thrusday.setProgress(stepcountModelArrayList.get(3).getSumstep());
-            friday.setProgress(stepcountModelArrayList.get(4).getSumstep());
-            saturday.setProgress(stepcountModelArrayList.get(5).getSumstep());
-            sunday.setProgress(stepcountModelArrayList.get(6).getSumstep());
-        }
-
-        //waterChart value get from database
-        ArrayList<waterlevel> DaywiseWaterlist = new ArrayList<>();
-        DaywiseWaterlist = dbManager.getweekWaterdata(fristdate, lastdate);
-
-        for (int i = 0; i < DaywiseWaterlist.size(); i++) {
-            watermonday.setProgress(DaywiseWaterlist.get(0).getSumwater());
-            watertuesday.setProgress(DaywiseWaterlist.get(1).getSumwater());
-            waterwednesday.setProgress(DaywiseWaterlist.get(2).getSumwater());
-            waterthrusday.setProgress(DaywiseWaterlist.get(3).getSumwater());
-            waterfriday.setProgress(DaywiseWaterlist.get(4).getSumwater());
-            watersaturday.setProgress(DaywiseWaterlist.get(5).getSumwater());
-            watersunday.setProgress(DaywiseWaterlist.get(6).getSumwater());
-        }
-
-    }
-
-    public static String getCurrentWeek(Calendar mCalendar) {
-        Date date = new Date();
-        mCalendar.setTime(date);
-        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
-        int monday_offset;
-        if (day_of_week == 1) {
-            monday_offset = -6;
-        } else
-            monday_offset = (2 - day_of_week); // need to minus back
-        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
-
-        long mDateMonday = mCalendar.getTimeInMillis();
-        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
-        long mDateSunday = mCalendar.getTimeInMillis();
-        String strDateFormat = "dd MMM";
-        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
-
-        String MONDAY = sdf.format(mDateMonday);
-        String SUNDAY = sdf.format(mDateSunday);
-
-        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
-            MONDAY = MONDAY.substring(0, 2);
-        }
-        return mDateMonday + " - " + mDateSunday;
-    }
-
 
     private void setSharedPreferences() {
         userHeight = StorageManager.getInstance().getHeight();
@@ -639,94 +532,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dbManager.addWaterData(waterlevel);
 
                 setdatainprogress();
-                /*waterlist = dbManager.getCurrentDayWatercountlist(date, month, year);
-
-                String[] WaterGoal = StorageManager.getInstance().getWaterGoal().split(" ");
-
-                int waterml = 0;
-                if (waterlist != null) {
-                    for (int j = 0; j < waterlist.size(); j++) {
-                        waterml = (int) Float.parseFloat(waterlist.get(j).getUnit());
-//                Log.e("TAG", "date: " + waterml);
-                    }
-                } else {
-                    waterml = 0;
-                }
-
-                String WaterUnit = StorageManager.getInstance().getWaterUnit();
-                String ts = String.valueOf(System.currentTimeMillis());
-                if (WaterUnit.contains("ml")) {
-                    tvwaterlevel.setText(waterml + "");
-                    if (waterml < Integer.parseInt(WaterGoalValue[0])) {
-                        waterlevel = new waterlevel();
-                        waterlevel.setDate(date);
-                        waterlevel.setMonth(month);
-                        waterlevel.setYear(year);
-                        waterlevel.setHour(hour);
-                        waterlevel.setMin(min);
-                        waterlevel.setTimestemp(ts);
-                        double covertinml;
-                        if (DefultCupValue[1].contains("fl")) {
-                            value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
-                            if (value[0] < Integer.parseInt(WaterGoalValue[0])) {
-                                Watercircle_progress.setProgress((int) value[0]);
-                                tvwaterlevel.setText(value[0] + "");
-                            } else {
-                                Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                                tvwaterlevel.setText(Integer.parseInt(WaterGoalValue[0]) + "");
-                            }
-                            covertinml = commanMethod.getFlozToMl(value[0]);
-                            waterlevel.setUnit(String.valueOf(covertinml));
-                        } else {
-                            value[0] = value[0] + Integer.parseInt(DefultCupValue[0]);
-                            if (value[0] < Integer.parseInt(WaterGoalValue[0])) {
-                                Watercircle_progress.setProgress((int) value[0]);
-                                tvwaterlevel.setText(value[0] + "");
-                            } else {
-                                Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                                tvwaterlevel.setText(Integer.parseInt(WaterGoalValue[0]) + "");
-                            }
-                            waterlevel.setUnit(String.valueOf(value[0]));
-                        }
-                        dbManager.addWaterData(waterlevel);
-                    }
-                } else {
-                    double watermlnewvalue = commanMethod.getMlToFloz(Float.valueOf(waterml));
-                    tvwaterlevel.setText(watermlnewvalue + "");
-                    if (watermlnewvalue < Integer.parseInt(WaterGoalValue[0])) {
-                        waterlevel = new waterlevel();
-                        waterlevel.setDate(date);
-                        waterlevel.setMonth(month);
-                        waterlevel.setYear(year);
-                        waterlevel.setHour(hour);
-                        waterlevel.setMin(min);
-                        waterlevel.setTimestemp(ts);
-                        double covertinml;
-                        if (DefultCupValue[1].contains("fl")) {
-                            value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
-                            if (value[0] < Integer.parseInt(WaterGoalValue[0])) {
-                                Watercircle_progress.setProgress((int) value[0]);
-                                tvwaterlevel.setText(value[0] + "");
-                            } else {
-                                Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                                tvwaterlevel.setText(Integer.parseInt(WaterGoalValue[0]) + "");
-                            }
-                            covertinml = commanMethod.getFlozToMl(value[0]);
-                            waterlevel.setUnit(String.valueOf(covertinml));
-                        } else {
-                            value[0] = value[0] + Integer.parseInt(DefultCupValue[0]);
-                            if (value[0] < Integer.parseInt(WaterGoalValue[0])) {
-                                Watercircle_progress.setProgress((int) value[0]);
-                                tvwaterlevel.setText(value[0] + "");
-                            } else {
-                                Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                                tvwaterlevel.setText(Integer.parseInt(WaterGoalValue[0]) + "");
-                            }
-                            waterlevel.setUnit(String.valueOf(value[0]));
-                        }
-                        dbManager.addWaterData(waterlevel);
-                    }
-                }*/
                 break;
             case R.id.llwaterSetting:
                 startActivity(new Intent(MainActivity.this, WaterSettingActivity.class));
@@ -937,6 +742,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showResetdataDailog();
                 break;
             case R.id.action_history:
+                startActivity(new Intent(this, HistoryActivity.class));
                 break;
             case R.id.action_instruction:
                 Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
@@ -994,6 +800,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void showEditStepDailog() {
         stepcountModel = new stepcountModel();
+
         String[] Time = {"00:00 - 01:00", "01:00 - 02:00", "02:00 - 03:00", "03:00 - 04:00", "04:00 - 05:00", "05:00 - 06:00", "06:00 - 07:00", "07:00 - 08:00",
                 "08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00",
                 "16:00 - 17:00", "17:00 - 18:00", "18:00 - 19:00", "19:00 - 20:00", "20:00 - 21:00", "21:00 - 22:00", "22:00 - 23:00", "23:00 - 24:00"};
@@ -1009,6 +816,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayout llView = (LinearLayout) d.findViewById(R.id.datepicker);
         Spinner spinner = (Spinner) d.findViewById(R.id.spinner);
         EditText stepvalue = (EditText) d.findViewById(R.id.stepvalue);
+        TextView tvdate = (TextView) d.findViewById(R.id.tvdate);
 
         Calendar rightNow = Calendar.getInstance();
         int hours = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -1021,33 +829,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final int[] selectedmonth = {mMonth};
         final int[] selectedday = {dayOfMonth};
 
+        ArrayList<String> stringArrayList = new ArrayList<>();
+        if (selectedday[0] != dayOfMonth && selectedmonth[0] != mMonth && selectedyear[0] != mYear) {
+            for (int i = 0; i < 24; i++) {
+                stringArrayList.add(Time[i]);
+//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
+            }
+        } else {
+            for (int i = 0; i < hours + 1; i++) {
+                stringArrayList.add(Time[i]);
+//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
+            }
+        }
+
+        //Creating the ArrayAdapter instance having the country list
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, stringArrayList);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spinner.setAdapter(arrayAdapter);
+
+
         llView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
+                            @SuppressLint("SetTextI18n")
                             @Override
                             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                                 selectedyear[0] = year;
                                 selectedmonth[0] = month;
                                 selectedday[0] = day;
+                                tvdate.setText(selectedday[0] + " - " + selectedmonth[0]);
+
+                                if (selectedday[0] != dayOfMonth) {
+                                    for (int i = 0; i < 24; i++) {
+                                        stringArrayList.add(Time[i]);
+                                    }
+                                } else {
+                                    for (int i = 0; i < hours + 1; i++) {
+                                        stringArrayList.add(Time[i]);
+                                    }
+                                }
+                                arrayAdapter.notifyDataSetChanged();
                             }
-                        }, mYear, mMonth, dayOfMonth);
+                        }, mYear, mMonth - 1, dayOfMonth);
                 datePickerDialog.show();
             }
         });
 
-        ArrayList<String> stringArrayList = new ArrayList<>();
-        for (int i = 0; i < hours + 1; i++) {
-            stringArrayList.add(Time[i]);
-//            Log.e("TAG", "showEditStepDailog: " + Time[i]);
-        }
-
-        //Creating the ArrayAdapter instance having the country list
-        ArrayAdapter aa = new ArrayAdapter(this, android.R.layout.simple_spinner_item, stringArrayList);
-        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Setting the ArrayAdapter data on the Spinner
-        spinner.setAdapter(aa);
         spinner.setSelection(stringArrayList.size() - 1);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -1111,7 +941,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        int finalOldsteptotal = oldsteptotal;
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1122,30 +951,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String Calories = String.valueOf(commanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
                     String Distance = String.valueOf(commanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
 
-                    String ts = String.valueOf(System.currentTimeMillis());
+                    Calendar c = Calendar.getInstance();
+                    SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+                    c.set(Calendar.DATE, selectedday[0]);
+                    c.set(Calendar.MONTH, selectedmonth[0]);
+                    c.set(Calendar.YEAR, selectedyear[0]);
+                    c.set(Calendar.HOUR, saveHour[0]);
 
-                    int sum = finalOldsteptotal + Integer.parseInt(numSteps);
-                    stepcountModel.setStep(sum);
+                    s.format(new Date(c.getTimeInMillis()));
+
+                    Log.e("Start", "Start Date = " + selectedday[0]);
+                    Log.e("Start", "Start Date = " + selectedmonth[0]);
+                    Log.e("Start", "Start Date = " + selectedyear[0]);
+                    Log.e("Start", "Start Date = " + c.getTimeInMillis());
+
+                    stepcountModel.setStep(Integer.valueOf(numSteps));
                     stepcountModel.setDate(selectedday[0]);
-                    stepcountModel.setMonth(selectedmonth[0]);
+                    stepcountModel.setMonth(selectedmonth[0] + 1);
                     stepcountModel.setYear(selectedyear[0]);
                     stepcountModel.setDistance(Distance);
                     stepcountModel.setCalorie(Calories);
                     stepcountModel.setDuration(saveHour[0]);
-                    stepcountModel.setTimestemp(ts);
+                    stepcountModel.setTimestemp(String.valueOf(c.getTimeInMillis()));
                     dbManager.addStepcountData(stepcountModel);
                 }
+                onResume();
                 alertDialog.dismiss();
-                init();
             }
         });
+
         mBtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
             }
         });
-
 
         alertDialog.show();
     }

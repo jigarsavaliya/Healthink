@@ -1,6 +1,8 @@
 package com.android.stepcounter.activity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
+import com.android.stepcounter.sevices.AlarmReceiver;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
@@ -92,13 +95,22 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
 
         mbtnReminderSave.setOnClickListener(this);
         mtvremindertime.setOnClickListener(this);
+
+        if (StorageManager.getInstance().getReminder()) {
+            mScReminder.setChecked(true);
+        } else {
+            mScReminder.setChecked(false);
+        }
+
         mScReminder.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     mbtnReminderSave.setVisibility(View.VISIBLE);
+                    StorageManager.getInstance().setReminder(b);
                 } else {
-                    mbtnReminderSave.setVisibility(View.GONE);
+                    mbtnReminderSave.setVisibility(View.VISIBLE);
+                    StorageManager.getInstance().setReminder(false);
                 }
             }
         });
@@ -255,9 +267,19 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
             case R.id.btnReminderSave:
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("result", mtvremindertime.getText().toString());
-                returnIntent.putExtra("hours", mtvhourstext.getText().toString());
+                returnIntent.putExtra("hours", mReminderIntervalvalue);
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR, mStartHour);
+                calendar.set(Calendar.MINUTE, mStartMinute);
+
+                Intent intent1 = new Intent(WaterReminderSettingActivity.this, AlarmReceiver.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+                AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000 * 60 * 60, pendingIntent);
+
                 break;
             case R.id.tvremindertime:
                 showReminderDailog();
