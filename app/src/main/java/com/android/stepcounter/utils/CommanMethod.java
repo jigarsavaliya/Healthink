@@ -2,11 +2,16 @@ package com.android.stepcounter.utils;
 
 import java.text.DecimalFormat;
 
-public class commanMethod {
+public class CommanMethod {
 
     public static float calculateDistance(int num_steps, float height) {
         double distance = num_steps * height * 0.3937 * 0.414 * 2.54e-2;
         return (float) distance;
+    }
+
+    public float getDistanceRun(long steps) {
+        float distance = (float) (steps * 78) / (float) 100000;
+        return distance;
     }
 
     public static int calculateCalories(int stepCounts, float m, float h) {
@@ -53,7 +58,7 @@ public class commanMethod {
         return Math.floor((cm / 2.54) / 12);
     }
 
-    public static double cmToInchConverter(double cm,double feet) {
+    public static double cmToInchConverter(double cm, double feet) {
 //        return format(cm * 0.394);
         return Math.floor((cm / 2.54) - (feet * 12));
     }
@@ -62,7 +67,7 @@ public class commanMethod {
      * @param feet - feet
      * @return centimeters rounded to 1 decimal place
      */
-    public static double feetToCmConverter(double feet,double In) {
+    public static double feetToCmConverter(double feet, double In) {
 //        return format(feet * 30.48);
         return (((feet * 12.0) + In) * 2.54);
     }
@@ -117,6 +122,5 @@ public class commanMethod {
     public static double getMlToFloz(Float aFloat) {
         return aFloat * 0.03381;
     }
-
 
 }

@@ -1,6 +1,6 @@
 package com.android.stepcounter.model;
 
-public class stepcountModel {
+public class StepCountModel {
     Integer step;
     Integer date;
     Integer month;

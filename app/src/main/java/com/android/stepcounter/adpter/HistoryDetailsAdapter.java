@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.HistoryActivity;
-import com.android.stepcounter.model.stepcountModel;
+import com.android.stepcounter.model.StepCountModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,10 +21,10 @@ import java.util.Date;
 
 public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAdapter.ViewHolder> {
 
-    ArrayList<stepcountModel> modelArrayList;
+    ArrayList<StepCountModel> modelArrayList;
     Activity activity;
 
-    public HistoryDetailsAdapter(HistoryActivity mainActivity, ArrayList<stepcountModel> stepcountModelArrayList) {
+    public HistoryDetailsAdapter(HistoryActivity mainActivity, ArrayList<StepCountModel> stepcountModelArrayList) {
         activity = mainActivity;
         modelArrayList = stepcountModelArrayList;
     }
@@ -39,12 +39,28 @@ public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAd
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, modelArrayList.get(i).getMonth() - 1);
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(cal.getTime());
 
-        viewHolder.mtvdate.setText(modelArrayList.get(i).getDate() + "");
+        viewHolder.mtvdate.setText(modelArrayList.get(i).getDate() + " " + month_name);
+
         viewHolder.mtvstep.setText(modelArrayList.get(i).getSumstep() + "");
-        viewHolder.mtvkcal.setText(modelArrayList.get(i).getCalorie() + "");
-        viewHolder.mtvhours.setText("");
-        viewHolder.mtvkm.setText(modelArrayList.get(i).getDistance() + "");
+        viewHolder.mtvkcal.setText(modelArrayList.get(i).getCalorie() + "Kcal");
+
+        int totalSecs = (int) (modelArrayList.get(i).getSumstep() * 1.66);
+
+        if (totalSecs < 60) {
+            viewHolder.mtvhours.setText("0 m " + totalSecs + "s");
+        } else {
+            int min = totalSecs / 60;
+//                    int sec = totalSecs % 60;
+            viewHolder.mtvhours.setText(min + "m 0 s");
+        }
+
+//        String formattedNumber = String.format(Locale.US, "%.2f", modelArrayList.get(i).getDistance());
+        viewHolder.mtvkm.setText(modelArrayList.get(i).getDistance() + " Km");
 
     }
 

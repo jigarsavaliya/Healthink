@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.MainActivity;
-import com.android.stepcounter.model.waterlevel;
+import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.utils.StorageManager;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
@@ -22,11 +22,11 @@ import java.util.Date;
 
 public class WaterWeekChartAdapter extends RecyclerView.Adapter<WaterWeekChartAdapter.ViewHolder> {
 
-    ArrayList<waterlevel> modelArrayList;
+    ArrayList<WaterLevelModel> modelArrayList;
     Activity activity;
     int StepGoal;
 
-    public WaterWeekChartAdapter(MainActivity mainActivity, ArrayList<waterlevel> waterlevelArrayList) {
+    public WaterWeekChartAdapter(MainActivity mainActivity, ArrayList<WaterLevelModel> waterlevelArrayList) {
         activity = mainActivity;
         modelArrayList = waterlevelArrayList;
         StepGoal = StorageManager.getInstance().getStepCountGoalUnit();

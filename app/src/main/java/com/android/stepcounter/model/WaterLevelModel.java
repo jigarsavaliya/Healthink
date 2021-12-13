@@ -1,6 +1,6 @@
 package com.android.stepcounter.model;
 
-public class waterlevel {
+public class WaterLevelModel {
 
     int date;
     int month;

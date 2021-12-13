@@ -22,8 +22,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.stepcounter.R;
-import com.android.stepcounter.database.DBHandler;
-import com.android.stepcounter.model.stepcountModel;
 import com.android.stepcounter.utils.StorageManager;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;

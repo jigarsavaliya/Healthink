@@ -23,14 +23,13 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
-import com.airbnb.lottie.L;
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DBHandler;
 import com.android.stepcounter.model.WeightModel;
-import com.android.stepcounter.model.waterlevel;
+import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.utils.StorageManager;
-import com.android.stepcounter.utils.commanMethod;
+import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.constant;
 import com.github.jhonnyx2012.horizontalpicker.DatePickerListener;
 import com.github.jhonnyx2012.horizontalpicker.HorizontalPicker;
@@ -80,9 +79,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     ArcProgress arcProgress, mbmiprogress;
     LinearLayout llRemovewater, lladdwater;
     String waterGoal, DefualtCup;
-    waterlevel waterlevel;
-    ArrayList<waterlevel> waterlist;
-    ArrayList<waterlevel> watermonthlist;
+    WaterLevelModel waterlevel;
+    ArrayList<WaterLevelModel> waterlist;
+    ArrayList<WaterLevelModel> watermonthlist;
     int StepGoal;
     String Watergoal, WaterUnit, Watercup;
     EditText etweight;
@@ -141,7 +140,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             }
         });
 
-        WeightChart = findViewById(R.id.WeightChart);
+        WeightChart = findViewById(R.id.cvWeightChart);
         muserWeight = findViewById(R.id.userWeight);
         mAddWeightDailog = findViewById(R.id.addWeight);
         meditHeightWeight = findViewById(R.id.editHeightWeight);
@@ -198,7 +197,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             public void onClick(View view) {
                 String ts = String.valueOf(System.currentTimeMillis());
 
-                waterlevel = new waterlevel();
+                waterlevel = new WaterLevelModel();
                 waterlevel.setDate(date);
                 waterlevel.setMonth(month);
                 waterlevel.setYear(year);
@@ -210,7 +209,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
                 if (DefultCupValue[1].contains("fl")) {
                     value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
-                    covertinml = commanMethod.getFlozToMl(value[0]);
+                    covertinml = CommanMethod.getFlozToMl(value[0]);
                     waterlevel.setUnit(String.valueOf(covertinml));
                 } else {
 //                    Log.e("TAG", "old: " + value[0]);
@@ -228,15 +227,14 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         llRemovewater.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ArrayList<waterlevel> waterlevelArrayList = new ArrayList<>();
+                ArrayList<WaterLevelModel> waterlevelArrayList = new ArrayList<>();
                 waterlevelArrayList = dbManager.getWatercountlist();
                 String lastentry = null;
 
                 if (waterlevelArrayList != null) {
                     for (int i = 0; i < waterlevelArrayList.size(); i++) {
-                        Log.e("TAG", "init: " + waterlevelArrayList.get(waterlevelArrayList.size() - 1).getUnit());
+                        Log.e("TAG", "init: " + waterlevelArrayList.get(waterlevelArrayList.size() - 1).getTimestemp());
                         lastentry = waterlevelArrayList.get(waterlevelArrayList.size() - 1).getTimestemp();
-
                     }
                 } else {
                     setdatainprogress();
@@ -264,15 +262,15 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     }
 
     private void setdatainprogress() {
-        ArrayList<waterlevel> waterlevelArrayList = new ArrayList<>();
+        ArrayList<WaterLevelModel> waterlevelArrayList = new ArrayList<>();
 
-        waterlevelArrayList = dbManager.getDayWaterdata(rightNow.get(Calendar.DATE), rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
+        waterlevelArrayList = dbManager.getDayWaterdata(date, month, year);
 
         if (WaterUnit.equals("ml")) {
             int lastentry = 0;
             if (waterlevelArrayList != null) {
                 for (int i = 0; i < waterlevelArrayList.size(); i++) {
-                    Log.e("TAG", "init: " + waterlevelArrayList.get(i).getSumwater());
+                    Log.e("TAG", "init ml: " + waterlevelArrayList.get(i).getSumwater());
                     lastentry = waterlevelArrayList.get(i).getSumwater();
                 }
 
@@ -292,8 +290,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             double lastentry = 0;
             if (waterlevelArrayList != null) {
                 for (int i = 0; i < waterlevelArrayList.size(); i++) {
-                    Log.e("TAG", "init: " + waterlevelArrayList.get(i).getSumwater());
-                    lastentry = Math.round(commanMethod.getMlToFloz(Float.valueOf(waterlevelArrayList.get(i).getSumwater())));
+                    Log.e("TAG", "init fl : " + waterlevelArrayList.get(i).getSumwater());
+                    lastentry = Math.round(CommanMethod.getMlToFloz(Float.valueOf(waterlevelArrayList.get(i).getSumwater())));
                 }
 
                 if (lastentry != 0) {
@@ -347,7 +345,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 iskg[0] = false;
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(commanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                etweight.setText(Math.round(CommanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
             }
         });
 
@@ -358,7 +356,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 iskg[0] = true;
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                etweight.setText(Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
             }
         });
 
@@ -373,9 +371,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
                 mllcm.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllin.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                double value = commanMethod.cmToInchConverter(Double.parseDouble(etHeight.getText().toString()),
-                        Math.round(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))));
-                etHeight.setText(Math.round(commanMethod.feetToCmConverter(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString())), value)) + "");
+                double value = CommanMethod.cmToInchConverter(Double.parseDouble(etHeight.getText().toString()),
+                        Math.round(CommanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))));
+                etHeight.setText(Math.round(CommanMethod.feetToCmConverter(CommanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString())), value)) + "");
             }
         });
 
@@ -394,9 +392,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 //                etHeight.setText(Math.round(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))) + " ft " +
 //                        commanMethod.cmToInchConverter(Double.parseDouble(etHeight.getText().toString()),
 //                        Math.round(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString())))) + " in ");
-                etft.setText(Math.round(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))) + " ft");
-                etin.setText(commanMethod.cmToInchConverter(Double.parseDouble(etHeight.getText().toString()),
-                        commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))) + " in ");
+                etft.setText(Math.round(CommanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))) + " ft");
+                etin.setText(CommanMethod.cmToInchConverter(Double.parseDouble(etHeight.getText().toString()),
+                        CommanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))) + " in ");
             }
         });
 
@@ -404,10 +402,10 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             @Override
             public void onClick(View view) {
 
-                double value = commanMethod.cmToInchConverter(Double.parseDouble(etHeight.getText().toString()),
-                        Math.round(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))));
+                double value = CommanMethod.cmToInchConverter(Double.parseDouble(etHeight.getText().toString()),
+                        Math.round(CommanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString()))));
 
-                StorageManager.getInstance().setHeight((float) Math.round(commanMethod.feetToCmConverter(commanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString())), value)));
+                StorageManager.getInstance().setHeight((float) Math.round(CommanMethod.feetToCmConverter(CommanMethod.cmToFeetConverter(Double.parseDouble(etHeight.getText().toString())), value)));
 
                 WeightModel weightModel = new WeightModel();
                 weightModel.setDate(Integer.parseInt(selectedDate));
@@ -416,7 +414,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 if (iskg[0]) {
                     weightModel.setKg(Math.round(Float.parseFloat(etweight.getText().toString())));
                 } else {
-                    weightModel.setKg((int) Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
+                    weightModel.setKg((int) Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
                 }
                 dbManager.addWeightData(weightModel);
                 if (Integer.parseInt(selectedDate) == Calendar.DATE) {
@@ -463,7 +461,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 iskg[0] = false;
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(commanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                etweight.setText(Math.round(CommanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
             }
         });
 
@@ -474,7 +472,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 iskg[0] = true;
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                etweight.setText(Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
             }
         });
 
@@ -517,7 +515,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 if (iskg[0]) {
                     weightModel.setKg(Integer.parseInt(etweight.getText().toString()));
                 } else {
-                    weightModel.setKg((int) Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
+                    weightModel.setKg((int) Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
                 }
                 dbManager.addWeightData(weightModel);
                 if (Integer.parseInt(selectedDate) == Calendar.DATE) {
@@ -907,7 +905,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         mv.setChartView(chart);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
-        chart.invalidate(); // refresh
+//        chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
         chart.setDoubleTapToZoomEnabled(false);
         chart.setBackgroundColor(Color.rgb(255, 255, 255));

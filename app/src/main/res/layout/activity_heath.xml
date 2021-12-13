@@ -251,7 +251,7 @@
                     </LinearLayout>
 
                     <com.github.mikephil.charting.charts.LineChart
-                        android:id="@+id/WeightChart"
+                        android:id="@+id/cvWeightChart"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_150sdp"
                         android:layout_marginTop="@dimen/_10sdp" />

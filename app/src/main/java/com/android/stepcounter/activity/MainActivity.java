@@ -39,12 +39,12 @@ import com.android.stepcounter.R;
 import com.android.stepcounter.adpter.StepWeekChartAdapter;
 import com.android.stepcounter.adpter.WaterWeekChartAdapter;
 import com.android.stepcounter.database.DBHandler;
+import com.android.stepcounter.model.StepCountModel;
+import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
-import com.android.stepcounter.model.stepcountModel;
-import com.android.stepcounter.model.waterlevel;
 import com.android.stepcounter.sevices.SensorService;
+import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.StorageManager;
-import com.android.stepcounter.utils.commanMethod;
 import com.android.stepcounter.utils.constant;
 import com.github.jhonnyx2012.horizontalpicker.DatePickerListener;
 import com.github.jhonnyx2012.horizontalpicker.HorizontalPicker;
@@ -71,13 +71,12 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, DatePickerListener {
 
-    private TextView TvSteps, accuracyText, tvduration, tvkm, tvkcal, tvuserWeight, tvwatergoal, tvwaterlevel, mtvlastdaydiffvalue;
+    private TextView TvSteps, accuracyText, tvduration, tvkm, tvkcal, tvuserWeight, tvwatergoal, tvwaterlevel, mtvlastdaydiffvalue, mtvAvgstep;
     private int numSteps;
     Toolbar mToolbar;
     ImageView ivPlay, ivPause;
     BottomNavigationView mbottomNavigation;
-    private CircularProgressBar progress, sunday, monday, tuesday, wednesday, thrusday, friday, saturday,
-            watersunday, watermonday, watertuesday, waterwednesday, waterthrusday, waterfriday, watersaturday;
+    private CircularProgressBar progress;
     CardView mcvStrat, mcvWater, mcvWeight;
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -90,14 +89,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     DBHandler dbManager;
     int temp = 0;
     int oldsteptotal = 0;
-    ArrayList<stepcountModel> Steplist;
-    ArrayList<stepcountModel> getoldSteplist;
-    ArrayList<waterlevel> waterlist;
-    stepcountModel stepcountModel;
-    CircleProgress Watercircle_progress;
+    ArrayList<StepCountModel> Steplist;
+    ArrayList<StepCountModel> getoldSteplist;
+    ArrayList<WaterLevelModel> waterlist;
+    StepCountModel stepcountModel;
+    CircleProgress mCpWaterCircleProgress;
     TextView addWeightDailog;
-    LineChart WeightChart;
-    waterlevel waterlevel;
+    LineChart mLcWeightChart;
+    WaterLevelModel waterlevel;
 
     Calendar rightNow;
     int hour, min, date, month, year;
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<WeightModel> arrayList = new ArrayList<>();
     ArrayList<Entry> weightModelArrayList = new ArrayList<>();
     ArrayList<WeightModel> waterlevelArrayList = new ArrayList<>();
-    RecyclerView rvSteplist, rvWaterlist;
+    RecyclerView mRvSteplist, mRvWaterlist;
     StepWeekChartAdapter stepWeekChartAdapter;
     WaterWeekChartAdapter waterWeekChartAdapter;
 
@@ -131,11 +130,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 TvSteps.setText(numSteps + "");
                 progress.setProgressWithAnimation(numSteps, (long) 1000);
 
-                distance = String.valueOf(commanMethod.calculateDistance(numSteps, userHeight));
+                distance = String.valueOf(CommanMethod.calculateDistance(numSteps, userHeight));
 //                tvkm.setText(distance);
                 tvkm.setText(String.format("%.2f", Float.valueOf(distance)));
 
-                calories = String.valueOf(commanMethod.calculateCalories(numSteps, userWeight, userHeight));
+                calories = String.valueOf(CommanMethod.calculateCalories(numSteps, userWeight, userHeight));
                 tvkcal.setText(calories);
             }
 
@@ -150,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Intent i = new Intent(MainActivity.this, SensorService.class);
         startService(i);
-        Steplist = new ArrayList<stepcountModel>();
-        getoldSteplist = new ArrayList<stepcountModel>();
+        Steplist = new ArrayList<StepCountModel>();
+        getoldSteplist = new ArrayList<StepCountModel>();
         dbManager = new DBHandler(this);
 
         myReceiver = new MyReceiver();
@@ -182,13 +181,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mcvWater = findViewById(R.id.cvWater);
 
-        rvSteplist = findViewById(R.id.rvStepChart);
-        rvWaterlist = findViewById(R.id.rvWaterChart);
+        mRvSteplist = findViewById(R.id.rvStepChart);
+        mRvWaterlist = findViewById(R.id.rvWaterChart);
 
-        setRecyclerView();
 
         progress = findViewById(R.id.progressBar);
-        WeightChart = findViewById(R.id.WeightChart);
+        mLcWeightChart = findViewById(R.id.cvWeightChart);
 
         addWeightDailog = findViewById(R.id.addWeight);
         ivaddwater = findViewById(R.id.ivaddwater);
@@ -200,8 +198,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvkcal = (TextView) findViewById(R.id.tvkcal);
         tvuserWeight = (TextView) findViewById(R.id.userWeight);
         mtvlastdaydiffvalue = (TextView) findViewById(R.id.tvlastdaydiffvalue);
+        mtvAvgstep = (TextView) findViewById(R.id.tvAvgstep);
 
-        Watercircle_progress = (CircleProgress) findViewById(R.id.circle_progress);
+        mCpWaterCircleProgress = (CircleProgress) findViewById(R.id.circle_progress);
         tvwatergoal = (TextView) findViewById(R.id.tvwatergoal);
         tvwaterlevel = (TextView) findViewById(R.id.tvwaterlevel);
 
@@ -225,6 +224,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ivPause.setVisibility(View.VISIBLE);
         ivPlay.setVisibility(View.GONE);
+
+        setRecyclerView();
 
         mbottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -252,23 +253,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         progress.setProgressWithAnimation(TotalStepCount, (long) 1000);
 
-        distance = String.valueOf(commanMethod.calculateDistance(TotalStepCount, userHeight));
+        distance = String.valueOf(CommanMethod.calculateDistance(TotalStepCount, userHeight));
         tvkm.setText(String.format("%.2f", Float.valueOf(distance)));
 
-        calories = String.valueOf(commanMethod.calculateCalories(TotalStepCount, userWeight, userHeight));
+        calories = String.valueOf(CommanMethod.calculateCalories(TotalStepCount, userWeight, userHeight));
         tvkcal.setText(calories);
 
-
-        getoldSteplist = dbManager.getCurrentDayHoursStepcountlist(date, month, year, hour);
-        if (getoldSteplist != null) {
-            for (int i = 0; i < getoldSteplist.size(); i++) {
-                oldsteptotal = getoldSteplist.get(i).getStep();
-//                Log.e("TAG", "date: " + oldsteptotal);
-            }
-        } else {
-            oldsteptotal = 0;
-//            Log.e("TAG", "date: " + oldsteptotal);
-        }
+        getoldSteplistData(date, month, year, hour);
 
         setdatainprogress();
 
@@ -286,9 +277,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setWeightChart();
     }
 
+    private void getoldSteplistData(int date, int month, int year, int hour) {
+        getoldSteplist = dbManager.getCurrentDayHoursStepcountlist(date, month, year, hour);
+        if (getoldSteplist != null) {
+            for (int i = 0; i < getoldSteplist.size(); i++) {
+                oldsteptotal = getoldSteplist.get(i).getStep();
+//                Log.e("TAG", "date: " + oldsteptotal);
+            }
+        } else {
+            oldsteptotal = 0;
+//            Log.e("TAG", "date: " + oldsteptotal);
+        }
+    }
+
     private void setRecyclerView() {
-        ArrayList<stepcountModel> stepcountModelArrayList = new ArrayList<>();
-        ArrayList<waterlevel> DaywiseWaterlist = new ArrayList<>();
+        ArrayList<StepCountModel> stepcountModelArrayList = new ArrayList<>();
+        ArrayList<WaterLevelModel> DaywiseWaterlist = new ArrayList<>();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, rightNow.get(Calendar.DATE) - 6);
@@ -300,17 +304,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         stepcountModelArrayList = dbManager.getweekstepdata(fristdate, lastdate);
 
+        int avg = 0, j = 0;
+        for (int i = 0; i < stepcountModelArrayList.size(); i++) {
+            if (stepcountModelArrayList.get(i).getSumstep() != 0) {
+                avg = avg + stepcountModelArrayList.get(i).getSumstep();
+                j++;
+            }
+        }
+
+//        int avgdisplay = avg / stepcountModelArrayList.size();
+        mtvAvgstep.setText(avg / j + "");
+
         stepWeekChartAdapter = new StepWeekChartAdapter(this, stepcountModelArrayList);
-        rvSteplist.setHasFixedSize(true);
-        rvSteplist.setLayoutManager(new GridLayoutManager(this, 7));
-        rvSteplist.setAdapter(stepWeekChartAdapter);
+        mRvSteplist.setHasFixedSize(true);
+        mRvSteplist.setLayoutManager(new GridLayoutManager(this, 7));
+        mRvSteplist.setAdapter(stepWeekChartAdapter);
 
         DaywiseWaterlist = dbManager.getweekWaterdata(fristdate, lastdate);
 
         waterWeekChartAdapter = new WaterWeekChartAdapter(this, DaywiseWaterlist);
-        rvWaterlist.setHasFixedSize(true);
-        rvWaterlist.setLayoutManager(new GridLayoutManager(this, 7));
-        rvWaterlist.setAdapter(waterWeekChartAdapter);
+        mRvWaterlist.setHasFixedSize(true);
+        mRvWaterlist.setLayoutManager(new GridLayoutManager(this, 7));
+        mRvWaterlist.setAdapter(waterWeekChartAdapter);
     }
 
     private void setWeightChart() {
@@ -349,31 +364,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mtvlastdaydiffvalue.setText("0 KG");
         }
 
-        WeightChart.setBackgroundColor(Color.WHITE);
+        mLcWeightChart.setBackgroundColor(Color.WHITE);
 
         // disable description text
-        WeightChart.getDescription().setEnabled(false);
+        mLcWeightChart.getDescription().setEnabled(false);
 
         // enable touch gestures
-        WeightChart.setTouchEnabled(true);
+        mLcWeightChart.setTouchEnabled(true);
 
         // set listeners
-        WeightChart.setDrawGridBackground(false);
+        mLcWeightChart.setDrawGridBackground(false);
 
         // create marker to display box when values are selected
         MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
-        mv.setChartView(WeightChart);
-        WeightChart.setMarker(mv);
-        WeightChart.setDragEnabled(true);
-        WeightChart.setScaleEnabled(true);
-        WeightChart.setPinchZoom(false);
+        mv.setChartView(mLcWeightChart);
+        mLcWeightChart.setMarker(mv);
+        mLcWeightChart.setDragEnabled(true);
+        mLcWeightChart.setScaleEnabled(true);
+        mLcWeightChart.setPinchZoom(false);
 
-        WeightChart.getAxisLeft().setDrawGridLines(false);
-        WeightChart.getAxisRight().setDrawGridLines(false);
-        WeightChart.getXAxis().setDrawGridLines(false);
+        mLcWeightChart.getAxisLeft().setDrawGridLines(false);
+        mLcWeightChart.getAxisRight().setDrawGridLines(false);
+        mLcWeightChart.getXAxis().setDrawGridLines(false);
 
         XAxis xAxis;
-        xAxis = WeightChart.getXAxis();
+        xAxis = mLcWeightChart.getXAxis();
 
         // vertical grid lines
         xAxis.enableGridDashedLine(10f, 10f, 0f);
@@ -383,10 +398,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         xAxis.setAxisMinimum(cal.get(Calendar.DAY_OF_MONTH) - 30);
 
         YAxis yAxis;
-        yAxis = WeightChart.getAxisLeft();
+        yAxis = mLcWeightChart.getAxisLeft();
 
         // disable dual axis (only use LEFT axis)
-        WeightChart.getAxisRight().setEnabled(false);
+        mLcWeightChart.getAxisRight().setEnabled(false);
 
         // horizontal grid lines
         yAxis.enableGridDashedLine(10f, 10f, 0f);
@@ -404,12 +419,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         LineDataSet set1;
 
-        if (WeightChart.getData() != null && WeightChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet) WeightChart.getData().getDataSetByIndex(0);
+        if (mLcWeightChart.getData() != null && mLcWeightChart.getData().getDataSetCount() > 0) {
+            set1 = (LineDataSet) mLcWeightChart.getData().getDataSetByIndex(0);
             set1.setValues(weightModelArrayList);
             set1.notifyDataSetChanged();
-            WeightChart.getData().notifyDataChanged();
-            WeightChart.notifyDataSetChanged();
+            mLcWeightChart.getData().notifyDataChanged();
+            mLcWeightChart.notifyDataSetChanged();
         } else {
             // create a dataset and give it a type
             set1 = new LineDataSet(weightModelArrayList, "");
@@ -446,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             set1.setFillFormatter(new IFillFormatter() {
                 @Override
                 public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
-                    return WeightChart.getAxisLeft().getAxisMinimum();
+                    return mLcWeightChart.getAxisLeft().getAxisMinimum();
                 }
             });
 
@@ -457,14 +472,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             LineData data = new LineData(dataSets);
 
             // set data
-            WeightChart.setData(data);
+            mLcWeightChart.setData(data);
         }
 
         // draw points over time
-        WeightChart.animateX(1500);
+        mLcWeightChart.animateX(1500);
 
         // get the legend (only possible after setting data)
-        Legend l = WeightChart.getLegend();
+        Legend l = mLcWeightChart.getLegend();
 
         // draw legend entries as lines
         l.setForm(Legend.LegendForm.LINE);
@@ -510,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.ivaddwater:
                 String ts = String.valueOf(System.currentTimeMillis());
 
-                waterlevel = new waterlevel();
+                waterlevel = new WaterLevelModel();
                 waterlevel.setDate(date);
                 waterlevel.setMonth(month);
                 waterlevel.setYear(year);
@@ -522,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (DefultCupValue[1].contains("fl")) {
                     value[0] = value[0] + Float.parseFloat(DefultCupValue[0]);
-                    covertinml = commanMethod.getFlozToMl(value[0]);
+                    covertinml = CommanMethod.getFlozToMl(value[0]);
                     waterlevel.setUnit(String.valueOf(covertinml));
                 } else {
                     value[0] = value[0] + Integer.parseInt(DefultCupValue[0]);
@@ -532,6 +547,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dbManager.addWaterData(waterlevel);
 
                 setdatainprogress();
+//                rvWaterlist.notify();
                 break;
             case R.id.llwaterSetting:
                 startActivity(new Intent(MainActivity.this, WaterSettingActivity.class));
@@ -543,7 +559,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setdatainprogress() {
-        ArrayList<waterlevel> waterlevelArrayList = new ArrayList<>();
+        mCpWaterCircleProgress.setMax(Integer.parseInt(WaterGoalValue[0]));
+
+        ArrayList<WaterLevelModel> waterlevelArrayList = new ArrayList<>();
 
         waterlevelArrayList = dbManager.getDayWaterdata(date, month, year);
 
@@ -558,14 +576,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (lastentry != 0) {
                     if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
 //                    Log.e("TAG", "init: " + lastentry);
-                        Watercircle_progress.setProgress(lastentry);
+                        mCpWaterCircleProgress.setProgress(lastentry);
                     } else {
-                        Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+                        mCpWaterCircleProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
                     }
                 }
                 tvwaterlevel.setText(lastentry + "");
             } else {
-                Watercircle_progress.setProgress(0);
+                mCpWaterCircleProgress.setProgress(0);
                 tvwaterlevel.setText(0 + "");
             }
         } else {
@@ -573,20 +591,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (waterlevelArrayList != null) {
                 for (int i = 0; i < waterlevelArrayList.size(); i++) {
 //                Log.e("TAG", "init: " + waterlevelArrayList.get(i).getSumwater());
-                    lastentry = Math.round(commanMethod.getMlToFloz(Float.valueOf(waterlevelArrayList.get(i).getSumwater())));
+                    lastentry = Math.round(CommanMethod.getMlToFloz(Float.valueOf(waterlevelArrayList.get(i).getSumwater())));
                 }
 
                 if (lastentry != 0) {
                     if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
 //                    Log.e("TAG", "init: " + lastentry);
-                        Watercircle_progress.setProgress((int) lastentry);
+                        mCpWaterCircleProgress.setProgress((int) lastentry);
                     } else {
-                        Watercircle_progress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+                        mCpWaterCircleProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
                     }
                 }
                 tvwaterlevel.setText(lastentry + "");
             } else {
-                Watercircle_progress.setProgress(0);
+                mCpWaterCircleProgress.setProgress(0);
                 tvwaterlevel.setText(0 + "");
             }
         }
@@ -618,7 +636,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 iskg[0] = false;
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(commanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                etweight.setText(Math.round(CommanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
             }
         });
 
@@ -629,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 iskg[0] = true;
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                etweight.setText(Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
             }
         });
 
@@ -673,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (iskg[0]) {
                     weightModel.setKg(Integer.parseInt(etweight.getText().toString()));
                 } else {
-                    weightModel.setKg((int) Math.round(commanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
+                    weightModel.setKg((int) Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))));
                 }
                 dbManager.addWeightData(weightModel);
                 if (Integer.parseInt(selectedDate) == Calendar.DATE) {
@@ -799,7 +817,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void showEditStepDailog() {
-        stepcountModel = new stepcountModel();
+        stepcountModel = new StepCountModel();
 
         String[] Time = {"00:00 - 01:00", "01:00 - 02:00", "02:00 - 03:00", "03:00 - 04:00", "04:00 - 05:00", "05:00 - 06:00", "06:00 - 07:00", "07:00 - 08:00",
                 "08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00",
@@ -820,17 +838,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Calendar rightNow = Calendar.getInstance();
         int hours = rightNow.get(Calendar.HOUR_OF_DAY);
-        int dayOfMonth = rightNow.get(Calendar.DAY_OF_MONTH);
-        int mMonth = rightNow.get(Calendar.MONTH) + 1;
-        int mYear = rightNow.get(Calendar.YEAR);
+        final int[] dayOfMonth = {rightNow.get(Calendar.DAY_OF_MONTH)};
+        final int[] mMonth = {rightNow.get(Calendar.MONTH) + 1};
+        final int[] mYear = {rightNow.get(Calendar.YEAR)};
 
         final int[] saveHour = {hours};
-        final int[] selectedyear = {mYear};
-        final int[] selectedmonth = {mMonth};
-        final int[] selectedday = {dayOfMonth};
+        final int[] selectedyear = {mYear[0]};
+        final int[] selectedmonth = {mMonth[0]};
+        final int[] selectedday = {dayOfMonth[0]};
 
         ArrayList<String> stringArrayList = new ArrayList<>();
-        if (selectedday[0] != dayOfMonth && selectedmonth[0] != mMonth && selectedyear[0] != mYear) {
+        if (selectedday[0] != dayOfMonth[0] && selectedmonth[0] != mMonth[0] && selectedyear[0] != mYear[0]) {
             for (int i = 0; i < 24; i++) {
                 stringArrayList.add(Time[i]);
 //            Log.e("TAG", "showEditStepDailog: " + Time[i]);
@@ -857,12 +875,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             @SuppressLint("SetTextI18n")
                             @Override
                             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                                stringArrayList.clear();
                                 selectedyear[0] = year;
-                                selectedmonth[0] = month;
+                                selectedmonth[0] = month + 1;
                                 selectedday[0] = day;
+
                                 tvdate.setText(selectedday[0] + " - " + selectedmonth[0]);
 
-                                if (selectedday[0] != dayOfMonth) {
+                                if (selectedday[0] != dayOfMonth[0]) {
                                     for (int i = 0; i < 24; i++) {
                                         stringArrayList.add(Time[i]);
                                     }
@@ -871,9 +891,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         stringArrayList.add(Time[i]);
                                     }
                                 }
+
+                                getoldSteplistData(selectedday[0], selectedmonth[0], selectedyear[0], saveHour[0]);
+                                stepvalue.setText(oldsteptotal + "");
                                 arrayAdapter.notifyDataSetChanged();
                             }
-                        }, mYear, mMonth - 1, dayOfMonth);
+                        }, selectedyear[0], selectedmonth[0] - 1, selectedday[0]);
                 datePickerDialog.show();
             }
         });
@@ -933,6 +956,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else if (item.equals("23:00 - 24:00")) {
                     saveHour[0] = 23;
                 }
+                getoldSteplistData(selectedday[0], selectedmonth[0], selectedyear[0], saveHour[0]);
+                stepvalue.setText(oldsteptotal + "");
             }
 
             @Override
@@ -948,8 +973,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (numSteps.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Please Enter number of steps..!!", Toast.LENGTH_LONG).show();
                 } else {
-                    String Calories = String.valueOf(commanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
-                    String Distance = String.valueOf(commanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
+                    String Calories = String.valueOf(CommanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
+                    String Distance = String.valueOf(CommanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
 
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");

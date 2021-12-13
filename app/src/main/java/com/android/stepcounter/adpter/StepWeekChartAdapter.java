@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.MainActivity;
-import com.android.stepcounter.model.stepcountModel;
+import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.utils.StorageManager;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
@@ -22,11 +22,11 @@ import java.util.Date;
 
 public class StepWeekChartAdapter extends RecyclerView.Adapter<StepWeekChartAdapter.ViewHolder> {
 
-    ArrayList<stepcountModel> modelArrayList;
+    ArrayList<StepCountModel> modelArrayList;
     Activity activity;
     int StepGoal;
 
-    public StepWeekChartAdapter(MainActivity mainActivity, ArrayList<stepcountModel> stepcountModelArrayList) {
+    public StepWeekChartAdapter(MainActivity mainActivity, ArrayList<StepCountModel> stepcountModelArrayList) {
         activity = mainActivity;
         modelArrayList = stepcountModelArrayList;
         StepGoal = StorageManager.getInstance().getStepCountGoalUnit();

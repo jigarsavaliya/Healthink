@@ -13,6 +13,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
@@ -20,11 +21,12 @@ import androidx.core.app.NotificationCompat;
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.MainActivity;
 import com.android.stepcounter.database.DBHandler;
-import com.android.stepcounter.model.stepcountModel;
+import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.senser.StepDetector;
 import com.android.stepcounter.senser.StepListener;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
-import com.android.stepcounter.utils.commanMethod;
+import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.constant;
 
 import java.util.ArrayList;
@@ -41,10 +43,10 @@ public class SensorService extends Service implements SensorEventListener, StepL
     int displaystep;
     private StepDetector simpleStepDetector;
     DBHandler dbManager;
-    stepcountModel stepcountModel;
+    StepCountModel stepcountModel;
     private float userWeight;
     private float userHeight;
-    ArrayList<stepcountModel> Steplist = new ArrayList<stepcountModel>();
+    ArrayList<StepCountModel> Steplist = new ArrayList<StepCountModel>();
     int hour, date, month, year;
 
     @Override
@@ -60,7 +62,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         simpleStepDetector = new StepDetector();
         simpleStepDetector.registerListener(this);
         dbManager = new DBHandler(this);
-        stepcountModel = new stepcountModel();
+        stepcountModel = new StepCountModel();
 
         userHeight = StorageManager.getInstance().getHeight();
         userWeight = StorageManager.getInstance().getWeight();
@@ -74,6 +76,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         // Get default sensor type
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        Logger.e("service on create");
     }
 
     @Override
@@ -81,18 +84,13 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
         int Display = 0;
 
-        Steplist = dbManager.getCurrentDayHoursStepcountlist(date, month, year, hour);
         int TotalStepCount = dbManager.getSumOfStepList(date, month, year);
 
-        if (Steplist != null) {
-            for (int i = 0; i < Steplist.size(); i++) {
-                numSteps = Steplist.get(i).getStep();
-            }
-            Display = TotalStepCount;
-        }
+        Display = TotalStepCount;
 
-        String Calories = String.valueOf(commanMethod.calculateCalories(Display, userWeight, userHeight));
-//        Log.e("TAG", Display + "onStartCommand: " + Calories);
+        String Calories = String.valueOf(CommanMethod.calculateCalories(Display, userWeight, userHeight));
+
+        Log.e("TAG", Display + "onStartCommand: " + Calories);
 
         showNotification(Display, Integer.parseInt(Calories));
 
@@ -177,19 +175,6 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
     @Override
     public void step(long timeNs) {
-        
-        /*int TotalStepCount = dbManager.getSumOfStepList(date, month, year);
-         int HourwiseTotalStep = dbManager.getSumOfHoursStepList(date, month, year, hour);
-
-        int total = TotalStepCount - HourwiseTotalStep;
-        numSteps++;
-        int updatestep = HourwiseTotalStep + numSteps;
-        int displaystep = updatestep + total;
-
-        Log.e("total", TotalStepCount + " - " + HourwiseTotalStep);
-        Log.e("numSteps", numSteps + "");
-        Log.e("update", updatestep + "");
-        Log.e("display", displaystep + "");*/
 
         int Display = 0;
 
@@ -214,9 +199,9 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
         numSteps++;
 
-        String DisplayCalories = String.valueOf(commanMethod.calculateCalories(Display, userWeight, userHeight));
-        String Calories = String.valueOf(commanMethod.calculateCalories(numSteps, userWeight, userHeight));
-        String Distance = String.valueOf(commanMethod.calculateDistance(numSteps, userHeight));
+        String DisplayCalories = String.valueOf(CommanMethod.calculateCalories(Display, userWeight, userHeight));
+        String Calories = String.valueOf(CommanMethod.calculateCalories(numSteps, userWeight, userHeight));
+        String Distance = String.valueOf(CommanMethod.calculateDistance(numSteps, userHeight));
 
         showNotification(Display, Integer.parseInt(DisplayCalories));
 

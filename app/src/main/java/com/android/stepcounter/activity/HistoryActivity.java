@@ -1,6 +1,10 @@
 package com.android.stepcounter.activity;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,7 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.adpter.HistoryAdapter;
 import com.android.stepcounter.database.DBHandler;
-import com.android.stepcounter.model.stepcountModel;
+import com.android.stepcounter.model.StepCountModel;
+import com.android.stepcounter.model.StepHistoryModel;
 import com.android.stepcounter.utils.Logger;
 
 import java.text.SimpleDateFormat;
@@ -18,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 
 public class HistoryActivity extends AppCompatActivity {
     Toolbar mToolbar;
@@ -38,8 +42,16 @@ public class HistoryActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle("History");
         setSupportActionBar(mToolbar);
+        mToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
 
-        ArrayList<stepcountModel> stepcountModelArrayList = new ArrayList<>();
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
+        ArrayList<StepCountModel> stepcountModelArrayList = new ArrayList<>();
 
         stepcountModelArrayList = dbManager.getDaywiseStepdata();
 
@@ -49,20 +61,18 @@ public class HistoryActivity extends AppCompatActivity {
             endtimestamp = Long.parseLong(stepcountModelArrayList.get(stepcountModelArrayList.size() - 1).getTimestemp());
         }
 
-        Logger.e(startTimestamp);
-        Logger.e(endtimestamp);
+//        Logger.e(startTimestamp);
+//        Logger.e(endtimestamp);
 
         Calendar c = Calendar.getInstance();
         long firstdate, lastdate;
 
-        HashMap<String, ArrayList<stepcountModel>> stringArrayListHashMap = new HashMap<>();
+        HashMap<Long, StepHistoryModel> headerMap = new HashMap<>();
+        HashMap<Long, ArrayList<StepCountModel>> stringArrayListHashMap = new HashMap<>();
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         String dateString = formatter.format(new Date(startTimestamp));
         String[] strings = dateString.split("/");
-//        Log.e("TAG", "date: " + strings[0]);
-//        Log.e("TAG", "date: " + (Integer.parseInt(strings[1]) - 1));
-//        Log.e("TAG", "date: " + strings[2]);
 
         c.set(Calendar.DAY_OF_MONTH, Integer.parseInt(strings[0]));
         c.set(Calendar.MONTH, Integer.parseInt(strings[1]) - 1);
@@ -77,19 +87,34 @@ public class HistoryActivity extends AppCompatActivity {
 //            Log.e("TAG", "date: " + Weekdate[1]);
             firstdate = Long.parseLong(Weekdate[0].trim());
             lastdate = Long.parseLong(Weekdate[1].trim());
-
+//
             Logger.e(formatter.format(new Date(firstdate)) + " - " + formatter.format(new Date(lastdate)));
+            Logger.e(firstdate + " - " + lastdate);
 
-            for (stepcountModel data : stepcountModelArrayList) {
-                ArrayList<stepcountModel> value = stringArrayListHashMap.get(formatter.format(new Date(firstdate)));
-                if (value == null) {
-                    value = new ArrayList<stepcountModel>();
-                    stringArrayListHashMap.put(formatter.format(new Date(firstdate)), value);
-//                    Log.e("TAG", "value: " + firstdate);
+            StepHistoryModel waterHistoryModel = new StepHistoryModel();
+            waterHistoryModel.setFirstdate(firstdate);
+            waterHistoryModel.setLastdate(lastdate);
+
+            for (StepCountModel data : stepcountModelArrayList) {
+                StepHistoryModel value = headerMap.get(waterHistoryModel.getFirstdate());
+                ArrayList<StepCountModel> valueModels = stringArrayListHashMap.get(waterHistoryModel.getFirstdate());
+
+                if (valueModels == null) {
+                    value = new StepHistoryModel();
+                    value.setFirstdate(firstdate);
+                    value.setLastdate(lastdate);
+                    valueModels = new ArrayList<>();
+                    headerMap.put(waterHistoryModel.getFirstdate(), value);
+                    stringArrayListHashMap.put(waterHistoryModel.getFirstdate(), valueModels);
+//                    Logger.e(value.getFirstdate() + " - new value: " + value.getSumstep());
                 }
+
                 long timestamp = Long.parseLong(data.getTimestemp().trim());
+                Logger.e(" - new time: " + formatter.format(new Date(timestamp)) + "condition -----" + (firstdate <= timestamp && lastdate >= timestamp) + "firstdate -- " + firstdate + "lastdate -- " + lastdate + "timestamp -- " + timestamp);
                 if (firstdate <= timestamp && lastdate >= timestamp) {
-                    value.add(data);
+                    valueModels.add(data);
+                    value.setSumstep(value.getSumstep() + data.getSumstep());
+//                    Logger.e(value.getFirstdate() + " - add value: " + value.getSumstep());
                 }
             }
 
@@ -98,11 +123,21 @@ public class HistoryActivity extends AppCompatActivity {
         }
         while (firstdate < endtimestamp);
 
-        /*Iterator it = stringArrayListHashMap.keySet().iterator();
+        Logger.e(headerMap.keySet());
+        Logger.e(stringArrayListHashMap.keySet());
+
+       /* Iterator it = stringArrayListHashMap.keySet().iterator();
         while (it.hasNext()) {
-            String item = (String) it.next();
+            Object item = it.next();
+            stringArrayListHashMap.remove(item);
+        }
+
+        Iterator iterator = headerMap.keySet().iterator();
+        while (iterator.hasNext()) {
+            Object item =  iterator.next();
             stringArrayListHashMap.remove(item);
         }*/
+
 
         /*Set<String> keyset = stringArrayListHashMap.keySet();
         for (int i = stringArrayListHashMap.keySet().size(); i > 0; i--) {
@@ -112,7 +147,7 @@ public class HistoryActivity extends AppCompatActivity {
         }*/
 
         mRvHistrory = findViewById(R.id.rvHistrory);
-        mHistoryAdapter = new HistoryAdapter(HistoryActivity.this, stringArrayListHashMap);
+        mHistoryAdapter = new HistoryAdapter(HistoryActivity.this, stringArrayListHashMap, headerMap);
         mRvHistrory.setHasFixedSize(true);
         mRvHistrory.setLayoutManager(new LinearLayoutManager(this));
         mRvHistrory.setAdapter(mHistoryAdapter);
@@ -128,12 +163,38 @@ public class HistoryActivity extends AppCompatActivity {
         } else
             monday_offset = (2 - day_of_week); // need to minus back
         mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
-
+        mCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        mCalendar.set(Calendar.MINUTE, 0);
+        mCalendar.set(Calendar.AM_PM, Calendar.AM);
         long mDateMonday = mCalendar.getTimeInMillis();
 
         mCalendar.add(Calendar.DAY_OF_YEAR, 6);
+        mCalendar.set(Calendar.HOUR_OF_DAY, 23);
+        mCalendar.set(Calendar.MINUTE, 0);
+        mCalendar.set(Calendar.AM_PM, Calendar.PM);
         long mDateSunday = mCalendar.getTimeInMillis();
         return mDateMonday + " - " + mDateSunday;
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.history_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+
+                break;
+        }
+        return true;
+    }
 }

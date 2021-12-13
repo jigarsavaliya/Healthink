@@ -30,9 +30,9 @@ import androidx.cardview.widget.CardView;
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DBHandler;
-import com.android.stepcounter.model.stepcountModel;
+import com.android.stepcounter.model.StepCountModel;
+import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.StorageManager;
-import com.android.stepcounter.utils.commanMethod;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
@@ -42,7 +42,9 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.MPPointF;
 
@@ -58,11 +60,11 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     CardView mcvDay, mcvWeek, mcvMonth, mcvStep, mcvCalories, mcvTime, mcvDistance;
     TextView tvTotal, tvchartdate;
     ImageView ivBackDate, ivForwardDate;
-    ArrayList<stepcountModel> Steplist;
-    ArrayList<stepcountModel> StepWeeklist;
-    ArrayList<stepcountModel> Stepmonthlist;
+    ArrayList<StepCountModel> Steplist;
+    ArrayList<StepCountModel> StepWeeklist;
+    ArrayList<StepCountModel> Stepmonthlist;
     private static final String[] DAYS = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
-    stepcountModel stepcountModel;
+    StepCountModel stepcountModel;
     private float userWeight;
     private float userHeight;
     Calendar rightNow = Calendar.getInstance();
@@ -71,15 +73,18 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     int date, month, year, StepGoal;
 
     long firstdayofmonth, lastdayofmonth;
+    ArrayList<StepCountModel> getoldSteplist;
+    int oldsteptotal = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step_report);
         dbManager = new DBHandler(this);
-        Steplist = new ArrayList<stepcountModel>();
-        StepWeeklist = new ArrayList<stepcountModel>();
-        Stepmonthlist = new ArrayList<stepcountModel>();
+        Steplist = new ArrayList<StepCountModel>();
+        StepWeeklist = new ArrayList<StepCountModel>();
+        Stepmonthlist = new ArrayList<StepCountModel>();
+        getoldSteplist = new ArrayList<StepCountModel>();
 
         date = rightNow.get(Calendar.DATE);
         month = rightNow.get(Calendar.MONTH) + 1;
@@ -364,7 +369,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
             for (int i = 0; i < Steplist.size(); i++) {
-                entries.add(new BarEntry(i, Steplist.get(i).getStep(),Steplist.get(i).getDuration()));
+                entries.add(new BarEntry(i, Steplist.get(i).getStep(), Steplist.get(i).getDuration()));
             }
         }
         BarDataSet set = new BarDataSet(entries, "");
@@ -389,11 +394,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         xAxis.setDrawAxisLine(true);
         xAxis.setDrawGridLines(false);
 
-//        leftAxis.setTextSize(10f);
-//        leftAxis.setDrawLabels(false);
-//        leftAxis.setDrawAxisLine(true);
-//        leftAxis.setDrawGridLines(false);
-
         LimitLine ll1 = new LimitLine(StepGoal);
         ll1.setLineWidth(1f);
         ll1.enableDashedLine(1f, 1f, 0f);
@@ -413,6 +413,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
         mv.setChartView(chart);
 
+//        chart.getXAxis().setEnabled(false);
+//        chart.getAxisRight().setAxisMaximum(StepGoal);
+//        chart.getAxisRight().setAxisMinimum(0);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -420,10 +424,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
-//        chart.getXAxis().setEnabled(false);
-//        chart.getAxisRight().setAxisMaximum(StepGoal);
-//        chart.getAxisRight().setAxisMinimum(0);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
+
+        chart.invalidate();
 
     }
 
@@ -466,42 +472,55 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private void SetWeekwiseStepChart() {
 
-       /* final ArrayList<String> xAxisLabel = new ArrayList<>();
+        final ArrayList<String> xAxisLabel = new ArrayList<>();
         xAxisLabel.add("Mon");
         xAxisLabel.add("Tue");
         xAxisLabel.add("Wed");
         xAxisLabel.add("Thu");
         xAxisLabel.add("Fri");
         xAxisLabel.add("Sat");
-        xAxisLabel.add("Sun");*/
+        xAxisLabel.add("Sun");
 
-        Legend L;
-        L = chart.getLegend();
+        chart.setPinchZoom(false);
+        chart.setScaleEnabled(false);
+        chart.setDrawBarShadow(false);
+        chart.setDrawValueAboveBar(true);
+
+        chart.getDescription().setEnabled(false);
+
+        chart.setDrawGridBackground(false);
+
+        Legend L = chart.getLegend();
         L.setEnabled(false);
 
-        YAxis leftAxis = chart.getAxisLeft();
-        YAxis rightAxis = chart.getAxisRight();
+
         XAxis xAxis = chart.getXAxis();
-
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(10f);
-        xAxis.setDrawAxisLine(true);
         xAxis.setDrawGridLines(false);
-       /* xAxis.setValueFormatter(new ValueFormatter() {
+        xAxis.setDrawAxisLine(true);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setValueFormatter(new ValueFormatter() {
             @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return xAxisLabel.get((int) value);
+            public String getFormattedValue(float value) {
+                try {
+                    IBarDataSet dataSet = chart.getData().getDataSetByIndex(0);
+                    return dataSet.getEntryForIndex((int) value).getData().toString();
+                } catch (Exception e) {
+                    return "";
+                }
             }
-        });*/
+        });
 
-//        leftAxis.setTextSize(10f);
-//        leftAxis.setDrawLabels(false);
-//        leftAxis.setDrawAxisLine(true);
-//        leftAxis.setDrawGridLines(false);
-
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setDrawLabels(false);
+        YAxis leftAxis = chart.getAxisRight();
+        leftAxis.setLabelCount(4, false);
+        leftAxis.setDrawGridLines(false);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawZeroLine(false); // draw a zero line
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(6000F);
+        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
+        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+        leftAxis.setDrawLabels(false);
 
         BarData data = new BarData(setWeekData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -517,6 +536,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.setDrawValueAboveBar(true);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
 
     }
@@ -539,7 +562,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         if (StepWeeklist != null) {
             for (int i = 0; i < StepWeeklist.size(); i++) {
                 Log.e("TAG", "step" + StepWeeklist.get(i).getDate() + "sum" + StepWeeklist.get(i).getSumstep());
-                entries.add(new BarEntry(StepWeeklist.get(i).getDate(), StepWeeklist.get(i).getSumstep()));
+                entries.add(new BarEntry(i, StepWeeklist.get(i).getSumstep(), StepWeeklist.get(i).getDate()));
                 sumvalue = sumvalue + StepWeeklist.get(i).getSumstep();
             }
         }
@@ -682,42 +705,54 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private void SetWeekwiseCaloriesChart() {
 
-    /*    final ArrayList<String> xAxisLabel = new ArrayList<>();
+        final ArrayList<String> xAxisLabel = new ArrayList<>();
         xAxisLabel.add("Mon");
         xAxisLabel.add("Tue");
         xAxisLabel.add("Wed");
         xAxisLabel.add("Thu");
         xAxisLabel.add("Fri");
         xAxisLabel.add("Sat");
-        xAxisLabel.add("Sun");*/
+        xAxisLabel.add("Sun");
 
-        Legend L;
-        L = chart.getLegend();
+        chart.setPinchZoom(false);
+        chart.setScaleEnabled(false);
+        chart.setDrawBarShadow(false);
+        chart.setDrawValueAboveBar(true);
+
+        chart.getDescription().setEnabled(false);
+
+        chart.setDrawGridBackground(false);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                try {
+                    IBarDataSet dataSet = chart.getData().getDataSetByIndex(0);
+                    return dataSet.getEntryForIndex((int) value).getData().toString();
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+        });
+
+        Legend L = chart.getLegend();
         L.setEnabled(false);
 
-        YAxis leftAxis = chart.getAxisLeft();
-        YAxis rightAxis = chart.getAxisRight();
-        XAxis xAxis = chart.getXAxis();
-
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(10f);
-        xAxis.setDrawAxisLine(true);
-        xAxis.setDrawGridLines(false);
-       /* xAxis.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return xAxisLabel.get((int) value);
-            }
-        });*/
-
-//        leftAxis.setTextSize(10f);
-//        leftAxis.setDrawLabels(false);
-//        leftAxis.setDrawAxisLine(true);
-//        leftAxis.setDrawGridLines(false);
-
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setDrawLabels(false);
+        YAxis leftAxis = chart.getAxisRight();
+        leftAxis.setLabelCount(4, false);
+        leftAxis.setDrawGridLines(false);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawZeroLine(false); // draw a zero line
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(6000F);
+        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
+        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+        leftAxis.setDrawLabels(false);
 
         BarData data = new BarData(setWeekCaloriesData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -733,7 +768,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
+
+        chart.invalidate();
 
     }
 
@@ -755,7 +795,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         if (StepWeeklist != null) {
             for (int i = 0; i < StepWeeklist.size(); i++) {
 //                Log.e("TAG", "hours: " + StepWeeklist.get(i).getDistance() + "step" + StepWeeklist.get(i).getStep() + "date" + StepWeeklist.get(i).getDate());
-                entries.add(new BarEntry(StepWeeklist.get(i).getDate(), Float.parseFloat(String.valueOf(StepWeeklist.get(i).getSumcalorie()))));
+                entries.add(new BarEntry(i, Float.parseFloat(String.valueOf(StepWeeklist.get(i).getSumcalorie())), StepWeeklist.get(i).getDate()));
                 sumvalue = sumvalue + StepWeeklist.get(i).getSumcalorie();
             }
         }
@@ -922,42 +962,60 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private void SetWeekwiseTimeChart() {
 
-    /*    final ArrayList<String> xAxisLabel = new ArrayList<>();
+        final ArrayList<String> xAxisLabel = new ArrayList<>();
         xAxisLabel.add("Mon");
         xAxisLabel.add("Tue");
         xAxisLabel.add("Wed");
         xAxisLabel.add("Thu");
         xAxisLabel.add("Fri");
         xAxisLabel.add("Sat");
-        xAxisLabel.add("Sun");*/
+        xAxisLabel.add("Sun");
 
-        Legend L;
-        L = chart.getLegend();
+        chart.setPinchZoom(false);
+        chart.setScaleEnabled(false);
+        chart.setDrawBarShadow(false);
+        chart.setDrawValueAboveBar(true);
+
+        chart.getDescription().setEnabled(false);
+
+        chart.setDrawGridBackground(false);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                try {
+                    IBarDataSet dataSet = chart.getData().getDataSetByIndex(0);
+                    return dataSet.getEntryForIndex((int) value).getData().toString();
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+        });
+
+        Legend L = chart.getLegend();
         L.setEnabled(false);
 
-        YAxis leftAxis = chart.getAxisLeft();
-        YAxis rightAxis = chart.getAxisRight();
-        XAxis xAxis = chart.getXAxis();
+        YAxis leftAxis = chart.getAxisRight();
+        leftAxis.setLabelCount(4, false);
+        leftAxis.setDrawGridLines(false);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawZeroLine(false); // draw a zero line
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(6000F);
+        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
 
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(10f);
-        xAxis.setDrawAxisLine(true);
-        xAxis.setDrawGridLines(false);
-       /* xAxis.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return xAxisLabel.get((int) value);
-            }
-        });*/
+        //        LimitLine ll1 = new LimitLine(Integer.parseInt(Watergoal));
+//        ll1.setLineWidth(1f);
+//        ll1.enableDashedLine(1f, 1f, 0f);
 
-//        leftAxis.setTextSize(10f);
-//        leftAxis.setDrawLabels(false);
-//        leftAxis.setDrawAxisLine(true);
-//        leftAxis.setDrawGridLines(false);
-
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setDrawLabels(false);
+        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+//        leftAxis.addLimitLine(ll1);
+        leftAxis.setDrawLabels(false);
 
         BarData data = new BarData(setWeekTimeData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -966,6 +1024,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
         mv.setChartView(chart);
 
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -973,7 +1032,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
+
+        chart.invalidate();
 
     }
 
@@ -1000,12 +1064,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 //                Log.e("TAG", "hours: " + StepWeeklist.get(i).getDistance() + "step" + StepWeeklist.get(i).getStep() + "date" + StepWeeklist.get(i).getDate());
                 int totalSecs = (int) (StepWeeklist.get(i).getSumstep() * 1.66);
                 if (totalSecs < 60) {
-                    entries.add(new BarEntry(StepWeeklist.get(i).getDate(), totalSecs));
+                    entries.add(new BarEntry(i, totalSecs, StepWeeklist.get(i).getDate()));
                     sumvalue = sumvalue + totalSecs;
                 } else {
                     int min = totalSecs / 60;
 //                    int sec = totalSecs % 60;
-                    entries.add(new BarEntry(StepWeeklist.get(i).getDate(), min));
+                    entries.add(new BarEntry(i, min, StepWeeklist.get(i).getDate()));
                     minitvalue = minitvalue + min;
                 }
             }
@@ -1117,7 +1181,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
+
+        chart.invalidate();
 
     }
 
@@ -1146,42 +1215,60 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private void SetWeekwiseDistanceChart() {
 
-    /*    final ArrayList<String> xAxisLabel = new ArrayList<>();
+        final ArrayList<String> xAxisLabel = new ArrayList<>();
         xAxisLabel.add("Mon");
         xAxisLabel.add("Tue");
         xAxisLabel.add("Wed");
         xAxisLabel.add("Thu");
         xAxisLabel.add("Fri");
         xAxisLabel.add("Sat");
-        xAxisLabel.add("Sun");*/
+        xAxisLabel.add("Sun");
 
-        Legend L;
-        L = chart.getLegend();
+        chart.setPinchZoom(false);
+        chart.setScaleEnabled(false);
+        chart.setDrawBarShadow(false);
+        chart.setDrawValueAboveBar(true);
+
+        chart.getDescription().setEnabled(false);
+
+        chart.setDrawGridBackground(false);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                try {
+                    IBarDataSet dataSet = chart.getData().getDataSetByIndex(0);
+                    return dataSet.getEntryForIndex((int) value).getData().toString();
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+        });
+
+        Legend L = chart.getLegend();
         L.setEnabled(false);
 
-        YAxis leftAxis = chart.getAxisLeft();
-        YAxis rightAxis = chart.getAxisRight();
-        XAxis xAxis = chart.getXAxis();
+        YAxis leftAxis = chart.getAxisRight();
+        leftAxis.setLabelCount(4, false);
+        leftAxis.setDrawGridLines(false);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawZeroLine(false); // draw a zero line
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(6000F);
+        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
 
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(10f);
-        xAxis.setDrawAxisLine(true);
-        xAxis.setDrawGridLines(false);
-       /* xAxis.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return xAxisLabel.get((int) value);
-            }
-        });*/
+        //        LimitLine ll1 = new LimitLine(Integer.parseInt(Watergoal));
+//        ll1.setLineWidth(1f);
+//        ll1.enableDashedLine(1f, 1f, 0f);
 
-//        leftAxis.setTextSize(10f);
-//        leftAxis.setDrawLabels(false);
-//        leftAxis.setDrawAxisLine(true);
-//        leftAxis.setDrawGridLines(false);
-
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setDrawLabels(false);
+        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+//        leftAxis.addLimitLine(ll1);
+        leftAxis.setDrawLabels(false);
 
         BarData data = new BarData(setWeekDistanceData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -1197,7 +1284,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
+
+        chart.invalidate();
 
     }
 
@@ -1219,7 +1311,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         if (StepWeeklist != null) {
             for (int i = 0; i < StepWeeklist.size(); i++) {
 //                Log.e("TAG", "hours: " + StepWeeklist.get(i).getDistance() + "step" + StepWeeklist.get(i).getStep() + "date" + StepWeeklist.get(i).getDate());
-                entries.add(new BarEntry(StepWeeklist.get(i).getDate(), Float.parseFloat(String.valueOf(StepWeeklist.get(i).getSumdistance()))));
+                entries.add(new BarEntry(i, Float.parseFloat(String.valueOf(StepWeeklist.get(i).getSumdistance())), StepWeeklist.get(i).getDate()));
                 sumvalue = sumvalue + StepWeeklist.get(i).getSumdistance();
             }
         }
@@ -1250,7 +1342,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     public void showEditStepDailog() {
-        stepcountModel = new stepcountModel();
+        stepcountModel = new StepCountModel();
 
         String[] Time = {"00:00 - 01:00", "01:00 - 02:00", "02:00 - 03:00", "03:00 - 04:00", "04:00 - 05:00", "05:00 - 06:00", "06:00 - 07:00", "07:00 - 08:00",
                 "08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00",
@@ -1271,17 +1363,17 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         Calendar rightNow = Calendar.getInstance();
         int hours = rightNow.get(Calendar.HOUR_OF_DAY);
-        int dayOfMonth = rightNow.get(Calendar.DAY_OF_MONTH);
-        int mMonth = rightNow.get(Calendar.MONTH) + 1;
-        int mYear = rightNow.get(Calendar.YEAR);
+        final int[] dayOfMonth = {rightNow.get(Calendar.DAY_OF_MONTH)};
+        final int[] mMonth = {rightNow.get(Calendar.MONTH) + 1};
+        final int[] mYear = {rightNow.get(Calendar.YEAR)};
 
         final int[] saveHour = {hours};
-        final int[] selectedyear = {mYear};
-        final int[] selectedmonth = {mMonth};
-        final int[] selectedday = {dayOfMonth};
+        final int[] selectedyear = {mYear[0]};
+        final int[] selectedmonth = {mMonth[0]};
+        final int[] selectedday = {dayOfMonth[0]};
 
         ArrayList<String> stringArrayList = new ArrayList<>();
-        if (selectedday[0] != dayOfMonth && selectedmonth[0] != mMonth && selectedyear[0] != mYear) {
+        if (selectedday[0] != dayOfMonth[0] && selectedmonth[0] != mMonth[0] && selectedyear[0] != mYear[0]) {
             for (int i = 0; i < 24; i++) {
                 stringArrayList.add(Time[i]);
 //            Log.e("TAG", "showEditStepDailog: " + Time[i]);
@@ -1308,12 +1400,14 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                             @SuppressLint("SetTextI18n")
                             @Override
                             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                                stringArrayList.clear();
                                 selectedyear[0] = year;
-                                selectedmonth[0] = month;
+                                selectedmonth[0] = month + 1;
                                 selectedday[0] = day;
+
                                 tvdate.setText(selectedday[0] + " - " + selectedmonth[0]);
 
-                                if (selectedday[0] != dayOfMonth) {
+                                if (selectedday[0] != dayOfMonth[0]) {
                                     for (int i = 0; i < 24; i++) {
                                         stringArrayList.add(Time[i]);
                                     }
@@ -1322,9 +1416,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                                         stringArrayList.add(Time[i]);
                                     }
                                 }
+
+                                getoldSteplistData(selectedday[0], selectedmonth[0], selectedyear[0], saveHour[0]);
+                                stepvalue.setText(oldsteptotal + "");
                                 arrayAdapter.notifyDataSetChanged();
                             }
-                        }, mYear, mMonth - 1, dayOfMonth);
+                        }, selectedyear[0], selectedmonth[0] - 1, selectedday[0]);
                 datePickerDialog.show();
             }
         });
@@ -1384,6 +1481,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 } else if (item.equals("23:00 - 24:00")) {
                     saveHour[0] = 23;
                 }
+                getoldSteplistData(selectedday[0], selectedmonth[0], selectedyear[0], saveHour[0]);
+                stepvalue.setText(oldsteptotal + "");
             }
 
             @Override
@@ -1399,8 +1498,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 if (numSteps.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Please Enter number of steps..!!", Toast.LENGTH_LONG).show();
                 } else {
-                    String Calories = String.valueOf(commanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
-                    String Distance = String.valueOf(commanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
+                    String Calories = String.valueOf(CommanMethod.calculateCalories(Integer.parseInt(numSteps), userWeight, userHeight));
+                    String Distance = String.valueOf(CommanMethod.calculateDistance(Integer.parseInt(numSteps), userHeight));
 
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
@@ -1411,8 +1510,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
                     s.format(new Date(c.getTimeInMillis()));
 
-//                    Log.e("Start", "Start Date = " + c.getTimeInMillis());
-//                    String ts = String.valueOf(System.currentTimeMillis());
+                    Log.e("Start", "Start Date = " + selectedday[0]);
+                    Log.e("Start", "Start Date = " + selectedmonth[0]);
+                    Log.e("Start", "Start Date = " + selectedyear[0]);
+                    Log.e("Start", "Start Date = " + c.getTimeInMillis());
 
                     stepcountModel.setStep(Integer.valueOf(numSteps));
                     stepcountModel.setDate(selectedday[0]);
@@ -1695,6 +1796,19 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     }
                 }
                 break;
+        }
+    }
+
+    private void getoldSteplistData(int date, int month, int year, int hour) {
+        getoldSteplist = dbManager.getCurrentDayHoursStepcountlist(date, month, year, hour);
+        if (getoldSteplist != null) {
+            for (int i = 0; i < getoldSteplist.size(); i++) {
+                oldsteptotal = getoldSteplist.get(i).getStep();
+//                Log.e("TAG", "date: " + oldsteptotal);
+            }
+        } else {
+            oldsteptotal = 0;
+//            Log.e("TAG", "date: " + oldsteptotal);
         }
     }
 }

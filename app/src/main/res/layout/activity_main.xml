@@ -234,6 +234,7 @@
                             android:textSize="@dimen/_18sdp" />
 
                         <TextView
+                            android:id="@+id/tvAvgstep"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:gravity="center"
@@ -581,7 +582,7 @@
                     </LinearLayout>
 
                     <com.github.mikephil.charting.charts.LineChart
-                        android:id="@+id/WeightChart"
+                        android:id="@+id/cvWeightChart"
                         android:layout_marginTop="@dimen/_10sdp"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_150sdp"/>
