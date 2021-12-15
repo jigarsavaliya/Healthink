@@ -22,7 +22,7 @@
         android:padding="@dimen/_10sdp">
 
         <RelativeLayout
-            android:id="@+id/rlReminder"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -30,6 +30,7 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/llReminder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toLeftOf="@+id/llsc"

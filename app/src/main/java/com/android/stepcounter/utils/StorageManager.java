@@ -27,6 +27,8 @@ public class StorageManager {
     public static final String PREF_APP_KEY_WATER_INDEX_GOAL = "WaterGoalindex";
     public static final String PREF_APP_KEY_WATER_INDEX_DEFULT_CUP = "WaterDefultcupindex";
     public static final String PREF_APP_KEY_WATER_REMINDER = "WaterReminder";
+    public static final String PREF_APP_KEY_HISTORY_FLAG = "HistoryDeleteFlag";
+    public static final String PREF_APP_KEY_WATER_GOAL_TARGET = "WaterGoalTarget";
 
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -160,4 +162,21 @@ public class StorageManager {
     public Boolean getReminder() {
         return preferences.getBoolean(StorageManager.PREF_APP_KEY_WATER_REMINDER, false);
     }
+
+    public void setHistoryDelete(Boolean message) {
+        editor.putBoolean(StorageManager.PREF_APP_KEY_HISTORY_FLAG, message).apply();
+    }
+
+    public Boolean getHistoryDelete() {
+        return preferences.getBoolean(StorageManager.PREF_APP_KEY_HISTORY_FLAG, false);
+    }
+
+    public void setWatergoalTarget(Integer message) {
+        editor.putInt(StorageManager.PREF_APP_KEY_WATER_GOAL_TARGET, message).apply();
+    }
+
+    public Integer getWatergoalTarget() {
+        return preferences.getInt(StorageManager.PREF_APP_KEY_WATER_GOAL_TARGET, 0);
+    }
+
 }

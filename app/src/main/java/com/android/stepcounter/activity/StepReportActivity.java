@@ -70,7 +70,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     Calendar rightNow = Calendar.getInstance();
     boolean IsSelectedDay = true, IsSelectedMonth = false, IsSelectedWeek = false;
     boolean IsSelectedStep = true, IsSelectedCaleroie = false, IsSelectedTime = false, IsSelectedDistance = false;
-    int date, month, year, StepGoal;
+    int date;
+    int month;
+    int year;
+    int StepGoal;
 
     long firstdayofmonth, lastdayofmonth;
     ArrayList<StepCountModel> getoldSteplist;
@@ -86,9 +89,17 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         Stepmonthlist = new ArrayList<StepCountModel>();
         getoldSteplist = new ArrayList<StepCountModel>();
 
-        date = rightNow.get(Calendar.DATE);
-        month = rightNow.get(Calendar.MONTH) + 1;
-        year = rightNow.get(Calendar.YEAR);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            date = getIntent().getIntExtra("stepdate", 0);
+            month = getIntent().getIntExtra("stepmonth", 0);
+            year = getIntent().getIntExtra("stepyear", 0);
+//            Logger.e(date + "/" + month + "/" + year);
+        } else {
+            date = rightNow.get(Calendar.DATE);
+            month = rightNow.get(Calendar.MONTH) + 1;
+            year = rightNow.get(Calendar.YEAR);
+        }
 
 //        Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
 
@@ -343,8 +354,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Steps");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -364,7 +376,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private BarDataSet setDayData() {
         Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
-        tvchartdate.setText(date + " " + month);
+        tvchartdate.setText(date + "-" + month + "-" + year);
 
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (Steplist != null) {
@@ -410,7 +422,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Steps");
         mv.setChartView(chart);
 
 //        chart.getXAxis().setEnabled(false);
@@ -441,7 +453,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthData() {
-        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(cal.getTime());
+
+        tvchartdate.setText(month_name);
+
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
 //        Log.e("TAG", a + "total days");
 
@@ -526,8 +544,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Steps");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -606,6 +625,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Calories");
+        mv.setChartView(chart);
+        chart.setMarker(mv);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -619,7 +642,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private BarDataSet setDayCaloriesData() {
         Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
-        tvchartdate.setText(date + " " + month);
+        tvchartdate.setText(date + "-" + month + "-" + year);
 
         Float sumvalue = Float.valueOf(0);
         ArrayList<BarEntry> entries = new ArrayList<>();
@@ -666,8 +689,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Calories");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -681,7 +705,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthCaloriesData() {
-        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(cal.getTime());
+
+        tvchartdate.setText(month_name);
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
         Log.e("TAG", a + "total days");
 
@@ -758,8 +787,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Calories");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -837,6 +867,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "m");
+        mv.setChartView(chart);
+        chart.setMarker(mv);
+
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
         chart.setScaleEnabled(false);
@@ -850,7 +884,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private BarDataSet setDayTimeData() {
         Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
-        tvchartdate.setText(date + " " + month);
+        tvchartdate.setText(date + "-" + month + "-" + year);
 
         int sumvalue = 0;
         int minitvalue = 0;
@@ -911,7 +945,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "m");
         mv.setChartView(chart);
 
        /* XYMarkerView mv = new XYMarkerView(this, xAxisFormatter);
@@ -929,7 +963,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthTimeData() {
-        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(cal.getTime());
+
+        tvchartdate.setText(month_name);
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
         Stepmonthlist = dbManager.getMonthstepdata(String.valueOf(firstdayofmonth), String.valueOf(lastdayofmonth), a);
 
@@ -1021,8 +1060,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "m");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
@@ -1110,6 +1150,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarData data = new BarData(setDayDistanceData());
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "km");
+        mv.setChartView(chart);
+        chart.setMarker(mv);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -1124,7 +1167,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
     private BarDataSet setDayDistanceData() {
         Steplist = dbManager.getCurrentDayStepcountlist(date, month, year);
-        tvchartdate.setText(date + " " + month);
+        tvchartdate.setText(date + "-" + month + "-" + year);
 
         float sumvalue = 0;
         ArrayList<BarEntry> entries = new ArrayList<>();
@@ -1171,8 +1214,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "km");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -1191,7 +1235,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private BarDataSet setMonthDistanceData() {
-        tvchartdate.setText(rightNow.get(Calendar.MONTH) + 1 + "");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(cal.getTime());
+
+        tvchartdate.setText(month_name);
         int a = getMaxDaysInMonth(rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
 
         float sumvalue = 0;
@@ -1274,8 +1323,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Km");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -1655,8 +1705,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     rightNow.set(Calendar.DATE, rightNow.get(Calendar.DATE) - 1);
                     date = rightNow.get(Calendar.DATE);
                     month = rightNow.get(Calendar.MONTH) + 1;
+                    year = rightNow.get(Calendar.YEAR);
                     Log.e("TAG", "onClick: " + date);
-                    tvchartdate.setText(date + " " + month);
+                    tvchartdate.setText(date + "-" + month + "-" + year);
 
                     if (IsSelectedStep) {
                         SetDaywiseStepChart();
@@ -1695,10 +1746,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     }
                 } else if (IsSelectedMonth) {
                     rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) - 1);
-                    Log.e("TAG", "ivBackDate: " + rightNow.get(Calendar.MONTH));
-                    month = rightNow.get(Calendar.MONTH) + 1;
-                    Log.e("TAG", "ivBackDate: " + month + " date " + date);
-                    tvchartdate.setText(month + "");
 
                     Calendar c = Calendar.getInstance();
                     c.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));
@@ -1732,7 +1779,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     date = rightNow.get(Calendar.DATE);
                     month = rightNow.get(Calendar.MONTH) + 1;
                     Log.e("TAG", "onClick: " + rightNow.get(Calendar.MONTH));
-                    tvchartdate.setText(date + " " + month);
+                    tvchartdate.setText(date + "-" + month + "-" + year);
 
                     if (IsSelectedDay) {
                         SetDaywiseStepChart();
@@ -1766,9 +1813,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     }
                 } else if (IsSelectedMonth) {
                     rightNow.set(Calendar.MONTH, rightNow.get(Calendar.MONTH) + 1);
-                    month = rightNow.get(Calendar.MONTH) + 1;
-                    Log.e("TAG", "ivForwardDate : " + month + " date " + date);
-                    tvchartdate.setText(month + "");
 
                     Calendar c = Calendar.getInstance();
                     c.set(Calendar.MONTH, rightNow.get(Calendar.MONTH));

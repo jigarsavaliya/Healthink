@@ -1,6 +1,5 @@
 package com.android.stepcounter.activity;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -25,7 +25,8 @@ import static android.content.ContentValues.TAG;
 
 public class ProfileActivity extends AppCompatActivity {
     Toolbar mToolbar;
-    LinearLayout llGender, llLenght, llWeight, llUnit, llweek;
+    LinearLayout llGender, llLenght, llWeight, llUnit;
+    RelativeLayout mRlGender, mRlWeight, mRlUnit;
     SharedPreferences sharedpreferences;
     SharedPreferences.Editor editor;
     TextView tvWeight, tvGender, tvUnit;
@@ -61,6 +62,10 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        mRlGender = findViewById(R.id.rlGender);
+        mRlWeight = findViewById(R.id.rlWeight);
+        mRlUnit = findViewById(R.id.rlUnit);
+
         llGender = findViewById(R.id.llGender);
         llLenght = findViewById(R.id.llLenght);
         llWeight = findViewById(R.id.llWeight);
@@ -75,7 +80,7 @@ public class ProfileActivity extends AppCompatActivity {
         tvWeight.setText(userWeight + "");
         tvUnit.setText("lbs / ft");
 
-        llGender.setOnClickListener(new View.OnClickListener() {
+        mRlGender.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //creating a popup menu
@@ -108,14 +113,14 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        llWeight.setOnClickListener(new View.OnClickListener() {
+        mRlWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showWeightDailog();
             }
         });
 
-        llUnit.setOnClickListener(new View.OnClickListener() {
+        mRlUnit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //creating a popup menu

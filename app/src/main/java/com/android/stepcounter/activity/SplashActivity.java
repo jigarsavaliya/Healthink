@@ -53,9 +53,9 @@ public class SplashActivity extends AppCompatActivity {
             }
         }, secondsDelayed * 100);
 
-        /*stepcountModel stepcountModel= new stepcountModel();
-        DBHandler dbManager= new DBHandler(this);
-        stepcountModel.setStep(8);
+//        stepcountModel stepcountModel= new stepcountModel();
+//        DBHandler dbManager= new DBHandler(this);
+      /*  stepcountModel.setStep(8);
         stepcountModel.setDate(4);
         stepcountModel.setMonth(12);
         stepcountModel.setYear(2021);
@@ -64,6 +64,15 @@ public class SplashActivity extends AppCompatActivity {
         stepcountModel.setDuration(14);
         stepcountModel.setTimestemp("1638606748409");
         dbManager.addStepcountData(stepcountModel);*/
+
+
+       /* WeightModel weightModel = new WeightModel();
+        weightModel.setDate(22);
+        weightModel.setMonth(11);
+        weightModel.setYear(2021);
+        weightModel.setTimestemp("1637552747000");
+        weightModel.setKg(120);
+        dbManager.addWeightData(weightModel);*/
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -162,6 +171,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void callNextScreen() {
+        StorageManager.getInstance().setHistoryDelete(false);
         boolean b = StorageManager.getInstance().getIsProfile();
         if (b) {
             Intent obj = new Intent(SplashActivity.this, WelcomeActivity.class);

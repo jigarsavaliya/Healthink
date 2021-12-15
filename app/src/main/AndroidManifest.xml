@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.StepCounter">
-        <activity android:name=".activity.HistoryActivity"></activity>
+        <activity android:name=".activity.AddWaterActivity"></activity>
+        <activity android:name=".activity.HistoryActivity" />
         <activity android:name=".activity.WaterReminderSettingActivity" />
         <activity android:name=".activity.HeathActivity" />
         <activity android:name=".activity.StepReportActivity" />

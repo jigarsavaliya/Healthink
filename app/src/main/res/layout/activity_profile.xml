@@ -22,6 +22,7 @@
         android:padding="@dimen/_10sdp">
 
         <RelativeLayout
+            android:id="@+id/rlGender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -134,6 +135,7 @@
             android:background="@color/colorDivider" />
 
         <RelativeLayout
+            android:id="@+id/rlWeight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
@@ -191,6 +193,7 @@
             android:background="@color/colorDivider" />
 
         <RelativeLayout
+            android:id="@+id/rlUnit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_5sdp"

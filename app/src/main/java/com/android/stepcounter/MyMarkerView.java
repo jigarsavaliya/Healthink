@@ -20,12 +20,14 @@ import com.github.mikephil.charting.utils.Utils;
 @SuppressLint("ViewConstructor")
 public class MyMarkerView extends MarkerView {
 
-    private final TextView tvContent;
+    private final TextView tvContent, tvstep;
+    String chartValue;
 
-    public MyMarkerView(Context context, int layoutResource) {
+    public MyMarkerView(Context context, int layoutResource, String value) {
         super(context, layoutResource);
-
+        chartValue = value;
         tvContent = findViewById(R.id.tvContent);
+        tvstep = findViewById(R.id.tvstep);
     }
 
     // runs every time the MarkerView is redrawn, can be used to update the
@@ -39,8 +41,9 @@ public class MyMarkerView extends MarkerView {
 
             tvContent.setText(Utils.formatNumber(ce.getHigh(), 0, true));
         } else {
-
-            tvContent.setText(Utils.formatNumber(e.getY(), 0, true));
+            tvstep.setText(Utils.formatNumber(e.getX(), 0, true) + "");
+            tvContent.setText(Utils.formatNumber(e.getY(), 0, true) + " " + chartValue);
+//            tvContent.setText(Utils.formatNumber(e.getY(), 0, true));
         }
 
         super.refreshContent(e, highlight);

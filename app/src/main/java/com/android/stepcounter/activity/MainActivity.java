@@ -8,8 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -110,13 +110,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     EditText etweight;
     double covertinml;
-    ArrayList<WeightModel> modelArrayList = new ArrayList<>();
-    ArrayList<WeightModel> arrayList = new ArrayList<>();
-    ArrayList<Entry> weightModelArrayList = new ArrayList<>();
-    ArrayList<WeightModel> waterlevelArrayList = new ArrayList<>();
     RecyclerView mRvSteplist, mRvWaterlist;
     StepWeekChartAdapter stepWeekChartAdapter;
     WaterWeekChartAdapter waterWeekChartAdapter;
+    boolean IsAddWaterClick = false;
+
+    ArrayList<StepCountModel> stepcountModelArrayList = new ArrayList<>();
+    ArrayList<WaterLevelModel> DaywiseWaterlist = new ArrayList<>();
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -183,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mRvSteplist = findViewById(R.id.rvStepChart);
         mRvWaterlist = findViewById(R.id.rvWaterChart);
-
 
         progress = findViewById(R.id.progressBar);
         mLcWeightChart = findViewById(R.id.cvWeightChart);
@@ -265,14 +264,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         tvwatergoal.setText("/" + StorageManager.getInstance().getWaterGoal());
 
-        String ts = String.valueOf(System.currentTimeMillis());
-        WeightModel weightModel = new WeightModel();
-        weightModel.setDate(date);
-        weightModel.setMonth(month);
-        weightModel.setYear(year);
-        weightModel.setTimestemp(ts);
-        weightModel.setKg((int) userWeight);
-        dbManager.addWeightData(weightModel);
+        ArrayList<WeightModel> WeightArrayList = new ArrayList<>();
+
+        WeightArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
+
+        if (WeightArrayList == null) {
+            String ts = String.valueOf(System.currentTimeMillis());
+            WeightModel weightModel = new WeightModel();
+            weightModel.setDate(date);
+            weightModel.setMonth(month);
+            weightModel.setYear(year);
+            weightModel.setTimestemp(ts);
+            weightModel.setKg((int) userWeight);
+            dbManager.addWeightData(weightModel);
+        }
 
         setWeightChart();
     }
@@ -291,8 +296,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setRecyclerView() {
-        ArrayList<StepCountModel> stepcountModelArrayList = new ArrayList<>();
-        ArrayList<WaterLevelModel> DaywiseWaterlist = new ArrayList<>();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, rightNow.get(Calendar.DATE) - 6);
@@ -326,6 +329,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRvWaterlist.setHasFixedSize(true);
         mRvWaterlist.setLayoutManager(new GridLayoutManager(this, 7));
         mRvWaterlist.setAdapter(waterWeekChartAdapter);
+
     }
 
     private void setWeightChart() {
@@ -333,6 +337,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         long fristdate = cal.getTimeInMillis();
         cal.add(Calendar.DATE, -30);
         long last30day = cal.getTimeInMillis();
+
+        ArrayList<WeightModel> modelArrayList = new ArrayList<>();
+        ArrayList<WeightModel> arrayList = new ArrayList<>();
+        ArrayList<Entry> weightModelArrayList = new ArrayList<>();
 
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
 
@@ -347,18 +355,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int pervalue = 0;
         arrayList = dbManager.getCurrentDayWeightlist(date - 1, month, year);
 
-        /*if (arrayList.size() != 0) {
+        if (arrayList.size() != 0) {
             for (int i = 0; i < arrayList.size(); i++) {
                 pervalue = arrayList.get(i).getKg();
             }
-        }*/
+        }
 
         int cuurrvalue = Integer.parseInt(tvuserWeight.getText().toString());
+
         int diff = 0;
         diff = cuurrvalue - pervalue;
 
 //        Log.e("TAG", pervalue + "setWeightChart: " + cuurrvalue);
-        if (diff < 0) {
+        if (diff > 0) {
             mtvlastdaydiffvalue.setText(diff + "KG");
         } else {
             mtvlastdaydiffvalue.setText("0 KG");
@@ -376,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mLcWeightChart.setDrawGridBackground(false);
 
         // create marker to display box when values are selected
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Kg");
         mv.setChartView(mLcWeightChart);
         mLcWeightChart.setMarker(mv);
         mLcWeightChart.setDragEnabled(true);
@@ -395,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // axis range
         xAxis.setAxisMaximum(cal.get(Calendar.DAY_OF_MONTH));
-        xAxis.setAxisMinimum(cal.get(Calendar.DAY_OF_MONTH) - 30);
+//        xAxis.setAxisMinimum(cal.get(Calendar.DAY_OF_MONTH) - 30);
 
         YAxis yAxis;
         yAxis = mLcWeightChart.getAxisLeft();
@@ -410,12 +419,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         yAxis.setAxisMaximum(200f);
         yAxis.setAxisMinimum(0);
 
+        ArrayList<WeightModel> waterlevelArrayList = new ArrayList<>();
         waterlevelArrayList = dbManager.getMonthWeightdata(String.valueOf(last30day), String.valueOf(fristdate));
 
         for (int i = 0; i < waterlevelArrayList.size(); i++) {
-//            Log.e("TAG", waterlevelArrayList.get(i).getKg() + "setWeightChart: " + waterlevelArrayList.get(i).getDate());
+//            weightModelArrayList.add(new Entry(weightModels.get(i).getDate(), weightModels.get(i).getKg(), getResources().getDrawable(R.drawable.star)));
             weightModelArrayList.add(new Entry(waterlevelArrayList.get(i).getDate(), waterlevelArrayList.get(i).getKg(), getResources().getDrawable(R.drawable.star)));
         }
+
+     /*   ArrayList<Entry> values = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            float val = (float) (Math.random() * range) - 30;
+            values.add(new Entry(i, val, getResources().getDrawable(R.drawable.star)));
+        }*/
 
         LineDataSet set1;
 
@@ -436,18 +452,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             // black lines and points
             set1.setColor(Color.BLACK);
-            set1.setCircleColor(Color.BLACK);
+//            set1.setCircleColor(Color.BLACK);
 
             // line thickness and point size
             set1.setLineWidth(1f);
-            set1.setCircleRadius(3f);
+//            set1.setCircleRadius(5f);
 
             // draw points as solid circles
-            set1.setDrawCircleHole(false);
+//            set1.setDrawCircleHole(false);
 
             // customize legend entry
             set1.setFormLineWidth(1f);
-            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
+//            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
             set1.setFormSize(15.f);
 
             // text size of values
@@ -484,7 +500,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // draw legend entries as lines
         l.setForm(Legend.LegendForm.LINE);
     }
-
 
     private void setSharedPreferences() {
         userHeight = StorageManager.getInstance().getHeight();
@@ -523,6 +538,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(MainActivity.this, HeathActivity.class));
                 break;
             case R.id.ivaddwater:
+                IsAddWaterClick = true;
                 String ts = String.valueOf(System.currentTimeMillis());
 
                 waterlevel = new WaterLevelModel();
@@ -543,11 +559,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     value[0] = value[0] + Integer.parseInt(DefultCupValue[0]);
                     waterlevel.setUnit(String.valueOf(value[0]));
                 }
-
                 dbManager.addWaterData(waterlevel);
 
                 setdatainprogress();
-//                rvWaterlist.notify();
+
                 break;
             case R.id.llwaterSetting:
                 startActivity(new Intent(MainActivity.this, WaterSettingActivity.class));
@@ -565,8 +580,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         waterlevelArrayList = dbManager.getDayWaterdata(date, month, year);
 
+        int lastentry = 0;
+        double Fllastentry = 0;
         if (WaterUnit.equals("ml")) {
-            int lastentry = 0;
             if (waterlevelArrayList != null) {
                 for (int i = 0; i < waterlevelArrayList.size(); i++) {
 //                Log.e("TAG", "init: " + waterlevelArrayList.get(i).getSumwater());
@@ -587,26 +603,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tvwaterlevel.setText(0 + "");
             }
         } else {
-            double lastentry = 0;
             if (waterlevelArrayList != null) {
                 for (int i = 0; i < waterlevelArrayList.size(); i++) {
 //                Log.e("TAG", "init: " + waterlevelArrayList.get(i).getSumwater());
-                    lastentry = Math.round(CommanMethod.getMlToFloz(Float.valueOf(waterlevelArrayList.get(i).getSumwater())));
+                    Fllastentry = Math.round(CommanMethod.getMlToFloz(Float.valueOf(waterlevelArrayList.get(i).getSumwater())));
                 }
 
-                if (lastentry != 0) {
-                    if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
+                if (Fllastentry != 0) {
+                    if (Fllastentry < Integer.parseInt(WaterGoalValue[0])) {
 //                    Log.e("TAG", "init: " + lastentry);
-                        mCpWaterCircleProgress.setProgress((int) lastentry);
+                        mCpWaterCircleProgress.setProgress((int) Fllastentry);
                     } else {
                         mCpWaterCircleProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
                     }
                 }
-                tvwaterlevel.setText(lastentry + "");
+                tvwaterlevel.setText(Fllastentry + "");
             } else {
                 mCpWaterCircleProgress.setProgress(0);
                 tvwaterlevel.setText(0 + "");
             }
+        }
+
+        int Target = StorageManager.getInstance().getWatergoalTarget();
+
+        if (IsAddWaterClick) {
+            if (Target < lastentry) {
+                startActivity(new Intent(MainActivity.this, AddWaterActivity.class));
+            } else if (Target < Fllastentry) {
+                startActivity(new Intent(MainActivity.this, AddWaterActivity.class));
+            }
+            IsAddWaterClick = false;
         }
     }
 
@@ -636,7 +662,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 iskg[0] = false;
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(CommanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                int a = Integer.parseInt(etweight.getText().toString());
+                if (a != 0) {
+                    etweight.setText(Math.round(CommanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                } else {
+                    etweight.setText("0");
+                }
             }
         });
 
@@ -647,7 +678,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 iskg[0] = true;
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                int a = Integer.parseInt(etweight.getText().toString());
+                if (a != 0) {
+                    etweight.setText(Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                } else {
+                    etweight.setText("0");
+                }
             }
         });
 
@@ -758,6 +794,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.action_reset:
                 showResetdataDailog();
+//                ShowYesterdayHistoryDailog();
                 break;
             case R.id.action_history:
                 startActivity(new Intent(this, HistoryActivity.class));
@@ -880,7 +917,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 selectedmonth[0] = month + 1;
                                 selectedday[0] = day;
 
-                                tvdate.setText(selectedday[0] + " - " + selectedmonth[0]);
+                                tvdate.setText(selectedday[0] + " - " + selectedmonth[0] + " - " + selectedyear[0]);
 
                                 if (selectedday[0] != dayOfMonth[0]) {
                                     for (int i = 0; i < 24; i++) {
@@ -1013,5 +1050,71 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         alertDialog.show();
+    }
+
+    private void ShowYesterdayHistoryDailog() {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View d = inflater.inflate(R.layout.dailog_history, null);
+        dialogBuilder.setView(d);
+
+        AlertDialog alertDialog = dialogBuilder.create();
+        CardView mCvHistory = d.findViewById(R.id.cvHistory);
+        CardView mCvShare = d.findViewById(R.id.cvShare);
+        TextView mTvReminderSetting = d.findViewById(R.id.tvReminderSetting);
+        TextView mTvYesterdayStep = d.findViewById(R.id.tvYesterdayStep);
+        TextView mTvWeeklysteps = d.findViewById(R.id.tvWeeklysteps);
+        mTvReminderSetting.setText(Html.fromHtml("<u>Reminder Setting</u>"));
+
+        int avg = 0, j = 0;
+        for (int i = 0; i < stepcountModelArrayList.size(); i++) {
+            if (stepcountModelArrayList.get(i).getSumstep() != 0) {
+                avg = avg + stepcountModelArrayList.get(i).getSumstep();
+                j++;
+            }
+        }
+
+        mTvWeeklysteps.setText("Weekly Average " + avg / j);
+
+        Steplist = dbManager.getYesterDayStepcountlist((date - 1), month, year);
+        if (Steplist != null) {
+            for (int i = 0; i < Steplist.size(); i++) {
+                mTvYesterdayStep.setText(Steplist.get(i).getSumstep() + "");
+            }
+        }
+
+        mTvReminderSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, WaterSettingActivity.class));
+                alertDialog.dismiss();
+            }
+        });
+
+        mCvHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, StepReportActivity.class));
+                alertDialog.dismiss();
+            }
+        });
+
+        mCvShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Step Counter");
+                String shareMessage = "\nYour Yesterday step is " + mTvYesterdayStep.getText().toString()
+                        + "\n Weekly Average is " + mTvWeeklysteps.getText().toString();
+                shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+                startActivity(Intent.createChooser(shareIntent, "choose one"));
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+
     }
 }

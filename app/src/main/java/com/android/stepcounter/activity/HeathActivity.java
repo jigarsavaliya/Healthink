@@ -3,8 +3,8 @@ package com.android.stepcounter.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -26,16 +27,20 @@ import androidx.cardview.widget.CardView;
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DBHandler;
-import com.android.stepcounter.model.WeightModel;
 import com.android.stepcounter.model.WaterLevelModel;
-import com.android.stepcounter.utils.StorageManager;
+import com.android.stepcounter.model.WeightModel;
 import com.android.stepcounter.utils.CommanMethod;
+import com.android.stepcounter.utils.Density;
+import com.android.stepcounter.utils.Logger;
+import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 import com.github.jhonnyx2012.horizontalpicker.DatePickerListener;
 import com.github.jhonnyx2012.horizontalpicker.HorizontalPicker;
 import com.github.lzyzsd.circleprogress.ArcProgress;
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -45,11 +50,18 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import org.joda.time.DateTime;
 
@@ -60,7 +72,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class HeathActivity extends AppCompatActivity implements DatePickerListener, View.OnClickListener {
-    TextView muserWeight, mAddWeightDailog, meditHeightWeight, mtvlastdaydiff, mbmistatus, mtvwaterCount;
+    TextView muserWeight, mAddWeightDailog, meditHeightWeight, mtvlastdaydiff, mtvwaterCount;
     Calendar rightNow;
     int hour, min, date, month, year;
     DBHandler dbManager;
@@ -71,12 +83,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     protected String[] BMIcategory = new String[]
             {
                     "Very Severly Underweight", "Severly Underweight", "Underweight", "Normal",
-                    "Overweight", "Obese Class I", "Obese Class II", "Obese Class III",
+                    "Overweight", "Moderately Obese", "Severely Obese", "Very Severely Obese",
             };
 
     String selectedDate, seletedMonth, selecetedYear;
 
-    ArcProgress arcProgress, mbmiprogress;
+    ArcProgress arcProgress;
     LinearLayout llRemovewater, lladdwater;
     String waterGoal, DefualtCup;
     WaterLevelModel waterlevel;
@@ -94,6 +106,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     int waterml = 0;
     float[] value = {0};
     String[] WaterGoalValue;
+    PieChart mPcBmiChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,10 +170,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         ivForwardDate.setOnClickListener(this);
         scWaterNotification.setOnClickListener(this);
 
-        mbmistatus = findViewById(R.id.bmistatus);
-
-        mbmiprogress = findViewById(R.id.bmiprogress);
-        mbmiprogress.setProgress(50);
+        mPcBmiChart = findViewById(R.id.pcBmiChart);
 
         muserWeight.setText(userWeight + "");
 
@@ -222,7 +232,6 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 SetWeekwiseWaterChart();
             }
         });
-
 
         llRemovewater.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -461,7 +470,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 iskg[0] = false;
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(CommanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                int a = Integer.parseInt(etweight.getText().toString());
+                if (a != 0) {
+                    etweight.setText(Math.round(CommanMethod.kgToLbConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                } else {
+                    etweight.setText("0");
+                }
             }
         });
 
@@ -472,7 +486,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 iskg[0] = true;
                 mllKB.setCardBackgroundColor(getResources().getColor(R.color.colorBackgrond));
                 mllLb.setCardBackgroundColor(getResources().getColor(R.color.transprant));
-                etweight.setText(Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                int a = Integer.parseInt(etweight.getText().toString());
+                if (a != 0) {
+                    etweight.setText(Math.round(CommanMethod.lbToKgConverter(Double.parseDouble(etweight.getText().toString()))) + "");
+                } else {
+                    etweight.setText("0");
+                }
             }
         });
 
@@ -564,12 +583,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         cal.add(Calendar.DATE, -30);
         long last30day = cal.getTimeInMillis();
 
-        ArrayList<WeightModel> weightModels = new ArrayList<>();
         ArrayList<WeightModel> modelArrayList = new ArrayList<>();
         ArrayList<WeightModel> arrayList = new ArrayList<>();
         ArrayList<Entry> weightModelArrayList = new ArrayList<>();
-
-        weightModels = dbManager.getWeightlist();
 
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
 
@@ -584,11 +600,11 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         int pervalue = 0;
         arrayList = dbManager.getCurrentDayWeightlist(date - 1, month, year);
 
-        /*if (arrayList.size() != 0) {
+        if (arrayList.size() != 0) {
             for (int i = 0; i < arrayList.size(); i++) {
                 pervalue = arrayList.get(i).getKg();
             }
-        }*/
+        }
 
         int cuurrvalue = Integer.parseInt(muserWeight.getText().toString());
 
@@ -596,7 +612,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         diff = cuurrvalue - pervalue;
 
 //        Log.e("TAG", pervalue + "setWeightChart: " + cuurrvalue);
-        if (diff < 0) {
+        if (diff > 0) {
             mtvlastdaydiff.setText(diff + "KG");
         } else {
             mtvlastdaydiff.setText("0 KG");
@@ -614,7 +630,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         WeightChart.setDrawGridBackground(false);
 
         // create marker to display box when values are selected
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Kg");
         mv.setChartView(WeightChart);
         WeightChart.setMarker(mv);
         WeightChart.setDragEnabled(true);
@@ -633,7 +649,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
         // axis range
         xAxis.setAxisMaximum(cal.get(Calendar.DAY_OF_MONTH));
-        xAxis.setAxisMinimum(cal.get(Calendar.DAY_OF_MONTH) - 30);
+//        xAxis.setAxisMinimum(cal.get(Calendar.DAY_OF_MONTH) - 30);
 
         YAxis yAxis;
         yAxis = WeightChart.getAxisLeft();
@@ -681,18 +697,18 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
             // black lines and points
             set1.setColor(Color.BLACK);
-            set1.setCircleColor(Color.BLACK);
+//            set1.setCircleColor(Color.BLACK);
 
             // line thickness and point size
             set1.setLineWidth(1f);
-            set1.setCircleRadius(3f);
+//            set1.setCircleRadius(5f);
 
             // draw points as solid circles
-            set1.setDrawCircleHole(false);
+//            set1.setDrawCircleHole(false);
 
             // customize legend entry
             set1.setFormLineWidth(1f);
-            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
+//            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
             set1.setFormSize(15.f);
 
             // text size of values
@@ -754,7 +770,130 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         init();
         SetWeekwiseWaterChart();
         setWeightChart();
-        BMIReport();
+        setBMIReportChart();
+    }
+
+    private void setBMIReportChart() {
+        mPcBmiChart.setBackgroundColor(Color.WHITE);
+
+        mPcBmiChart.setUsePercentValues(true);
+        mPcBmiChart.getDescription().setEnabled(false);
+        double heightM = userHeight / 100;
+        double BMI = (userWeight) / (heightM * heightM);
+        DecimalFormat df = new DecimalFormat("#.#");
+        double BMItrimmed = Double.parseDouble(df.format(BMI));
+        String BMI_Cat = null;
+        if (BMI < 15) {
+            BMI_Cat = "Very severely underweight";
+        } else if (BMI >= 15 && BMI < 16) {
+            BMI_Cat = "Severely underweight";
+        } else if (BMI >= 16 && BMI < 18.5) {
+            BMI_Cat = "Underweight";
+        } else if (BMI >= 18.5 && BMI < 25) {
+            BMI_Cat = "Normal";
+        } else if (BMI >= 25 && BMI < 30) {
+            BMI_Cat = "Overweight";
+        } else if (BMI >= 30 && BMI < 35) {
+            BMI_Cat = "Moderately Obese";
+        } else if (BMI >= 35 && BMI < 40) {
+            BMI_Cat = "Severely Obese";
+        } else if (BMI < 40) {
+            BMI_Cat = "Very Severely Obese";
+        }
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int height = displayMetrics.heightPixels;
+
+        int offset = (int) (height * 0.18); /* percent to move */
+
+        RelativeLayout.LayoutParams rlParams =
+                (RelativeLayout.LayoutParams) mPcBmiChart.getLayoutParams();
+
+        rlParams.setMargins(Density.dp2px(this, 10), 0, Density.dp2px(this, 10), -offset);
+        mPcBmiChart.setLayoutParams(rlParams);
+        mPcBmiChart.setCenterTextOffset(0, -offset);
+
+        mPcBmiChart.setCenterText(BMItrimmed + "\n " + BMI_Cat);
+
+        mPcBmiChart.setDrawHoleEnabled(true);
+        mPcBmiChart.setHoleColor(Color.WHITE);
+
+        mPcBmiChart.setTransparentCircleColor(Color.WHITE);
+        mPcBmiChart.setTransparentCircleAlpha(110);
+
+        mPcBmiChart.setHoleRadius(58f);
+        mPcBmiChart.setTransparentCircleRadius(61f);
+
+        mPcBmiChart.setDrawCenterText(true);
+
+        mPcBmiChart.setRotationEnabled(false);
+        mPcBmiChart.setHighlightPerTapEnabled(true);
+
+        mPcBmiChart.setMaxAngle(180f); // HALF CHART
+        mPcBmiChart.setRotationAngle(180f);
+        mPcBmiChart.setCenterTextOffset(0, -20);
+
+        ArrayList<PieEntry> values = new ArrayList<>();
+
+        ArrayList<Float> BMI_trimmed = new ArrayList<>();
+        BMI_trimmed.add((float) 15.0);
+        BMI_trimmed.add((float) 16.0);
+        BMI_trimmed.add((float) 18.5);
+        BMI_trimmed.add((float) 25.0);
+        BMI_trimmed.add((float) 30.0);
+        BMI_trimmed.add((float) 35.0);
+        BMI_trimmed.add((float) 40.0);
+
+        for (int i = 0; i < BMI_trimmed.size(); i++) {
+            values.add(new PieEntry(i, BMIcategory[i % BMIcategory.length], BMI_trimmed.get(i)));
+        }
+
+        PieDataSet dataSet = new PieDataSet(values, "BMI");
+        dataSet.setSliceSpace(3f);
+        dataSet.setSelectionShift(5f);
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        dataSet.setSelectionShift(0f);
+
+        PieData data = new PieData(dataSet);
+        data.setValueFormatter(new PercentFormatter());
+        data.setValueTextSize(11f);
+        data.setValueTextColor(Color.WHITE);
+        mPcBmiChart.setData(data);
+
+        mPcBmiChart.invalidate();
+        mPcBmiChart.setDrawSliceText(false);
+        mPcBmiChart.animateY(1400, Easing.EaseInOutQuad);
+
+        Legend l = mPcBmiChart.getLegend();
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        l.setOrientation(Legend.LegendOrientation.VERTICAL);
+        l.setDrawInside(false);
+        l.setWordWrapEnabled(true);
+//        l.setXEntrySpace(7f);
+//        l.setYEntrySpace(0f);
+//        l.setYOffset(0f);
+//        l.setEnabled(false);
+
+        // entry label styling
+        mPcBmiChart.setEntryLabelColor(Color.WHITE);
+        mPcBmiChart.setEntryLabelTextSize(0f);
+        mPcBmiChart.getDescription().setEnabled(false);
+
+        mPcBmiChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+//                mPcBmiChart.highlightValue(h);
+                Logger.e(h);
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
     }
 
     private void setSharedPreferences() {
@@ -766,39 +905,6 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         WaterUnit = StorageManager.getInstance().getWaterUnit();
     }
 
-    public void BMIReport() {
-        double heightM = userHeight / 100;
-        double BMI = (userWeight) / (heightM * heightM);
-        DecimalFormat df = new DecimalFormat("#.#");
-        double BMI_trimmed = Double.parseDouble(df.format(BMI));
-        String BMI_Cat = null;
-        if (BMI < 15) {
-            BMI_Cat = "Very severely underweight";
-            mbmiprogress.setProgress((int) BMI_trimmed);
-        } else if (BMI >= 15 && BMI < 16) {
-            BMI_Cat = "Severely underweight";
-            mbmiprogress.setProgress((int) BMI_trimmed);
-        } else if (BMI >= 16 && BMI < 18.5) {
-            BMI_Cat = "Underweight";
-            mbmiprogress.setProgress((int) BMI_trimmed);
-        } else if (BMI >= 18.5 && BMI < 25) {
-            BMI_Cat = "Normal";
-            mbmiprogress.setProgress((int) BMI_trimmed);
-        } else if (BMI >= 25 && BMI < 30) {
-            BMI_Cat = "Overweight";
-            mbmiprogress.setProgress((int) BMI_trimmed);
-        } else if (BMI >= 30 && BMI < 35) {
-            BMI_Cat = "Moderately Obese";
-            mbmiprogress.setProgress((int) BMI_trimmed);
-        } else if (BMI >= 35 && BMI < 40) {
-            BMI_Cat = "Severely Obese";
-            mbmiprogress.setProgress((int) BMI_trimmed);
-        } else if (BMI < 40) {
-            BMI_Cat = "Very Severely Obese";
-            mbmiprogress.setProgress(40);
-        }
-        mbmistatus.setText(BMI_Cat);
-    }
 
     public static String getCurrentWeekdate(Calendar mCalendar) {
 //        Date date = new Date();
@@ -901,7 +1007,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Kg");
         mv.setChartView(chart);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars

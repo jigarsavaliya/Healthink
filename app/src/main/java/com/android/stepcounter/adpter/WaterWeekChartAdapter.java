@@ -24,12 +24,14 @@ public class WaterWeekChartAdapter extends RecyclerView.Adapter<WaterWeekChartAd
 
     ArrayList<WaterLevelModel> modelArrayList;
     Activity activity;
+    String[] WatreStepGoal;
     int StepGoal;
 
     public WaterWeekChartAdapter(MainActivity mainActivity, ArrayList<WaterLevelModel> waterlevelArrayList) {
         activity = mainActivity;
         modelArrayList = waterlevelArrayList;
-        StepGoal = StorageManager.getInstance().getStepCountGoalUnit();
+        WatreStepGoal = StorageManager.getInstance().getWaterGoal().split(" ");
+        StepGoal = Integer.parseInt(WatreStepGoal[0]);
     }
 
     @Override
@@ -58,6 +60,7 @@ public class WaterWeekChartAdapter extends RecyclerView.Adapter<WaterWeekChartAd
         }
 
         viewHolder.mstepday.setText(dayName.charAt(0) + "");
+
     }
 
     @Override

@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.android.stepcounter.model.WeightModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.WaterLevelModel;
+import com.android.stepcounter.model.WeightModel;
 import com.android.stepcounter.utils.Logger;
 
 import java.util.ArrayList;
@@ -559,6 +559,25 @@ public class DBHandler extends SQLiteOpenHelper {
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<StepCountModel> list = getCategorylistFromCursor(c);
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+
+    }
+
+    public ArrayList<StepCountModel> getYesterDayStepcountlist(int date, int month, int year) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "SELECT * , sum(" + KEY_STEP_COUNT + ") as total FROM " + TABLE_STEPCOUNT + " where " + KEY_STEP_DATE + " = " + date + " AND " + KEY_STEP_MONTH +
+                " = " + month + " AND  " + KEY_STEP_YEAR + " = " + year + " GROUP BY " + KEY_STEP_DATE;
+
+        Log.e("TAG", "getDaywiseStepdata: " + s);
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<StepCountModel> list = getSteplistFromCursor(c);
 
         if (list != null && list.size() > 0) {
             return list;
@@ -1191,9 +1210,11 @@ public class DBHandler extends SQLiteOpenHelper {
         }
 
         int j = 0;
+        int kg = 0;
         for (int i = 0; i < 30; i++) {
             if (j < temp.size() && i == temp.get(j).getDate()) {
                 list.add(temp.get(j));
+                kg = temp.get(j).getKg();
                 j++;
             } else {
                 WeightModel model = new WeightModel();
@@ -1201,7 +1222,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 model.setMonth(0);
                 model.setYear(0);
                 model.setTimestemp("0");
-                model.setKg(0);
+                model.setKg(kg);
                 list.add(model);
             }
         }

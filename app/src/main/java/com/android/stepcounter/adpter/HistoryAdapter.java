@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.HistoryActivity;
 import com.android.stepcounter.model.StepCountModel;
@@ -30,6 +31,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     Activity activity;
     HistoryDetailsAdapter HistoryDetailsAdapter;
     private ArrayList<Long> mKeys;
+    private AdapterCallback myAdapterListener;
 
     public HistoryAdapter(HistoryActivity mainActivity, HashMap<Long, ArrayList<StepCountModel>> stepcountModelArrayList,
                           HashMap<Long, StepHistoryModel> stepArrayListHashMap) {
@@ -75,6 +77,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         viewHolder.mtvstep.setText(weekHeader.getSumstep() + " Steps");
 
         HistoryDetailsAdapter = new HistoryDetailsAdapter((HistoryActivity) activity, modelArrayList.get(key));
+        HistoryDetailsAdapter.setCallback(new AdapterCallback() {
+            @Override
+            public void onMethodCallback(ArrayList<StepCountModel> countModelArrayList) {
+                myAdapterListener.onMethodCallback(countModelArrayList);
+            }
+        });
+
         viewHolder.mrvdetails.setHasFixedSize(true);
         viewHolder.mrvdetails.setLayoutManager(new LinearLayoutManager(activity));
         viewHolder.mrvdetails.setAdapter(HistoryDetailsAdapter);
@@ -95,6 +104,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             mtvdate = itemView.findViewById(R.id.tvdate);
             mtvstep = itemView.findViewById(R.id.tvtotalstep);
             mrvdetails = itemView.findViewById(R.id.rvdetails);
+
         }
     }
 
@@ -136,5 +146,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         return MONDAY + " - " + SUNDAY;
     }
 
+    public void setMyAdapterListener(AdapterCallback adapterCallback) {
+        this.myAdapterListener = adapterCallback;
+    }
+
+    public void updatelist(HashMap<Long, ArrayList<StepCountModel>> stepcountModelArrayList,
+                           HashMap<Long, StepHistoryModel> stepArrayListHashMap) {
+        modelArrayList = stepcountModelArrayList;
+        headerMap = stepArrayListHashMap;
+
+        mKeys = new ArrayList<Long>(stepArrayListHashMap.keySet());
+    }
 
 }  

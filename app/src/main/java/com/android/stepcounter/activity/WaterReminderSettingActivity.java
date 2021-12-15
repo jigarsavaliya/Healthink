@@ -23,6 +23,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.sevices.AlarmReceiver;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
@@ -130,7 +131,6 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
         arrayList.add("4.5");
         arrayList.add("5");
 
-
         final ArrayAdapter adapter1 = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, arrayList);
         spintervalhour.setAdapter(adapter1);
 
@@ -194,6 +194,7 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
                                 } else {
                                     starttimeSet = "AM";
                                 }
+
                                 mtvStartTime.setText(hourOfDay + ":" + minute + " " + starttimeSet);
                             }
                         }, mHour, mMinute, false);
@@ -232,6 +233,7 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
                                 } else {
                                     EndtimeSet = "AM";
                                 }
+
                                 mtvEndTime.setText(hourOfDay + ":" + minute + " " + EndtimeSet);
                             }
                         }, mHour, mMinute, false);
@@ -269,17 +271,39 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
                 returnIntent.putExtra("result", mtvremindertime.getText().toString());
                 returnIntent.putExtra("hours", mReminderIntervalvalue);
                 setResult(Activity.RESULT_OK, returnIntent);
-                finish();
+
+                long intervaltime = 0;
+                if (mReminderIntervalvalue.equals("0.5")) {
+                    intervaltime = 1000 * 60 * 30;
+                } else if (mReminderIntervalvalue.equals("1")) {
+                    intervaltime = 1000 * 60 * 60;
+                } else if (mReminderIntervalvalue.equals("1.5")) {
+                    intervaltime = 1000 * 60 * 90;
+                } else if (mReminderIntervalvalue.equals("2")) {
+                    intervaltime = 1000 * 60 * 120;
+                } else if (mReminderIntervalvalue.equals("2.5")) {
+                    intervaltime = 1000 * 60 * 150;
+                } else if (mReminderIntervalvalue.equals("3")) {
+                    intervaltime = 1000 * 60 * 180;
+                } else if (mReminderIntervalvalue.equals("3.5")) {
+                    intervaltime = 1000 * 60 * 210;
+                } else if (mReminderIntervalvalue.equals("4")) {
+                    intervaltime = 1000 * 60 * 240;
+                } else if (mReminderIntervalvalue.equals("4.5")) {
+                    intervaltime = 1000 * 60 * 270;
+                } else if (mReminderIntervalvalue.equals("5")) {
+                    intervaltime = 1000 * 60 * 300;
+                }
+
 
                 Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.HOUR, mStartHour);
-                calendar.set(Calendar.MINUTE, mStartMinute);
 
                 Intent intent1 = new Intent(WaterReminderSettingActivity.this, AlarmReceiver.class);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
                 AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000 * 60 * 60, pendingIntent);
-
+                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervaltime, pendingIntent);
+                Logger.e(calendar.getTimeInMillis());
+                finish();
                 break;
             case R.id.tvremindertime:
                 showReminderDailog();

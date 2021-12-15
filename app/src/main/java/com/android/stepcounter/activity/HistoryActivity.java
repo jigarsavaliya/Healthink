@@ -1,22 +1,26 @@
 package com.android.stepcounter.activity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.R;
 import com.android.stepcounter.adpter.HistoryAdapter;
 import com.android.stepcounter.database.DBHandler;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.StepHistoryModel;
 import com.android.stepcounter.utils.Logger;
+import com.android.stepcounter.utils.StorageManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,12 +33,23 @@ public class HistoryActivity extends AppCompatActivity {
     RecyclerView mRvHistrory;
     HistoryAdapter mHistoryAdapter;
     DBHandler dbManager;
+    Menu myMenu;
+
+    ArrayList<StepCountModel> stepcountModelArrayList;
+    ArrayList<StepCountModel> mCountModelArrayList = new ArrayList<>();
+    HashMap<Long, StepHistoryModel> headerMap;
+    HashMap<Long, ArrayList<StepCountModel>> stringArrayListHashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         dbManager = new DBHandler(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         init();
     }
 
@@ -51,7 +66,34 @@ public class HistoryActivity extends AppCompatActivity {
             }
         });
 
-        ArrayList<StepCountModel> stepcountModelArrayList = new ArrayList<>();
+        getdataFromDatabase();
+//        Logger.e(headerMap.keySet());
+//        Logger.e(stringArrayListHashMap.keySet());
+
+        mRvHistrory = findViewById(R.id.rvHistrory);
+        mHistoryAdapter = new HistoryAdapter(HistoryActivity.this, stringArrayListHashMap, headerMap);
+        mHistoryAdapter.setMyAdapterListener(new AdapterCallback() {
+            @Override
+            public void onMethodCallback(ArrayList<StepCountModel> countModelArrayList) {
+//                Logger.e(countModelArrayList.size());
+                mCountModelArrayList = countModelArrayList;
+                Logger.e(countModelArrayList.size());
+                if (countModelArrayList.size() != 0) {
+                    myMenu.findItem(R.id.action_delete).setVisible(false);
+                    myMenu.findItem(R.id.action_tick).setVisible(true);
+                } else {
+                    myMenu.findItem(R.id.action_delete).setVisible(true);
+                    myMenu.findItem(R.id.action_tick).setVisible(false);
+                }
+            }
+        });
+        mRvHistrory.setHasFixedSize(true);
+        mRvHistrory.setLayoutManager(new LinearLayoutManager(this));
+        mRvHistrory.setAdapter(mHistoryAdapter);
+    }
+
+    private void getdataFromDatabase() {
+        stepcountModelArrayList = new ArrayList<>();
 
         stepcountModelArrayList = dbManager.getDaywiseStepdata();
 
@@ -67,8 +109,8 @@ public class HistoryActivity extends AppCompatActivity {
         Calendar c = Calendar.getInstance();
         long firstdate, lastdate;
 
-        HashMap<Long, StepHistoryModel> headerMap = new HashMap<>();
-        HashMap<Long, ArrayList<StepCountModel>> stringArrayListHashMap = new HashMap<>();
+        headerMap = new HashMap<>();
+        stringArrayListHashMap = new HashMap<>();
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         String dateString = formatter.format(new Date(startTimestamp));
@@ -122,35 +164,6 @@ public class HistoryActivity extends AppCompatActivity {
             c.add(Calendar.DAY_OF_YEAR, +7);
         }
         while (firstdate < endtimestamp);
-
-        Logger.e(headerMap.keySet());
-        Logger.e(stringArrayListHashMap.keySet());
-
-       /* Iterator it = stringArrayListHashMap.keySet().iterator();
-        while (it.hasNext()) {
-            Object item = it.next();
-            stringArrayListHashMap.remove(item);
-        }
-
-        Iterator iterator = headerMap.keySet().iterator();
-        while (iterator.hasNext()) {
-            Object item =  iterator.next();
-            stringArrayListHashMap.remove(item);
-        }*/
-
-
-        /*Set<String> keyset = stringArrayListHashMap.keySet();
-        for (int i = stringArrayListHashMap.keySet().size(); i > 0; i--) {
-            if (keyset.) {
-                stringArrayListHashMap.remove(stringArrayListHashMap.get(i));
-            }
-        }*/
-
-        mRvHistrory = findViewById(R.id.rvHistrory);
-        mHistoryAdapter = new HistoryAdapter(HistoryActivity.this, stringArrayListHashMap, headerMap);
-        mRvHistrory.setHasFixedSize(true);
-        mRvHistrory.setLayoutManager(new LinearLayoutManager(this));
-        mRvHistrory.setAdapter(mHistoryAdapter);
     }
 
     public static String getCurrentWeek(Calendar mCalendar) {
@@ -185,6 +198,9 @@ public class HistoryActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.history_menu, menu);
+        myMenu = menu;
+        menu.findItem(R.id.action_delete).setVisible(true);
+        menu.findItem(R.id.action_tick).setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -192,7 +208,48 @@ public class HistoryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
+                StorageManager.getInstance().setHistoryDelete(true);
+                mHistoryAdapter.notifyDataSetChanged();
+                myMenu.findItem(R.id.action_delete).setVisible(false);
+                myMenu.findItem(R.id.action_tick).setVisible(true);
+                break;
+            case R.id.action_tick:
+                StorageManager.getInstance().setHistoryDelete(false);
+                myMenu.findItem(R.id.action_delete).setVisible(true);
+                myMenu.findItem(R.id.action_tick).setVisible(false);
 
+                if (mCountModelArrayList.size() != 0) {
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+                    builder1.setMessage("Are You sure you want to delete data?");
+                    builder1.setCancelable(true);
+
+                    builder1.setPositiveButton(
+                            "DELETE",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    for (int i = 0; i < mCountModelArrayList.size(); i++) {
+                                        dbManager.DeleteCurrentDayStepCountData(mCountModelArrayList.get(i).getDate(), mCountModelArrayList.get(i).getMonth(), mCountModelArrayList.get(i).getYear());
+                                    }
+                                    getdataFromDatabase();
+                                    mHistoryAdapter.updatelist(stringArrayListHashMap, headerMap);
+                                    mHistoryAdapter.notifyDataSetChanged();
+                                    dialog.cancel();
+                                }
+                            });
+
+                    builder1.setNegativeButton(
+                            "CANCEL",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
+                } else {
+                    mHistoryAdapter.notifyDataSetChanged();
+                }
                 break;
         }
         return true;

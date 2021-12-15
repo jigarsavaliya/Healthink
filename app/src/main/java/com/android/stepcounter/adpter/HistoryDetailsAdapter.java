@@ -1,28 +1,33 @@
 package com.android.stepcounter.adpter;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.HistoryActivity;
 import com.android.stepcounter.model.StepCountModel;
+import com.android.stepcounter.utils.StorageManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Locale;
 
 
 public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAdapter.ViewHolder> {
 
     ArrayList<StepCountModel> modelArrayList;
+    ArrayList<StepCountModel> countModelArrayList = new ArrayList<>();
     Activity activity;
+    private AdapterCallback myAdapterListener; // a initialize to nathi
 
     public HistoryDetailsAdapter(HistoryActivity mainActivity, ArrayList<StepCountModel> stepcountModelArrayList) {
         activity = mainActivity;
@@ -47,7 +52,7 @@ public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAd
         viewHolder.mtvdate.setText(modelArrayList.get(i).getDate() + " " + month_name);
 
         viewHolder.mtvstep.setText(modelArrayList.get(i).getSumstep() + "");
-        viewHolder.mtvkcal.setText(modelArrayList.get(i).getCalorie() + "Kcal");
+        viewHolder.mtvkcal.setText(modelArrayList.get(i).getCalorie() + " Kcal");
 
         int totalSecs = (int) (modelArrayList.get(i).getSumstep() * 1.66);
 
@@ -59,9 +64,29 @@ public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAd
             viewHolder.mtvhours.setText(min + "m 0 s");
         }
 
-//        String formattedNumber = String.format(Locale.US, "%.2f", modelArrayList.get(i).getDistance());
-        viewHolder.mtvkm.setText(modelArrayList.get(i).getDistance() + " Km");
+        Float f = Float.valueOf(modelArrayList.get(i).getDistance());
+        String formattedNumber = String.format(Locale.US, "%.2f", f);
+        viewHolder.mtvkm.setText(formattedNumber + " Km");
 
+        if (StorageManager.getInstance().getHistoryDelete()) {
+            viewHolder.mcbDeleteItem.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.mcbDeleteItem.setVisibility(View.GONE);
+        }
+
+        viewHolder.mcbDeleteItem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    countModelArrayList.add(modelArrayList.get(i));
+//                    Logger.e(countModelArrayList.size() + "new");
+                } else {
+                    countModelArrayList.remove(modelArrayList.get(i));
+//                    Logger.e(countModelArrayList.size() + "remove");
+                }
+                myAdapterListener.onMethodCallback(countModelArrayList);
+            }
+        });
     }
 
     @Override
@@ -69,8 +94,13 @@ public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAd
         return modelArrayList.size();
     }
 
+    public void setCallback(AdapterCallback adapterCallback) {
+        myAdapterListener = adapterCallback;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView mtvdate, mtvstep, mtvkcal, mtvhours, mtvkm;
+        AppCompatCheckBox mcbDeleteItem;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -79,86 +109,8 @@ public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAd
             mtvkcal = itemView.findViewById(R.id.tvkcal);
             mtvhours = itemView.findViewById(R.id.tvhours);
             mtvkm = itemView.findViewById(R.id.tvkm);
+            mcbDeleteItem = itemView.findViewById(R.id.cbDeleteItem);
 
         }
-    }
-
-    public static String getCurrentWeek(Calendar mCalendar) {
-//        Date date = new Date();
-//        mCalendar.setTime(date);
-
-        // 1 = Sunday, 2 = Monday, etc.
-        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
-
-        int monday_offset;
-        if (day_of_week == 1) {
-            monday_offset = -6;
-        } else
-            monday_offset = (2 - day_of_week); // need to minus back
-        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
-
-//        Date mDateMonday = mCalendar.getTime();
-        long mDateMonday = mCalendar.getTimeInMillis();
-
-        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
-        // return 6 the next days of current day (object cal save current day)
-        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
-//        Date mDateSunday = mCalendar.getTime();
-        long mDateSunday = mCalendar.getTimeInMillis();
-
-        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
-
-        //Get format date
-        String strDateFormat = "dd MMM";
-        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
-
-        String MONDAY = sdf.format(mDateMonday);
-        String SUNDAY = sdf.format(mDateSunday);
-
-        // Sub String
-        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
-            MONDAY = MONDAY.substring(0, 2);
-        }
-
-//        return MONDAY + " - " + SUNDAY;
-        return mDateMonday + " - " + mDateSunday;
-    }
-
-    public static String getCurrentWeekdate(Calendar mCalendar) {
-//        Date date = new Date();
-//        mCalendar.setTime(date);
-
-        // 1 = Sunday, 2 = Monday, etc.
-        int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
-
-        int monday_offset;
-        if (day_of_week == 1) {
-            monday_offset = -6;
-        } else
-            monday_offset = (2 - day_of_week); // need to minus back
-        mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
-
-        Date mDateMonday = mCalendar.getTime();
-
-        Log.e("mDateMonday", "" + mCalendar.getTimeInMillis());
-        // return 6 the next days of current day (object cal save current day)
-        mCalendar.add(Calendar.DAY_OF_YEAR, 6);
-        Date mDateSunday = mCalendar.getTime();
-
-        Log.e("mDateSunday", "" + mCalendar.getTimeInMillis());
-
-        //Get format date
-        String strDateFormat = "dd MMM";
-        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
-
-        String MONDAY = sdf.format(mDateMonday);
-        String SUNDAY = sdf.format(mDateSunday);
-
-        // Sub String
-        if ((MONDAY.substring(3, 6)).equals(SUNDAY.substring(3, 6))) {
-            MONDAY = MONDAY.substring(0, 2);
-        }
-
-        return MONDAY + " - " + SUNDAY;
     }
 }  

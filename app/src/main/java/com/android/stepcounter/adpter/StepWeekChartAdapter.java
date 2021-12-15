@@ -1,16 +1,20 @@
 package com.android.stepcounter.adpter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.MainActivity;
+import com.android.stepcounter.activity.StepReportActivity;
 import com.android.stepcounter.model.StepCountModel;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
@@ -58,6 +62,18 @@ public class StepWeekChartAdapter extends RecyclerView.Adapter<StepWeekChartAdap
         }
         viewHolder.mstepday.setText(dayName.charAt(0) + "");
 
+        viewHolder.mllChart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(activity, StepReportActivity.class);
+                intent.putExtra("stepdate", modelArrayList.get(i).getDate());
+                intent.putExtra("stepmonth", modelArrayList.get(i).getMonth());
+                intent.putExtra("stepyear", modelArrayList.get(i).getYear());
+//                Logger.e(modelArrayList.get(i).getDate() + "/" +modelArrayList.get(i).getMonth() + "/" + modelArrayList.get(i).getYear());
+                activity.startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -68,11 +84,14 @@ public class StepWeekChartAdapter extends RecyclerView.Adapter<StepWeekChartAdap
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private CircularProgressBar mStepchart;
         TextView mstepday;
+        LinearLayout mllChart;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mStepchart = itemView.findViewById(R.id.stepchart);
             mstepday = itemView.findViewById(R.id.stepday);
+            mllChart = itemView.findViewById(R.id.llstepChart);
+
         }
     }
 

@@ -92,11 +92,11 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
-                                android:textStyle="bold"
-                                android:textSize="@dimen/_24sdp"
-                                android:textColor="@color/colorPrimaryDark"
                                 android:gravity="center"
-                                android:textAppearance="?android:attr/textAppearanceSmall" />
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="@dimen/_24sdp"
+                                android:textStyle="bold" />
                         </RelativeLayout>
 
                         <LinearLayout
@@ -301,33 +301,19 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
-                    <LinearLayout
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:padding="@dimen/_10sdp">
 
-                        <com.github.lzyzsd.circleprogress.ArcProgress
-                            android:id="@+id/bmiprogress"
-                            android:layout_width="@dimen/_150sdp"
-                            android:layout_height="@dimen/_150sdp"
-                            app:arc_bottom_text_size="@dimen/_12sdp"
-                            app:arc_max="40"
-                            app:arc_stroke_width="@dimen/_10sdp" />
-
-                        <TextView
-                            android:id="@+id/bmistatus"
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/pcBmiChart"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="BMI(kg/m)"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_14sdp"
-                            android:textStyle="bold"
-                            android:visibility="visible" />
-                    </LinearLayout>
+                            android:layout_height="@dimen/_250sdp" />
+
+                    </RelativeLayout>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
