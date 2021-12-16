@@ -9,10 +9,18 @@ public class constant {
     public static final int DEFAULT_WATER = 6;
     public static final int DEFAULT_WATER_GOAL = 24;
     public static Boolean IsProfile = false;
+    public static Boolean IsHistoryDelete = false;
 
     public static int NOTIFICATION_ID_FOR_STEP = 1001;
     public static int NOTIFICATION_ID_FOR_WATER = 1002;
     public static final String CHANNEL_ID_FOR_STEP = "Location Update";
     public static final String CHANNEL_NAME_FOR_STEP = "Location Update Channel";
+
+    public static final String ARCHIVEMENT_LEVEL = "Level";
+    public static final String ARCHIVEMENT_DAILY_STEP = "Daily Step";
+    public static final String ARCHIVEMENT_COMBO_DAY = "Combo Day";
+    public static final String ARCHIVEMENT_TOTAL_DAYS = "Total Days";
+    public static final String ARCHIVEMENT_TOTAL_DISTANCE = "Total Distance";
+
 
 }

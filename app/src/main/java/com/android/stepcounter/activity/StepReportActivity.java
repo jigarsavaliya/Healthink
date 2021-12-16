@@ -341,6 +341,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(true);
         xAxis.setCenterAxisLabels(true);
+
         Legend L;
         L = chart.getLegend();
         L.setEnabled(false);
@@ -424,6 +425,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Steps");
         mv.setChartView(chart);
+        chart.setMarker(mv);
 
 //        chart.getXAxis().setEnabled(false);
 //        chart.getAxisRight().setAxisMaximum(StepGoal);
@@ -440,8 +442,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.getAxisRight().setDrawGridLines(false);
         chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
-
-        chart.invalidate();
 
     }
 
@@ -700,6 +700,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
 
     }
@@ -959,6 +962,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
     }
 
@@ -1230,8 +1236,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
 
-        chart.invalidate();
-
     }
 
     private BarDataSet setMonthDistanceData() {
@@ -1455,7 +1459,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                                 selectedmonth[0] = month + 1;
                                 selectedday[0] = day;
 
-                                tvdate.setText(selectedday[0] + " - " + selectedmonth[0]);
+                                tvdate.setText(selectedday[0] + " - " + selectedmonth[0] + " - " + selectedyear[0]);
 
                                 if (selectedday[0] != dayOfMonth[0]) {
                                     for (int i = 0; i < 24; i++) {
@@ -1554,7 +1558,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
                     c.set(Calendar.DATE, selectedday[0]);
-                    c.set(Calendar.MONTH, selectedmonth[0]);
+                    c.set(Calendar.MONTH, selectedmonth[0] - 1);
                     c.set(Calendar.YEAR, selectedyear[0]);
                     c.set(Calendar.HOUR, saveHour[0]);
 
@@ -1567,7 +1571,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
                     stepcountModel.setStep(Integer.valueOf(numSteps));
                     stepcountModel.setDate(selectedday[0]);
-                    stepcountModel.setMonth(selectedmonth[0] + 1);
+                    stepcountModel.setMonth(selectedmonth[0]);
                     stepcountModel.setYear(selectedyear[0]);
                     stepcountModel.setDistance(Distance);
                     stepcountModel.setCalorie(Calories);

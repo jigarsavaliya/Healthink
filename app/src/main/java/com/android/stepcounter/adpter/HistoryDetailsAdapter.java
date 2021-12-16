@@ -14,7 +14,7 @@ import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.HistoryActivity;
 import com.android.stepcounter.model.StepCountModel;
-import com.android.stepcounter.utils.StorageManager;
+import com.android.stepcounter.utils.constant;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class HistoryDetailsAdapter extends RecyclerView.Adapter<HistoryDetailsAd
         String formattedNumber = String.format(Locale.US, "%.2f", f);
         viewHolder.mtvkm.setText(formattedNumber + " Km");
 
-        if (StorageManager.getInstance().getHistoryDelete()) {
+        if (constant.IsHistoryDelete) {
             viewHolder.mcbDeleteItem.setVisibility(View.VISIBLE);
         } else {
             viewHolder.mcbDeleteItem.setVisibility(View.GONE);

@@ -22,4 +22,17 @@
         android:layout_marginBottom="@dimen/_10sdp"
         android:padding="@dimen/_5sdp" />
 
+    <TextView
+        android:id="@+id/tvNoDataFound"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:gravity="center"
+        android:padding="@dimen/_5sdp"
+        android:text="No Data Found"
+        android:textSize="@dimen/_18sdp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
 </RelativeLayout>

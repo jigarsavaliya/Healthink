@@ -8,16 +8,23 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.android.stepcounter.model.ArchivementModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
 import com.android.stepcounter.utils.Logger;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 public class DBHandler extends SQLiteOpenHelper {
 
+    Context mContext;
     // Table Name
     public static final String TABLE_WATER = "Table_WaterList";
     // Table columns
@@ -53,6 +60,18 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String KEY_WEIGHT_KG = "WeightKg";
     public static final String KEY_WEIGHT_TIMESTMP = "WeightTimeStemp";
 
+
+    // Table Name
+    public static final String TABLE_ARCHIVEMENT = "Table_Arhivement";
+    // Table columns
+    public static final String ARCHIVEMENT_ID = "Archivement_id";
+    public static final String KEY_ARCHIVEMENT_TYPE = "Type";
+    public static final String KEY_ARCHIVEMENT_LABEL = "Label";
+    public static final String KEY_ARCHIVEMENT_VALUE = "Value";
+    public static final String KEY_ARCHIVEMENT_DESCRIPTION = "Description";
+    public static final String KEY_ARCHIVEMENT_COMPLETED_STATUS = "CompleteStatus";
+    public static final String KEY_ARCHIVEMENT_COUNT = "Count";
+
     // Database Information
     static final String DB_NAME = "StepCounter.db";
     // database version
@@ -62,6 +81,7 @@ public class DBHandler extends SQLiteOpenHelper {
     // creating a constructor for our database handler.
     public DBHandler(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        mContext = context;
     }
 
     // below method is for creating a database by running a sqlite query
@@ -97,11 +117,42 @@ public class DBHandler extends SQLiteOpenHelper {
                 + KEY_WEIGHT_TIMESTMP + " TEXT,"
                 + KEY_WEIGHT_KG + " INTEGER)";
 
+        String ArchivementTable = "CREATE TABLE " + TABLE_ARCHIVEMENT + " ("
+                + ARCHIVEMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + KEY_ARCHIVEMENT_TYPE + " TEXT,"
+                + KEY_ARCHIVEMENT_LABEL + " TEXT,"
+                + KEY_ARCHIVEMENT_VALUE + " INTEGER,"
+                + KEY_ARCHIVEMENT_DESCRIPTION + " TEXT,"
+                + KEY_ARCHIVEMENT_COMPLETED_STATUS + " INTEGER,"
+                + KEY_ARCHIVEMENT_COUNT + " INTEGER)";
+
         // at last we are calling a exec sql
         // method to execute above sql query
         db.execSQL(WaterTable);
         db.execSQL(StepTable);
         db.execSQL(WeightTable);
+        db.execSQL(ArchivementTable);
+
+//        Gson gson = new Gson();
+//        try {
+//            InputStream stream = mContext.getAssets().open("Archivement.txt");
+//
+//            int size = stream.available();
+//            byte[] buffer = new byte[size];
+//            stream.read(buffer);
+//            stream.close();
+//            String tContents = new String(buffer);
+//            Type arrayListTypeToken = new TypeToken<ArrayList<ArchivementModel>>() {
+//            }.getType();
+//
+//            ArrayList<ArchivementModel> archivementModels = gson.fromJson(tContents, arrayListTypeToken);
+//
+////            Logger.e(archivementModels.size() + "databse");
+//            addArchivementData(archivementModels);
+////
+//        } catch (IOException e) {
+//            // Handle exceptions here
+//        }
     }
 
     @Override
@@ -110,6 +161,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WATER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STEPCOUNT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WEIGHT);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARCHIVEMENT);
         onCreate(db);
     }
 
@@ -1020,6 +1072,62 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
+
+    @SuppressLint("Range")
+    public long getTotalDaysCount() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int sum;
+        String s = "select count(" + KEY_STEP_DATE + ")  as total from " + TABLE_STEPCOUNT + " ORDER BY " + KEY_STEP_DATE + " , " + KEY_STEP_MONTH +
+                " ,  " + KEY_STEP_YEAR;
+
+        Cursor c = db.rawQuery(s, null);
+
+        c.moveToFirst();
+        do {
+            sum = c.getInt(c.getColumnIndex("total"));
+        } while (c.moveToNext());
+
+
+        c.close();
+        return sum;
+    }
+
+    @SuppressLint("Range")
+    public long getTotalStepCount() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int sum;
+        String s = "select sum(" + KEY_STEP_COUNT + ")  as total from " + TABLE_STEPCOUNT;
+
+        Cursor c = db.rawQuery(s, null);
+
+        c.moveToFirst();
+        do {
+            sum = c.getInt(c.getColumnIndex("total"));
+        } while (c.moveToNext());
+
+
+        c.close();
+        return sum;
+    }
+
+    @SuppressLint("Range")
+    public long getTotalDistanceCount() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int sum;
+        String s = "select sum(" + KEY_STEP_DISTANCE + ")  as total from " + TABLE_STEPCOUNT;
+
+        Cursor c = db.rawQuery(s, null);
+
+        c.moveToFirst();
+        do {
+            sum = c.getInt(c.getColumnIndex("total"));
+        } while (c.moveToNext());
+
+
+        c.close();
+        return sum;
+    }
+
     @SuppressLint("Range")
     private ArrayList<StepCountModel> getSteplistFromCursor(Cursor c) {
         ArrayList<StepCountModel> list = new ArrayList<StepCountModel>();
@@ -1067,7 +1175,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-
+    ///////////////////////////////weight table
     public void addWeightData(WeightModel weightModel) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -1236,5 +1344,78 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
+    public void addArchivementData(ArrayList<ArchivementModel> archivementModels) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues initialValues = new ContentValues();
+
+        Log.e("TAG", "insertdata: ");
+
+        for (int i = 0; i < archivementModels.size(); i++) {
+            ArchivementModel archivementModel = archivementModels.get(i);
+
+            initialValues.put(KEY_ARCHIVEMENT_TYPE, archivementModel.getType());
+            initialValues.put(KEY_ARCHIVEMENT_LABEL, archivementModel.getLabel());
+            initialValues.put(KEY_ARCHIVEMENT_VALUE, archivementModel.getValue());
+            initialValues.put(KEY_ARCHIVEMENT_DESCRIPTION, archivementModel.getDescription());
+            initialValues.put(KEY_ARCHIVEMENT_COMPLETED_STATUS, archivementModel.isCompeleteStatus());
+            initialValues.put(KEY_ARCHIVEMENT_COUNT, archivementModel.getCount());
+
+            try {
+                db.insert(TABLE_ARCHIVEMENT, null, initialValues);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        db.close();
+    }
+
+    public ArrayList<ArchivementModel> getArchivementlist(String label) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String s = "select * from " + TABLE_ARCHIVEMENT + " where " + KEY_ARCHIVEMENT_TYPE + " = " + label;
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<ArchivementModel> list = getArchivementFromCursor(c);
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+
+    }
+
+    private ArrayList<ArchivementModel> getArchivementFromCursor(Cursor c) {
+        ArrayList<ArchivementModel> list = new ArrayList<ArchivementModel>();
+
+        try {
+            int iKEY_ARCHIVEMENT_TYPE = c.getColumnIndex(KEY_ARCHIVEMENT_TYPE);
+            int iKEY_ARCHIVEMENT_LABEL = c.getColumnIndex(KEY_ARCHIVEMENT_LABEL);
+            int iKEY_ARCHIVEMENT_VALUE = c.getColumnIndex(KEY_ARCHIVEMENT_VALUE);
+            int iKEY_ARCHIVEMENT_DESCRIPTION = c.getColumnIndex(KEY_ARCHIVEMENT_DESCRIPTION);
+            int iKEY_ARCHIVEMENT_COMPLETED_STATUS = c.getColumnIndex(KEY_ARCHIVEMENT_COMPLETED_STATUS);
+            int iKEY_ARCHIVEMENT_COUNT = c.getColumnIndex(KEY_ARCHIVEMENT_COUNT);
+
+            for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                ArchivementModel model = new ArchivementModel();
+
+                model.setType(c.getString(iKEY_ARCHIVEMENT_TYPE));
+                model.setLabel(c.getString(iKEY_ARCHIVEMENT_LABEL));
+                model.setValue(c.getInt(iKEY_ARCHIVEMENT_VALUE));
+                model.setDescription(c.getString(iKEY_ARCHIVEMENT_DESCRIPTION));
+                model.setCompeleteStatus(Boolean.parseBoolean(c.getString(iKEY_ARCHIVEMENT_COMPLETED_STATUS)));
+                model.setCount(c.getInt(iKEY_ARCHIVEMENT_COUNT));
+
+                list.add(model);
+            }
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        return list;
+    }
 
 }

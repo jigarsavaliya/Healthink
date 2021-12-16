@@ -194,7 +194,6 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
                                 } else {
                                     starttimeSet = "AM";
                                 }
-
                                 mtvStartTime.setText(hourOfDay + ":" + minute + " " + starttimeSet);
                             }
                         }, mHour, mMinute, false);

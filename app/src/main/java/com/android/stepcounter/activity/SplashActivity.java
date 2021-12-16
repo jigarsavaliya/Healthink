@@ -171,7 +171,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void callNextScreen() {
-        StorageManager.getInstance().setHistoryDelete(false);
+//        StorageManager.getInstance().setHistoryDelete(false);
         boolean b = StorageManager.getInstance().getIsProfile();
         if (b) {
             Intent obj = new Intent(SplashActivity.this, WelcomeActivity.class);

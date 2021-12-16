@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     ArrayList<StepCountModel> stepcountModelArrayList = new ArrayList<>();
     ArrayList<WaterLevelModel> DaywiseWaterlist = new ArrayList<>();
+    ArrayList<WeightModel> arrayList = new ArrayList<>();
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -240,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         startActivity(new Intent(MainActivity.this, StepReportActivity.class));
                         return true;
                     case R.id.itemmore:
-
+                        startActivity(new Intent(MainActivity.this, MoreSettingActivity.class));
                         return true;
                 }
                 return false;
@@ -268,6 +269,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         WeightArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
 
+        arrayList = dbManager.getCurrentDayWeightlist(date - 1, month, year);
+
         if (WeightArrayList == null) {
             String ts = String.valueOf(System.currentTimeMillis());
             WeightModel weightModel = new WeightModel();
@@ -277,9 +280,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             weightModel.setTimestemp(ts);
             weightModel.setKg((int) userWeight);
             dbManager.addWeightData(weightModel);
+        } else if (arrayList == null) {
+            Calendar c = Calendar.getInstance();
+            SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+            c.set(Calendar.DATE, date - 1);
+            c.set(Calendar.MONTH, month);
+            c.set(Calendar.YEAR, year);
+            WeightModel weightModel = new WeightModel();
+            weightModel.setDate(date - 1);
+            weightModel.setMonth(month);
+            weightModel.setYear(year);
+            weightModel.setTimestemp(String.valueOf(c.getTimeInMillis()));
+            weightModel.setKg((int) userWeight);
+            dbManager.addWeightData(weightModel);
         }
-
-        setWeightChart();
     }
 
     private void getoldSteplistData(int date, int month, int year, int hour) {
@@ -315,8 +329,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-//        int avgdisplay = avg / stepcountModelArrayList.size();
-        mtvAvgstep.setText(avg / j + "");
+        if (j > 0) {
+            mtvAvgstep.setText(avg / j + "");
+        } else {
+            mtvAvgstep.setText(0 + "");
+        }
 
         stepWeekChartAdapter = new StepWeekChartAdapter(this, stepcountModelArrayList);
         mRvSteplist.setHasFixedSize(true);
@@ -339,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         long last30day = cal.getTimeInMillis();
 
         ArrayList<WeightModel> modelArrayList = new ArrayList<>();
-        ArrayList<WeightModel> arrayList = new ArrayList<>();
+
         ArrayList<Entry> weightModelArrayList = new ArrayList<>();
 
         modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
@@ -353,13 +370,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         int pervalue = 0;
-        arrayList = dbManager.getCurrentDayWeightlist(date - 1, month, year);
 
-        if (arrayList.size() != 0) {
+        /*if (arrayList.size() != 0) {
             for (int i = 0; i < arrayList.size(); i++) {
                 pervalue = arrayList.get(i).getKg();
             }
-        }
+        }*/
 
         int cuurrvalue = Integer.parseInt(tvuserWeight.getText().toString());
 
@@ -806,7 +822,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
                 break;
             case R.id.action_profile:
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                startActivity(new Intent(MainActivity.this, PersonalInfomationActivity.class));
                 break;
 
         }
@@ -818,6 +834,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         setSharedPreferences();
         init();
+        setWeightChart();
     }
 
     private void showResetdataDailog() {
@@ -834,8 +851,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 "RESET",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-//                        dbManager.DeleteCurrentDayStepCountData(date, month, year);
-//                        dbManager.DeleteCurrentDayWaterData(date, month, year);
+                        dbManager.DeleteCurrentDayStepCountData(date, month, year);
+                        dbManager.DeleteCurrentDayWaterData(date, month, year);
                         init();
                         dialog.cancel();
                     }
@@ -1016,7 +1033,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
                     c.set(Calendar.DATE, selectedday[0]);
-                    c.set(Calendar.MONTH, selectedmonth[0]);
+                    c.set(Calendar.MONTH, selectedmonth[0] - 1);
                     c.set(Calendar.YEAR, selectedyear[0]);
                     c.set(Calendar.HOUR, saveHour[0]);
 
@@ -1029,7 +1046,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     stepcountModel.setStep(Integer.valueOf(numSteps));
                     stepcountModel.setDate(selectedday[0]);
-                    stepcountModel.setMonth(selectedmonth[0] + 1);
+                    stepcountModel.setMonth(selectedmonth[0]);
                     stepcountModel.setYear(selectedyear[0]);
                     stepcountModel.setDistance(Distance);
                     stepcountModel.setCalorie(Calories);

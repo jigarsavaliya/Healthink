@@ -23,7 +23,7 @@ import com.android.stepcounter.utils.constant;
 
 import static android.content.ContentValues.TAG;
 
-public class ProfileActivity extends AppCompatActivity {
+public class PersonalInfomationActivity extends AppCompatActivity {
     Toolbar mToolbar;
     LinearLayout llGender, llLenght, llWeight, llUnit;
     RelativeLayout mRlGender, mRlWeight, mRlUnit;
@@ -38,7 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.activity_personal_infomation);
         setSharedPreferences();
         init();
     }
@@ -84,7 +84,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //creating a popup menu
-                PopupMenu popup = new PopupMenu(ProfileActivity.this, llGender);
+                PopupMenu popup = new PopupMenu(PersonalInfomationActivity.this, llGender);
                 //inflating menu from xml resource
                 popup.inflate(R.menu.gender_menu);
                 //adding click listener
@@ -124,7 +124,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //creating a popup menu
-                PopupMenu popup = new PopupMenu(ProfileActivity.this, llUnit);
+                PopupMenu popup = new PopupMenu(PersonalInfomationActivity.this, llUnit);
                 //inflating menu from xml resource
                 popup.inflate(R.menu.unit_menu);
                 //adding click listener

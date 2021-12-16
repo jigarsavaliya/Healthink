@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
@@ -77,16 +76,25 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
 
         Notification notification = builder.build();
+        NotificationManager notificationManager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(constant.CHANNEL_ID_FOR_STEP,
                     constant.CHANNEL_NAME_FOR_STEP,
                     NotificationManager.IMPORTANCE_DEFAULT);
             channel.setShowBadge(false);
-            NotificationManager notificationManager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
             notificationManager.notify(constant.NOTIFICATION_ID_FOR_WATER, notification);
         }
+
+
+       /* Handler h = new Handler();
+        long delayInMilliseconds = 10000;
+        h.postDelayed(new Runnable() {
+            public void run() {
+                notificationManager.cancel(constant.NOTIFICATION_ID_FOR_WATER);
+            }
+        }, delayInMilliseconds);*/
 
     }
 }

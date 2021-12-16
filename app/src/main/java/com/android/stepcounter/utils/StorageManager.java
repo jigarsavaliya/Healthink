@@ -163,13 +163,13 @@ public class StorageManager {
         return preferences.getBoolean(StorageManager.PREF_APP_KEY_WATER_REMINDER, false);
     }
 
-    public void setHistoryDelete(Boolean message) {
+    /*public void setHistoryDelete(Boolean message) {
         editor.putBoolean(StorageManager.PREF_APP_KEY_HISTORY_FLAG, message).apply();
     }
 
     public Boolean getHistoryDelete() {
         return preferences.getBoolean(StorageManager.PREF_APP_KEY_HISTORY_FLAG, false);
-    }
+    }*/
 
     public void setWatergoalTarget(Integer message) {
         editor.putInt(StorageManager.PREF_APP_KEY_WATER_GOAL_TARGET, message).apply();
