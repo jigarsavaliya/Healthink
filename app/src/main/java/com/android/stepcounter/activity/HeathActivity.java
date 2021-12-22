@@ -26,7 +26,7 @@ import androidx.cardview.widget.CardView;
 
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
-import com.android.stepcounter.database.DBHandler;
+import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
 import com.android.stepcounter.utils.CommanMethod;
@@ -75,7 +75,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     TextView muserWeight, mAddWeightDailog, meditHeightWeight, mtvlastdaydiff, mtvwaterCount;
     Calendar rightNow;
     int hour, min, date, month, year;
-    DBHandler dbManager;
+    DatabaseManager dbManager;
     LineChart WeightChart;
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -112,7 +112,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heath);
-        dbManager = new DBHandler(this);
+        dbManager = new DatabaseManager(this);
         waterlist = new ArrayList<>();
         watermonthlist = new ArrayList<>();
 

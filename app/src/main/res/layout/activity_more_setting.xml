@@ -70,6 +70,7 @@
                     android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/llPersonalInfo"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
@@ -168,22 +169,30 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
-                            android:orientation="vertical">
+                            android:orientation="horizontal"
+                            android:weightSum="2">
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_weight="1"
                                 android:text="Step Goal"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12sdp"
                                 android:textStyle="bold" />
 
+                            <androidx.appcompat.widget.AppCompatSpinner
+                                android:id="@+id/spStepGoal"
+                                android:layout_width="@dimen/_200sdp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvReminder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/_8sdp"

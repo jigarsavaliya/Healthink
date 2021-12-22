@@ -1,49 +1,86 @@
 package com.android.stepcounter.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.R;
-import com.android.stepcounter.adpter.ComboDaysAdapter;
-import com.android.stepcounter.adpter.DailyStepAdapter;
-import com.android.stepcounter.adpter.TotalDaysAdapter;
-import com.android.stepcounter.adpter.TotalDistanceAdapter;
-import com.android.stepcounter.database.DBHandler;
+import com.android.stepcounter.adpter.ArchivementDataAdapter;
+import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.ArchivementModel;
+import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
-public class ArchivementActivity extends AppCompatActivity {
+public class ArchivementActivity extends AppCompatActivity implements View.OnClickListener {
     Toolbar mToolbar;
-    DBHandler dbManager;
+    DatabaseManager dbManager;
     long mTotalDaysData, mTotalDisanceData, mTotalStepData;
     RecyclerView mRvDailystep, mRvComboDays, mRvTotalDays, mRvTotalDistance;
-    DailyStepAdapter mDailyStepArchivementAdapter;
-    ComboDaysAdapter mComboDaysAdapter;
-    TotalDaysAdapter mTotalDaysAdapter;
-    TotalDistanceAdapter mTotalDistanceAdapter;
-    ArrayList<ArchivementModel> mDailySteplist, mComboDayList, mTotalDaysList, mTotalDistanceList;
+    ArchivementDataAdapter mDailyStepArchivementAdapter, mComboDaysAdapter, mTotalDaysAdapter, mTotalDistanceAdapter;
+    ArrayList<ArchivementModel> mDailySteplist, mComboDayList, mTotalDaysList, mTotalDistanceList, mLevelList;
+    CardView mCvDailyStep, mCvComboDays, mCvTotalDays, mCvTotalDistance, mCvLevel;
+    ProgressBar mPbLevelCompletedBar;
+    int StepGoal;
+    TextView mTvDetailslabel, mTvDailyLabel;
+    String StepGoalLabel, CurrLavel;
+    private int numSteps;
+    MyReceiver myReceiver;
+    int CurrentStepData;
+
+    private class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (intent.getAction().equals("GET_SIGNAL_STRENGTH")) {
+                int level = intent.getIntExtra("stepdata", 0);
+                numSteps = level;
+                mTotalStepData = dbManager.getTotalStepCount();
+                CurrentStepData = (int) mTotalStepData + 1;
+                mPbLevelCompletedBar.setProgress(CurrentStepData);
+                mTvDetailslabel.setText((StepGoal - CurrentStepData) + " more than to reach " + StepGoalLabel + " level");
+            }
+            setRecyclerViewData();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archivement);
-        dbManager = new DBHandler(this);
+        dbManager = new DatabaseManager(this);
         mDailySteplist = new ArrayList<>();
         mComboDayList = new ArrayList<>();
         mTotalDaysList = new ArrayList<>();
         mTotalDistanceList = new ArrayList<>();
+        getDataFromDatabase();
+        init();
+        myReceiver = new MyReceiver();
+        registerReceiver(myReceiver, new IntentFilter("GET_SIGNAL_STRENGTH"));
+    }
+
+    private void setSharedPreferences() {
+//        StepGoal = StorageManager.getInstance().getStepCountGoalUnit();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        setSharedPreferences();
         init();
     }
 
@@ -59,34 +96,69 @@ public class ArchivementActivity extends AppCompatActivity {
             }
         });
 
-        getDataFromDatabase();
-
         mRvDailystep = findViewById(R.id.rvDailystep);
         mRvComboDays = findViewById(R.id.rvComboDays);
         mRvTotalDays = findViewById(R.id.rvTotalDays);
         mRvTotalDistance = findViewById(R.id.rvTotalDistance);
 
+        mCvDailyStep = findViewById(R.id.cvDailyStep);
+        mCvComboDays = findViewById(R.id.cvComboDays);
+        mCvTotalDays = findViewById(R.id.cvTotalDays);
+        mCvTotalDistance = findViewById(R.id.cvTotalDistance);
+        mCvLevel = findViewById(R.id.cvLevel);
+        mPbLevelCompletedBar = findViewById(R.id.pbLevelCompletedBar);
+
+        mTvDailyLabel = findViewById(R.id.tvDailyLabel);
+        mTvDetailslabel = findViewById(R.id.tvDetailslabel);
+        mTvDailyLabel.setText(CurrLavel);
+        mTvDetailslabel.setText((StepGoal - mTotalStepData) + " more than to reach " + StepGoalLabel + " level");
+
+        mPbLevelCompletedBar.setMax(StepGoal);
+
+        mCvDailyStep.setOnClickListener(this);
+        mCvComboDays.setOnClickListener(this);
+        mCvTotalDays.setOnClickListener(this);
+        mCvTotalDistance.setOnClickListener(this);
+        mCvLevel.setOnClickListener(this);
+
         setRecyclerViewData();
     }
 
     private void setRecyclerViewData() {
+        mPbLevelCompletedBar.setProgress((int) mTotalStepData);
 
-        mDailyStepArchivementAdapter = new DailyStepAdapter(this, mDailySteplist);
+        Calendar rightNow = Calendar.getInstance();
+
+        int TotalStepCount = dbManager.getSumOfStepList(rightNow.get(Calendar.DATE), rightNow.get(Calendar.MONTH) + 1, rightNow.get(Calendar.YEAR));
+
+
+//        Logger.e(TotalStepCount + "TotalStepCount");
+//        Logger.e(numSteps + "numSteps");
+//        Logger.e(mTotalDaysData + "mTotalDaysArrayList");
+//        Logger.e(mTotalStepData + "mTotalStepArrayList");
+//        Logger.e(mTotalDisanceData + "mTotalDisanceArrayList");
+
+        if (numSteps == 0) {
+            mDailyStepArchivementAdapter = new ArchivementDataAdapter(this, mDailySteplist, TotalStepCount);
+        } else {
+            mDailyStepArchivementAdapter = new ArchivementDataAdapter(this, mDailySteplist, numSteps);
+        }
+
         mRvDailystep.setHasFixedSize(true);
         mRvDailystep.setLayoutManager(new LinearLayoutManager(ArchivementActivity.this, LinearLayoutManager.HORIZONTAL, false));
         mRvDailystep.setAdapter(mDailyStepArchivementAdapter);
 
-        mComboDaysAdapter = new ComboDaysAdapter(this, mComboDayList);
+        mComboDaysAdapter = new ArchivementDataAdapter(this, mComboDayList, StorageManager.getInstance().getComboDayCount());
         mRvComboDays.setHasFixedSize(true);
         mRvComboDays.setLayoutManager(new LinearLayoutManager(ArchivementActivity.this, LinearLayoutManager.HORIZONTAL, false));
         mRvComboDays.setAdapter(mComboDaysAdapter);
 
-        mTotalDaysAdapter = new TotalDaysAdapter(this, mTotalDaysList);
+        mTotalDaysAdapter = new ArchivementDataAdapter(this, mTotalDaysList, (int) mTotalDaysData);
         mRvTotalDays.setHasFixedSize(true);
         mRvTotalDays.setLayoutManager(new LinearLayoutManager(ArchivementActivity.this, LinearLayoutManager.HORIZONTAL, false));
         mRvTotalDays.setAdapter(mTotalDaysAdapter);
 
-        mTotalDistanceAdapter = new TotalDistanceAdapter(this, mTotalDistanceList);
+        mTotalDistanceAdapter = new ArchivementDataAdapter(this, mTotalDistanceList, (int) mTotalDisanceData);
         mRvTotalDistance.setHasFixedSize(true);
         mRvTotalDistance.setLayoutManager(new LinearLayoutManager(ArchivementActivity.this, LinearLayoutManager.HORIZONTAL, false));
         mRvTotalDistance.setAdapter(mTotalDistanceAdapter);
@@ -98,13 +170,46 @@ public class ArchivementActivity extends AppCompatActivity {
         mTotalStepData = dbManager.getTotalStepCount();
         mTotalDisanceData = dbManager.getTotalDistanceCount();
 
-//        Logger.e(mTotalDaysData + "mTotalDaysArrayList");
-//        Logger.e(mTotalStepData + "mTotalStepArrayList");
-//        Logger.e(mTotalDisanceData + "mTotalDisanceArrayList");
 
+        mLevelList = dbManager.getArchivementlist(constant.ARCHIVEMENT_LEVEL);
         mDailySteplist = dbManager.getArchivementlist(constant.ARCHIVEMENT_DAILY_STEP);
         mComboDayList = dbManager.getArchivementlist(constant.ARCHIVEMENT_COMBO_DAY);
         mTotalDaysList = dbManager.getArchivementlist(constant.ARCHIVEMENT_TOTAL_DAYS);
         mTotalDistanceList = dbManager.getArchivementlist(constant.ARCHIVEMENT_TOTAL_DISTANCE);
+
+        for (int i = 0; i < mLevelList.size(); i++) {
+            if (mLevelList.get(i).isCompeleteStatus()) {
+                CurrLavel = mLevelList.get(i).getLabel();
+                StepGoal = (int) mLevelList.get(i + 1).getValue();
+                StepGoalLabel = mLevelList.get(i + 1).getLabel();
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(ArchivementActivity.this, ArchivementDetailActivity.class);
+        switch (v.getId()) {
+            case R.id.cvDailyStep:
+                intent.putExtra("DailyStep", true);
+                startActivity(intent);
+                break;
+            case R.id.cvComboDays:
+                intent.putExtra("ComboDay", true);
+                startActivity(intent);
+                break;
+            case R.id.cvTotalDays:
+                intent.putExtra("TotalDays", true);
+                startActivity(intent);
+                break;
+            case R.id.cvTotalDistance:
+                intent.putExtra("TotalDistance", true);
+                startActivity(intent);
+                break;
+            case R.id.cvLevel:
+                Intent i = new Intent(ArchivementActivity.this, LevelActivity.class);
+                startActivity(i);
+                break;
+        }
     }
 }

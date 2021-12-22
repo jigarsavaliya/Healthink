@@ -54,7 +54,7 @@ public class SplashActivity extends AppCompatActivity {
         }, secondsDelayed * 100);
 
 //        stepcountModel stepcountModel= new stepcountModel();
-//        DBHandler dbManager= new DBHandler(this);
+//        DatabaseManager dbManager= new DatabaseManager(this);
       /*  stepcountModel.setStep(8);
         stepcountModel.setDate(4);
         stepcountModel.setMonth(12);
@@ -78,6 +78,8 @@ public class SplashActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private String[] permissionList() {
         return new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.ACTIVITY_RECOGNITION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION};

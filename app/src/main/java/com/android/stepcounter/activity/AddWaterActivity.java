@@ -12,7 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import com.android.stepcounter.R;
-import com.android.stepcounter.database.DBHandler;
+import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.StorageManager;
@@ -29,7 +29,7 @@ public class AddWaterActivity extends AppCompatActivity {
     CardView mCvDone, mCvHistory;
     String Watergoal, WaterUnit, Watercup;
     String[] WaterGoalValue;
-    DBHandler dbManager;
+    DatabaseManager dbManager;
     Calendar rightNow;
     int date, month, year;
 
@@ -37,7 +37,7 @@ public class AddWaterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_water);
-        dbManager = new DBHandler(this);
+        dbManager = new DatabaseManager(this);
     }
 
     @Override

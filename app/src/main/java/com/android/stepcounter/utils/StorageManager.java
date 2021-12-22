@@ -19,6 +19,9 @@ public class StorageManager {
     public static final String PREF_APP_KEY_UNIT = "Unit";
 
     public static final String PREF_APP_KEY_STEP = "StepGoalcount";
+    public static final String PREF_APP_KEY_COMBO_DAY_COUNT = "ComboDayCOunt";
+    public static final String PREF_APP_KEY_DAILY_REMINDER_TIME = "DailyReminderTime";
+    public static final String PREF_APP_KEY_DAILY_REMINDER = "DailyReminder";
 
     public static final String PREF_APP_KEY_WATER_STARTTIME = "WaterReminderStarttime";
     public static final String PREF_APP_KEY_WATER_ENDTIME = "WaterReminderEndStarttime";
@@ -27,8 +30,8 @@ public class StorageManager {
     public static final String PREF_APP_KEY_WATER_INDEX_GOAL = "WaterGoalindex";
     public static final String PREF_APP_KEY_WATER_INDEX_DEFULT_CUP = "WaterDefultcupindex";
     public static final String PREF_APP_KEY_WATER_REMINDER = "WaterReminder";
-    public static final String PREF_APP_KEY_HISTORY_FLAG = "HistoryDeleteFlag";
     public static final String PREF_APP_KEY_WATER_GOAL_TARGET = "WaterGoalTarget";
+    public static final String PREF_APP_KEY_FIRST_TIME_APP = "FirstTimeInstall";
 
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -112,7 +115,7 @@ public class StorageManager {
     }
 
     public Integer getStepCountGoalUnit() {
-        return preferences.getInt(StorageManager.PREF_APP_KEY_STEP, 1000);
+        return preferences.getInt(StorageManager.PREF_APP_KEY_STEP, 6000);
     }
 
     public void setWaterReminderStart(String message) {
@@ -163,13 +166,13 @@ public class StorageManager {
         return preferences.getBoolean(StorageManager.PREF_APP_KEY_WATER_REMINDER, false);
     }
 
-    /*public void setHistoryDelete(Boolean message) {
-        editor.putBoolean(StorageManager.PREF_APP_KEY_HISTORY_FLAG, message).apply();
+    public void setFirstTimeInstall(Boolean message) {
+        editor.putBoolean(StorageManager.PREF_APP_KEY_FIRST_TIME_APP, message).apply();
     }
 
-    public Boolean getHistoryDelete() {
-        return preferences.getBoolean(StorageManager.PREF_APP_KEY_HISTORY_FLAG, false);
-    }*/
+    public Boolean getFirstTimeInstall() {
+        return preferences.getBoolean(StorageManager.PREF_APP_KEY_FIRST_TIME_APP, true);
+    }
 
     public void setWatergoalTarget(Integer message) {
         editor.putInt(StorageManager.PREF_APP_KEY_WATER_GOAL_TARGET, message).apply();
@@ -178,5 +181,30 @@ public class StorageManager {
     public Integer getWatergoalTarget() {
         return preferences.getInt(StorageManager.PREF_APP_KEY_WATER_GOAL_TARGET, 0);
     }
+
+    public void setComboDayCount(Integer message) {
+        editor.putInt(StorageManager.PREF_APP_KEY_COMBO_DAY_COUNT, message).apply();
+    }
+
+    public Integer getComboDayCount() {
+        return preferences.getInt(StorageManager.PREF_APP_KEY_COMBO_DAY_COUNT, 0);
+    }
+
+    public void setDailyReminder(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_DAILY_REMINDER_TIME, message).apply();
+    }
+
+    public String getDailyReminder() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_DAILY_REMINDER_TIME, "9:00 AM");
+    }
+
+    public void setDailyReminderFlag(Boolean message) {
+        editor.putBoolean(StorageManager.PREF_APP_KEY_DAILY_REMINDER, message).apply();
+    }
+
+    public Boolean getDailyReminderFlag() {
+        return preferences.getBoolean(StorageManager.PREF_APP_KEY_DAILY_REMINDER, false);
+    }
+
 
 }

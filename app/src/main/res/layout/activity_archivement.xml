@@ -25,6 +25,7 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvLevel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/_10sdp"
@@ -34,39 +35,74 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_5sdp"
-                    android:weightSum="3">
+                    android:orientation="vertical">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Level"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_14sdp"
-                        android:textStyle="bold" />
+                        android:orientation="horizontal"
+                        android:padding="@dimen/_5sdp"
+                        android:weightSum="3">
 
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/_100sdp"
-                        android:layout_weight="1"
-                        android:padding="@dimen/_10sdp"
-                        android:src="@drawable/ic_level" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Level"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_14sdp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/dailystepshape"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/tvDailyLabel"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:padding="@dimen/_5sdp"
+                                android:text="L1"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_16sdp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="right"
+                            android:text="more"
+                            android:textSize="@dimen/_14sdp" />
+
+                    </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvDetailslabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="right"
-                        android:text="more"
-                        android:textColor="@color/black"
+                        android:gravity="center"
+                        android:text="step"
                         android:textSize="@dimen/_14sdp" />
 
+                    <ProgressBar
+                        android:id="@+id/pbLevelCompletedBar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="100"
+                        android:padding="@dimen/_5sdp"
+                        android:progress="45" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvDailyStep"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
@@ -102,7 +138,6 @@
                             android:layout_weight="1"
                             android:gravity="right"
                             android:text="more"
-                            android:textColor="@color/black"
                             android:textSize="@dimen/_14sdp" />
 
                     </LinearLayout>
@@ -111,12 +146,14 @@
                         android:id="@+id/rvDailystep"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_10sdp" />
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:paddingRight="@dimen/_10sdp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvComboDays"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
@@ -152,7 +189,6 @@
                             android:layout_weight="1"
                             android:gravity="right"
                             android:text="more"
-                            android:textColor="@color/black"
                             android:textSize="@dimen/_14sdp" />
 
                     </LinearLayout>
@@ -161,12 +197,14 @@
                         android:id="@+id/rvComboDays"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_10sdp" />
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:paddingRight="@dimen/_10sdp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvTotalDays"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
@@ -202,7 +240,6 @@
                             android:layout_weight="1"
                             android:gravity="right"
                             android:text="more"
-                            android:textColor="@color/black"
                             android:textSize="@dimen/_14sdp" />
 
                     </LinearLayout>
@@ -211,11 +248,13 @@
                         android:id="@+id/rvTotalDays"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginBottom="@dimen/_10sdp" />
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:paddingRight="@dimen/_10sdp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvTotalDistance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
@@ -251,7 +290,6 @@
                             android:layout_weight="1"
                             android:gravity="right"
                             android:text="more"
-                            android:textColor="@color/black"
                             android:textSize="@dimen/_14sdp" />
 
                     </LinearLayout>
@@ -260,7 +298,8 @@
                         android:id="@+id/rvTotalDistance"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginBottom="@dimen/_10sdp" />
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:paddingRight="@dimen/_10sdp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

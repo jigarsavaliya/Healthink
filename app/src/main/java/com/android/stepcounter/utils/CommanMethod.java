@@ -1,13 +1,30 @@
 package com.android.stepcounter.utils;
 
+import android.app.Activity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
+
+import com.android.stepcounter.R;
+
 import java.text.DecimalFormat;
 
 public class CommanMethod {
 
-    public static float calculateDistance(int num_steps, float height) {
-        double distance = num_steps * height * 0.3937 * 0.414 * 2.54e-2;
+    public static float calculateDistance(int num_steps) {
+        double distance = num_steps * 0.0005;
         return (float) distance;
     }
+
+
+//    public static float calculateDistance(int num_steps, float height) {
+//        double distance = num_steps * height * 0.3937 * 0.414 * 2.54e-2;
+//        return (float) distance;
+//    }
 
     public float getDistanceRun(long steps) {
         float distance = (float) (steps * 78) / (float) 100000;
@@ -123,4 +140,36 @@ public class CommanMethod {
         return aFloat * 0.03381;
     }
 
+    public static void showCompleteDailog(Activity mainActivity, long mlevelGoal, String levelDesc) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mainActivity, R.style.full_screen_dialog);
+        LayoutInflater inflater = mainActivity.getLayoutInflater();
+        View d = inflater.inflate(R.layout.dailog_archivement, null);
+        dialogBuilder.setView(d);
+        AlertDialog alertDialog = dialogBuilder.create();
+
+        TextView mtvArchiveLabel = d.findViewById(R.id.tvArchiveLabel);
+        TextView mtvArchiveDescription = d.findViewById(R.id.tvArchiveDescription);
+        TextView mtvDetails = d.findViewById(R.id.tvDetails);
+        ImageView mIvClosed = d.findViewById(R.id.ivClosed);
+        CardView mcvClosed = d.findViewById(R.id.cvClosed);
+
+        mtvArchiveLabel.setText(mlevelGoal + "");
+        mtvArchiveDescription.setText(levelDesc);
+        mtvDetails.setText("Great! You've Walked " + mlevelGoal + " steps today!");
+        mcvClosed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+        mIvClosed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+    }
 }

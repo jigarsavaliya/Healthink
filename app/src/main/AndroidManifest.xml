@@ -8,16 +8,22 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".Application.StepCounterApplication"
+        android:name=".Application.AppController"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.StepCounter">
-        <activity android:name=".activity.ArchivementActivity"></activity>
+        <activity android:name=".activity.ReminderActivity"></activity>
+        <activity android:name=".activity.LevelActivity" />
+        <activity android:name=".activity.ArchivementDetailActivity" />
+        <activity android:name=".activity.ArchivementActivity" />
         <activity android:name=".activity.MoreSettingActivity" />
         <activity android:name=".activity.AddWaterActivity" />
         <activity android:name=".activity.HistoryActivity" />
@@ -39,6 +45,13 @@
 
         <service android:name=".sevices.SensorService" /> <!-- Register the Alarm Receiver -->
         <receiver android:name=".sevices.AlarmReceiver" />
+        <receiver android:name=".sevices.DailyReminderReceiver" />
+
+        <receiver android:name=".sevices.NotificationReceiver">
+            <intent-filter>
+                <action android:name="MyAction" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

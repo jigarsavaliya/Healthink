@@ -97,7 +97,7 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
         mbtnReminderSave.setOnClickListener(this);
         mtvremindertime.setOnClickListener(this);
 
-        if (StorageManager.getInstance().getReminder()) {
+        if (StorageManager.getInstance().getDailyReminderFlag()) {
             mScReminder.setChecked(true);
         } else {
             mScReminder.setChecked(false);
@@ -294,14 +294,17 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
                     intervaltime = 1000 * 60 * 300;
                 }
 
+                if (StorageManager.getInstance().getReminder()) {
 
-                Calendar calendar = Calendar.getInstance();
+                    Calendar calendar = Calendar.getInstance();
 
-                Intent intent1 = new Intent(WaterReminderSettingActivity.this, AlarmReceiver.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
-                AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervaltime, pendingIntent);
-                Logger.e(calendar.getTimeInMillis());
+                    Intent intent1 = new Intent(WaterReminderSettingActivity.this, AlarmReceiver.class);
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+                    AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
+                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervaltime, pendingIntent);
+                    Logger.e(calendar.getTimeInMillis());
+                }
+
                 finish();
                 break;
             case R.id.tvremindertime:

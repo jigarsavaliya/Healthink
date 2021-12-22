@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.R;
 import com.android.stepcounter.adpter.HistoryAdapter;
-import com.android.stepcounter.database.DBHandler;
+import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.StepHistoryModel;
 import com.android.stepcounter.utils.Logger;
@@ -33,7 +33,7 @@ public class HistoryActivity extends AppCompatActivity {
     Toolbar mToolbar;
     RecyclerView mRvHistrory;
     HistoryAdapter mHistoryAdapter;
-    DBHandler dbManager;
+    DatabaseManager dbManager;
     Menu myMenu;
     TextView mTvNoDataFound;
 
@@ -46,7 +46,7 @@ public class HistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        dbManager = new DBHandler(this);
+        dbManager = new DatabaseManager(this);
     }
 
     @Override
@@ -78,6 +78,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         if (stringArrayListHashMap != null) {
             mTvNoDataFound.setVisibility(View.GONE);
+            mRvHistrory.setVisibility(View.VISIBLE);
             mHistoryAdapter = new HistoryAdapter(HistoryActivity.this, stringArrayListHashMap, headerMap);
             mHistoryAdapter.setMyAdapterListener(new AdapterCallback() {
                 @Override
@@ -99,6 +100,7 @@ public class HistoryActivity extends AppCompatActivity {
             mRvHistrory.setAdapter(mHistoryAdapter);
         } else {
             mTvNoDataFound.setVisibility(View.VISIBLE);
+            mRvHistrory.setVisibility(View.GONE);
         }
     }
 
@@ -110,6 +112,7 @@ public class HistoryActivity extends AppCompatActivity {
         long startTimestamp = 0, endtimestamp = 0;
         if (stepcountModelArrayList != null) {
             mTvNoDataFound.setVisibility(View.GONE);
+            mRvHistrory.setVisibility(View.VISIBLE);
             startTimestamp = Long.parseLong(stepcountModelArrayList.get(0).getTimestemp());
             endtimestamp = Long.parseLong(stepcountModelArrayList.get(stepcountModelArrayList.size() - 1).getTimestemp());
 
@@ -173,6 +176,7 @@ public class HistoryActivity extends AppCompatActivity {
             while (firstdate < endtimestamp);
         } else {
             mTvNoDataFound.setVisibility(View.VISIBLE);
+            mRvHistrory.setVisibility(View.GONE);
         }
 
 //        Logger.e(startTimestamp);
