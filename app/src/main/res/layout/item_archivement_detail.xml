@@ -8,7 +8,7 @@
     android:paddingTop="@dimen/_10sdp"
     android:paddingBottom="@dimen/_10sdp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="@dimen/_60sdp"
         android:layout_height="wrap_content"
         android:background="@drawable/dailystepshape"
@@ -17,14 +17,34 @@
         <TextView
             android:id="@+id/tvDailyLabel"
             android:layout_width="@dimen/_60sdp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="@dimen/_5sdp"
             android:text="3K"
             android:textColor="@color/black"
             android:textSize="@dimen/_16sdp"
             android:textStyle="bold" />
-    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llLevalCount"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_below="@+id/tvDailyLabel"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/primary_cricle">
+
+            <TextView
+                android:id="@+id/tvlevelcount"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:gravity="center"
+                android:text="3K"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_12sdp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tvDiscription"

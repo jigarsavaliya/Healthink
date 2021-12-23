@@ -1585,10 +1585,11 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     stepcountModel.setCalorie(Calories);
                     stepcountModel.setDuration(saveHour[0]);
                     stepcountModel.setTimestemp(String.valueOf(c.getTimeInMillis()));
+                    stepcountModel.setMaxStep(0);
                     dbManager.addStepcountData(stepcountModel);
                 }
+                setArchivementData(selectedday[0], selectedmonth[0], selectedyear[0], saveHour[0]);
                 onResume();
-                setArchivementData();
                 alertDialog.dismiss();
             }
         });
@@ -1603,14 +1604,14 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         alertDialog.show();
     }
 
-    private void setArchivementData() {
+    private void setArchivementData(int date, int month, int year, int hour) {
         //Archievement level Data
         long mTotalStepData = dbManager.getTotalStepCount();
         ArrayList<ArchivementModel> mLevel = new ArrayList<>();
         mLevel = dbManager.getArchivementlist(constant.ARCHIVEMENT_LEVEL);
 
         for (int i = 0; i < mLevel.size(); i++) {
-            if (mTotalStepData >= mLevel.get(i).getValue()) {
+            if (mTotalStepData > mLevel.get(i).getValue()) {
 
 //                Logger.e(mTotalStepData + ">" + mLevel.get(i).getValue());
 //                Logger.e((mTotalStepData > mLevel.get(i).getValue()));
@@ -1620,31 +1621,47 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 archivementModel.setType(mLevel.get(i).getType());
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
+                CommanMethod.showCompleteDailog(this, mLevel.get(i).getValue(), mLevel.get(i).getDescription());
             }
         }
 
 
         // Archivement Daily Step
         ArrayList<ArchivementModel> mDailySteplist = new ArrayList<>();
-        ArrayList<StepCountModel> MaxStepCount = dbManager.getMaxStepCount();
-//        Logger.e("MaxStepCount"+MaxStepCount);
-        mDailySteplist = dbManager.getArchivementlist(constant.ARCHIVEMENT_DAILY_STEP);
-        for (int j = 0; j < MaxStepCount.size(); j++) {
-            for (int i = 0; i < mDailySteplist.size(); i++) {
-                if (MaxStepCount.get(j).getSumstep() >= mDailySteplist.get(i).getValue()) {
+        ArrayList<StepCountModel> MaxStepCount = dbManager.getsumofdayStep(date, month, year);
 
-//                Logger.e(TotalStepCount + ">" + mDailySteplist.get(i).getValue());
-//                Logger.e((TotalStepCount > mDailySteplist.get(i).getValue()));
+        Logger.e(MaxStepCount.get(0).getSumstep());
+        Logger.e(MaxStepCount.get(0).getMaxStep());
 
-                    ArchivementModel archivementModel = new ArchivementModel();
-                    archivementModel.setValue(mDailySteplist.get(i).getValue());
-                    archivementModel.setCount(mDailySteplist.get(i).getCount());
-                    archivementModel.setType(mDailySteplist.get(i).getType());
-                    archivementModel.setCompeleteStatus(true);
-                    dbManager.updateArchivementDailyStep(archivementModel);
-                }
+//        ArrayList<StepCountModel> MaxStepCountModels = dbManager.getMaxStepCount();
+        mDailySteplist = dbManager.getArchivementDailySteplist(constant.ARCHIVEMENT_DAILY_STEP, MaxStepCount.get(0).getMaxStep());
+        for (int i = 0; i < mDailySteplist.size(); i++) {
+            if (MaxStepCount.get(0).getSumstep() >= mDailySteplist.get(i).getValue()) {
+
+//                Logger.e(TotalStepCount + ">" + mDailySteplist.get(0).getValue());
+                Logger.e((TotalStepCount > mDailySteplist.get(i).getValue()));
+
+                ArchivementModel archivementModel = new ArchivementModel();
+                archivementModel.setValue(mDailySteplist.get(i).getValue());
+                archivementModel.setCount(mDailySteplist.get(i).getCount());
+                archivementModel.setType(mDailySteplist.get(i).getType());
+                archivementModel.setCompeleteStatus(true);
+                dbManager.updateArchivementDailyStep(archivementModel);
+
+                StepCountModel stepCountModel = new StepCountModel();
+                stepCountModel.setDate(date);
+                stepCountModel.setMonth(month);
+                stepCountModel.setYear(year);
+                stepCountModel.setDuration(hour);
+                stepCountModel.setMaxStep(MaxStepCount.get(0).getSumstep());
+
+                Logger.e(date + "**" + month + "**" + year + "**" + hour + "**" + MaxStepCount.get(0).getSumstep());
+                dbManager.updatemaxStep(stepCountModel);
+
+                CommanMethod.showCompleteDailog(this, mDailySteplist.get(i).getValue(), mDailySteplist.get(i).getDescription());
             }
         }
+
 
         // Archivement Total Days
         long mTotalDaysData = dbManager.getTotalDaysCount();
@@ -1662,6 +1679,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 archivementModel.setType(mTotalDaysList.get(i).getType());
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
+                CommanMethod.showCompleteDailog(this, mTotalDaysList.get(i).getValue(), mTotalDaysList.get(i).getDescription());
             }
         }
 
@@ -1681,6 +1699,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 archivementModel.setType(mTotalDistanceList.get(i).getType());
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
+                CommanMethod.showCompleteDailog(this, mTotalDistanceList.get(i).getValue(), mTotalDistanceList.get(i).getDescription());
             }
         }
 
@@ -1706,8 +1725,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 //        Logger.e((currDayStep >= StepGoal));
 
         int Count = StorageManager.getInstance().getComboDayCount();
-        if (YestDayStep >= StepGoal) {
-            if (currDayStep >= StepGoal) {
+        if (currDayStep >= StepGoal) {
+            if (YestDayStep >= StepGoal) {
                 StorageManager.getInstance().setComboDayCount(Count + 1);
             }
         } else {
@@ -1724,24 +1743,22 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 archivementModel.setType(mComboDayList.get(i).getType());
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
+                CommanMethod.showCompleteDailog(this, mComboDayList.get(i).getValue(), mComboDayList.get(i).getDescription());
             }
         }
 
 
 //        -------------------------total distance
-        long Distancegoal = 0;
-        String DistanceDesc = null;
+        long Distancegoal = 5;
+        String DistanceDesc = "Short Hike";
         for (int i = 0; i < mTotalDistanceList.size(); i++) {
             if (mTotalDistanceList.get(i).isCompeleteStatus()) {
                 Distancegoal = mTotalDistanceList.get(i + 1).getValue();
                 DistanceDesc = mTotalDistanceList.get(i + 1).getDescription();
-            } else {
-                Distancegoal = mTotalDistanceList.get(0).getValue();
-                DistanceDesc = mTotalDistanceList.get(0).getDescription();
             }
         }
 
-        Logger.e("Total Distance" + mTotalDisanceData + "---" + Distancegoal);
+//        Logger.e("Total Distance" + mTotalDisanceData + "---" + Distancegoal);
 
 //        -------------------------total Days
         long TotalDaysgoal = 0;
@@ -1756,7 +1773,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
             }
         }
 
-        Logger.e("Total Days" + mTotalDaysData + "---" + TotalDaysgoal);
+//        Logger.e("Total Days" + mTotalDaysData + "---" + TotalDaysgoal);
 
         //        -------------------------Daily Steps
         long TotalDailyStep = dbManager.getSumOfStepList(date, month, year);
@@ -1769,22 +1786,18 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
             }
         }
 
-        Logger.e("Daily steps" + TotalDailyStep + "---" + TotalDailygoal);
+//        Logger.e("Daily steps" + TotalDailyStep + "---" + TotalDailygoal);
 
         //        -------------------------Level
         long mlevelGoal = 10000;
-        String LevelDesc = null;
+        String LevelDesc = "A good Strat!";
         for (int i = 0; i < mLevel.size(); i++) {
             if (mLevel.get(i).isCompeleteStatus()) {
                 mlevelGoal = mLevel.get(i + 1).getValue();
                 LevelDesc = mLevel.get(i + 1).getDescription();
             }
-            /*else {
-                mlevelGoal = mLevel.get(1).getValue();
-                LevelDesc = mLevel.get(1).getDescription();
-            }*/
         }
-        Logger.e("Level" + mTotalStepData + "------" + mlevelGoal);
+//        Logger.e("Level" + mTotalStepData + "------" + mlevelGoal);
 
         float mLevelData = (float) mTotalStepData / mlevelGoal * 100;
         float mDisanceData = (float) mTotalDisanceData / Distancegoal * 100;
@@ -1803,38 +1816,66 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int index = floats.indexOf(obj);
 //        Logger.e(obj + "--" + index);
 
-        Intent sendLevel = new Intent(this, NotificationReceiver.class);
-        if (index == 0) {
-            sendLevel.setAction("Notification");
-            sendLevel.putExtra("value", mlevelGoal - mLevelData);
-            sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
-            sendBroadcast(sendLevel);
-        } else if (index == 1) {
-            sendLevel.setAction("Notification");
-            sendLevel.putExtra("value", Distancegoal - mTotalDisanceData);
-            sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
-            sendBroadcast(sendLevel);
-        } else if (index == 2) {
-            sendLevel.setAction("Notification");
-            sendLevel.putExtra("value", TotalDaysgoal - mTotalDaysData);
-            sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
-            sendBroadcast(sendLevel);
-        } else if (index == 3) {
-            sendLevel.setAction("Notification");
-            sendLevel.putExtra("value", TotalDailygoal - TotalDailyStep);
-            sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
-            sendBroadcast(sendLevel);
+        if (date == Calendar.DATE) {
+            Intent sendLevel = new Intent(this, NotificationReceiver.class);
+            if (index == 0) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", mlevelGoal - mLevelData);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
+                sendLevel.putExtra("Compeletelevel", false);
+                sendBroadcast(sendLevel);
+            } else if (index == 1) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", Distancegoal - mTotalDisanceData);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
+                sendLevel.putExtra("CompeleteDistance", false);
+                sendBroadcast(sendLevel);
+            } else if (index == 2) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", TotalDaysgoal - mTotalDaysData);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
+                sendLevel.putExtra("CompeleteDaysData", false);
+                sendBroadcast(sendLevel);
+            } else if (index == 3) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", TotalDailygoal - TotalDailyStep);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
+                sendLevel.putExtra("CompeleteDailyStep", false);
+                sendBroadcast(sendLevel);
+            }
+        } else {
+            Intent sendLevel = new Intent(this, NotificationReceiver.class);
+            if (mTotalStepData >= mlevelGoal) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", mlevelGoal);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
+                sendLevel.putExtra("Compeletelevel", true);
+                sendBroadcast(sendLevel);
+//            CommanMethod.showCompleteDailog(this, mlevelGoal, LevelDesc);
+            } else if (mTotalDisanceData >= Distancegoal) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", Distancegoal);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
+                sendLevel.putExtra("CompeleteDistance", true);
+                sendBroadcast(sendLevel);
+//            CommanMethod.showCompleteDailog(this, Distancegoal, DistanceDesc);
+            } else if (mTotalDaysData >= TotalDaysgoal) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", TotalDaysgoal);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
+                sendLevel.putExtra("CompeleteDaysData", true);
+                sendBroadcast(sendLevel);
+//            CommanMethod.showCompleteDailog(this, TotalDaysgoal, DayDesc);
+            } else if (TotalDailyStep >= TotalDailygoal) {
+                sendLevel.setAction("Notification");
+                sendLevel.putExtra("value", TotalDailygoal);
+                sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
+                sendLevel.putExtra("CompeleteDailyStep", true);
+                sendBroadcast(sendLevel);
+//            CommanMethod.showCompleteDailog(this, TotalDailygoal, DailyDesc);
+            }
         }
 
-        if (mTotalStepData >= mlevelGoal) {
-            CommanMethod.showCompleteDailog(this, mlevelGoal, LevelDesc);
-        } else if (mTotalDisanceData >= Distancegoal) {
-            CommanMethod.showCompleteDailog(this, Distancegoal, DistanceDesc);
-        } else if (mTotalDaysData >= TotalDaysgoal) {
-            CommanMethod.showCompleteDailog(this, TotalDaysgoal, DayDesc);
-        } else if (TotalDailyStep >= TotalDailygoal) {
-            CommanMethod.showCompleteDailog(this, TotalDailygoal, DailyDesc);
-        }
     }
 
     private final RectF onValueSelectedRectF = new RectF();

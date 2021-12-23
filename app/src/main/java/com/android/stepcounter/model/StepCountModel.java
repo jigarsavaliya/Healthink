@@ -9,9 +9,18 @@ public class StepCountModel {
     String distance;
     String Timestemp;
     Integer duration;
+    Integer MaxStep;
     int sumstep;
     int sumcalorie;
     int sumdistance;
+
+    public Integer getMaxStep() {
+        return MaxStep;
+    }
+
+    public void setMaxStep(Integer maxStep) {
+        MaxStep = maxStep;
+    }
 
     public int getSumdistance() {
         return sumdistance;

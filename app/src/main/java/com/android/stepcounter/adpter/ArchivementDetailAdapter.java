@@ -43,6 +43,14 @@ public class ArchivementDetailAdapter extends RecyclerView.Adapter<ArchivementDe
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         if (mDailyStepDatalist.get(i).isCompeleteStatus()) {
+            if (mDailyStepDatalist.get(i).getType().equals("Daily Step")) {
+                viewHolder.mLlLevalCount.setVisibility(View.VISIBLE);
+                viewHolder.mTvlevelcount.setText(mDailyStepDatalist.get(i).getCount() + "x");
+            } else {
+                viewHolder.mLlLevalCount.setVisibility(View.GONE);
+                viewHolder.mLlLevalCount.setVisibility(View.GONE);
+            }
+
             viewHolder.mTvDailyLabel.setText(mDailyStepDatalist.get(i).getLabel());
             viewHolder.mTvDiscription.setText(mDailyStepDatalist.get(i).getDescription());
             viewHolder.mTvDailyLabel.setTextColor(activity.getResources().getColor(R.color.colorPrimaryDark));
@@ -85,6 +93,7 @@ public class ArchivementDetailAdapter extends RecyclerView.Adapter<ArchivementDe
             });
 
         } else {
+            viewHolder.mLlLevalCount.setVisibility(View.GONE);
             viewHolder.mTvDailyLabel.setText(mDailyStepDatalist.get(i).getLabel());
             viewHolder.mTvDiscription.setText(mDailyStepDatalist.get(i).getDescription());
             viewHolder.mTvDailyLabel.setTextColor(activity.getResources().getColor(R.color.black));
@@ -98,15 +107,16 @@ public class ArchivementDetailAdapter extends RecyclerView.Adapter<ArchivementDe
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView mTvDailyLabel, mTvDiscription;
-        LinearLayout mLlArchivementDetail;
+        TextView mTvDailyLabel, mTvDiscription, mTvlevelcount;
+        LinearLayout mLlArchivementDetail, mLlLevalCount;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mTvDailyLabel = itemView.findViewById(R.id.tvDailyLabel);
             mTvDiscription = itemView.findViewById(R.id.tvDiscription);
+            mTvlevelcount = itemView.findViewById(R.id.tvlevelcount);
             mLlArchivementDetail = itemView.findViewById(R.id.llArchivementDetail);
-
+            mLlLevalCount = itemView.findViewById(R.id.llLevalCount);
         }
     }
 

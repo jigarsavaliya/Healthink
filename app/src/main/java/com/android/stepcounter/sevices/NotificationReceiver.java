@@ -14,6 +14,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.ArchivementActivity;
+import com.android.stepcounter.activity.ArchivementDetailActivity;
+import com.android.stepcounter.activity.LevelActivity;
 import com.android.stepcounter.utils.constant;
 
 public class NotificationReceiver extends BroadcastReceiver {
@@ -28,10 +30,25 @@ public class NotificationReceiver extends BroadcastReceiver {
             long level = intent.getLongExtra("value", 0);
             String Type = intent.getStringExtra("Type");
             boolean Compeletelevel = intent.getBooleanExtra("Compeletelevel", false);
-//            Log.e("TAG", Type + "onReceive: main " + level);
+            boolean CompeleteDistance = intent.getBooleanExtra("CompeleteDistance", false);
+            boolean CompeleteDaysData = intent.getBooleanExtra("CompeleteDaysData", false);
+            boolean CompeleteDailyStep = intent.getBooleanExtra("CompeleteDailyStep", false);
+            boolean CompeleteDailyStepGoal = intent.getBooleanExtra("CompeleteDailyStepGoal", false);
 
             if (level != 0 && level > 0) {
                 showNotification(Type, level);
+            }
+
+            if (Compeletelevel) {
+                showCompleteNotification(Type, level);
+            } else if (CompeleteDistance) {
+                showCompleteNotification(Type, level);
+            } else if (CompeleteDaysData) {
+                showCompleteNotification(Type, level);
+            } else if (CompeleteDailyStep) {
+                showCompleteNotification(Type, level);
+            }else if (CompeleteDailyStepGoal) {
+                showCompleteNotification(Type, level);
             }
         }
     }
@@ -44,6 +61,64 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingIntent)
                 .setContentTitle(type)
                 .setContentText(level + " remainning for completed " + type + " Level")
+                .setOngoing(true)
+                .setSilent(true)
+                .setAutoCancel(false);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setSmallIcon(R.drawable.ic_launcher_background);
+        } else {
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+        }
+
+        Notification notification = builder.build();
+        NotificationManager notificationManager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(constant.CHANNEL_ID_FOR_STEP,
+                    constant.CHANNEL_NAME_FOR_STEP,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setShowBadge(false);
+            notificationManager.createNotificationChannel(channel);
+            notificationManager.notify(constant.NOTIFICATION_ID_FOR_WATER, notification);
+        }
+    }
+
+    private void showCompleteNotification(String type, long level) {
+        Intent notificationIntent = new Intent();
+        if (type.equals("Daily Step")) {
+            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
+            notificationIntent.putExtra("DailyStep", true);
+            notificationIntent.putExtra("ComboDay", false);
+            notificationIntent.putExtra("TotalDays", false);
+            notificationIntent.putExtra("TotalDistance", false);
+        } else if (type.equals("Combo Day")) {
+            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
+            notificationIntent.putExtra("DailyStep", false);
+            notificationIntent.putExtra("ComboDay", true);
+            notificationIntent.putExtra("TotalDays", false);
+            notificationIntent.putExtra("TotalDistance", false);
+        } else if (type.equals("Total Days")) {
+            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
+            notificationIntent.putExtra("DailyStep", false);
+            notificationIntent.putExtra("ComboDay", false);
+            notificationIntent.putExtra("TotalDays", true);
+            notificationIntent.putExtra("TotalDistance", false);
+        } else if (type.equals("Total Distance")) {
+            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
+            notificationIntent.putExtra("DailyStep", false);
+            notificationIntent.putExtra("ComboDay", false);
+            notificationIntent.putExtra("TotalDays", false);
+            notificationIntent.putExtra("TotalDistance", true);
+        } else if (type.equals("Level")) {
+            notificationIntent = new Intent(mcontext, LevelActivity.class);
+        }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(mcontext, 0, notificationIntent, 0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mcontext, constant.CHANNEL_ID_FOR_STEP)
+                .setContentIntent(pendingIntent)
+                .setContentTitle(type)
+                .setContentText(level + " completed " + type)
                 .setOngoing(true)
                 .setSilent(true)
                 .setAutoCancel(false);

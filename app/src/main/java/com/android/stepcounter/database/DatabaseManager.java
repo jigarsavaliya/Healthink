@@ -12,6 +12,8 @@ import com.android.stepcounter.model.ArchivementModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
+import com.android.stepcounter.utils.Logger;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -66,6 +68,7 @@ public class DatabaseManager {
         public static final String KEY_STEP_DISTANCE = "StepDistance";
         public static final String KEY_STEP_DURATION = "StepDuration";
         public static final String KEY_STEP_TIMESTMP = "StepTimeStemp";
+        public static final String KEY_STEP_MAXSTEP = "StepMax";
 
         // Table Name
         public static final String TABLE_WEIGHT = "Table_Weight";
@@ -108,6 +111,7 @@ public class DatabaseManager {
                 + KEY_STEP_CALORIES + " TEXT,"
                 + KEY_STEP_DISTANCE + " TEXT,"
                 + KEY_STEP_TIMESTMP + " TEXT,"
+                + KEY_STEP_MAXSTEP + " INTEGER,"
                 + KEY_STEP_DURATION + " INTEGER)";
 
         public static final String WeightTable = "CREATE TABLE " + TABLE_WEIGHT + " ("
@@ -457,6 +461,7 @@ public class DatabaseManager {
         initialValues.put(DbHelper.KEY_STEP_DISTANCE, stepcountModel.getDistance());
         initialValues.put(DbHelper.KEY_STEP_DURATION, stepcountModel.getDuration());
         initialValues.put(DbHelper.KEY_STEP_TIMESTMP, stepcountModel.getTimestemp());
+        initialValues.put(DbHelper.KEY_STEP_MAXSTEP, stepcountModel.getMaxStep());
 
         try {
             int i = updateStepData(stepcountModel);
@@ -488,6 +493,7 @@ public class DatabaseManager {
         values.put(DbHelper.KEY_STEP_DISTANCE, model.getDistance());
         values.put(DbHelper.KEY_STEP_DURATION, model.getDuration());
         values.put(DbHelper.KEY_STEP_TIMESTMP, model.getTimestemp());
+        values.put(DbHelper.KEY_STEP_MAXSTEP, model.getMaxStep());
 
         return values;
     }
@@ -511,7 +517,8 @@ public class DatabaseManager {
     }
 
     private String[] getCategorylistColumns() {
-        return new String[]{DbHelper.KEY_STEP_COUNT, DbHelper.KEY_STEP_DATE, DbHelper.KEY_STEP_MONTH, DbHelper.KEY_STEP_YEAR, DbHelper.KEY_STEP_CALORIES, DbHelper.KEY_STEP_DISTANCE, DbHelper.KEY_STEP_DURATION, DbHelper.KEY_STEP_TIMESTMP};
+        return new String[]{DbHelper.KEY_STEP_COUNT, DbHelper.KEY_STEP_DATE, DbHelper.KEY_STEP_MONTH, DbHelper.KEY_STEP_YEAR, DbHelper.KEY_STEP_CALORIES,
+                DbHelper.KEY_STEP_DISTANCE, DbHelper.KEY_STEP_DURATION, DbHelper.KEY_STEP_TIMESTMP, DbHelper.KEY_STEP_MAXSTEP};
     }
 
     @SuppressLint("Range")
@@ -527,6 +534,7 @@ public class DatabaseManager {
             int iKEY_STEP_DISTANCE = c.getColumnIndex(DbHelper.KEY_STEP_DISTANCE);
             int iKEY_STEP_DURATION = c.getColumnIndex(DbHelper.KEY_STEP_DURATION);
             int iKEY_STEP_TIMESTMP = c.getColumnIndex(DbHelper.KEY_STEP_TIMESTMP);
+            int iKEY_STEP_MAXSTEP = c.getColumnIndex(DbHelper.KEY_STEP_MAXSTEP);
 
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 StepCountModel model = new StepCountModel();
@@ -539,6 +547,7 @@ public class DatabaseManager {
                 model.setDistance(c.getString(iKEY_STEP_DISTANCE));
                 model.setDuration(c.getInt(iKEY_STEP_DURATION));
                 model.setTimestemp(c.getString(iKEY_STEP_TIMESTMP));
+                model.setMaxStep(c.getInt(iKEY_STEP_MAXSTEP));
                 temp.add(model);
             }
 
@@ -557,6 +566,7 @@ public class DatabaseManager {
                     model.setDistance("0");
                     model.setDuration(i);
                     model.setTimestemp("0");
+                    model.setMaxStep(0);
                     list.add(model);
                 }
             }
@@ -690,6 +700,7 @@ public class DatabaseManager {
             int iKEY_STEP_DISTANCE = c.getColumnIndex(DbHelper.KEY_STEP_DISTANCE);
             int iKEY_STEP_DURATION = c.getColumnIndex(DbHelper.KEY_STEP_DURATION);
             int iKEY_STEP_TIMESTMP = c.getColumnIndex(DbHelper.KEY_STEP_TIMESTMP);
+            int iKEY_STEP_MAXSTEP = c.getColumnIndex(DbHelper.KEY_STEP_MAXSTEP);
 
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 StepCountModel model = new StepCountModel();
@@ -702,6 +713,7 @@ public class DatabaseManager {
                 model.setDistance(c.getString(iKEY_STEP_DISTANCE));
                 model.setDuration(c.getInt(iKEY_STEP_DURATION));
                 model.setTimestemp(c.getString(iKEY_STEP_TIMESTMP));
+                model.setMaxStep(c.getInt(iKEY_STEP_MAXSTEP));
 
                 list.add(model);
             }
@@ -762,6 +774,7 @@ public class DatabaseManager {
                 model.setDuration(0);
                 model.setTimestemp("0");
                 model.setSumstep(0);
+                model.setMaxStep(0);
                 list.add(model);
             }
             cal.add(Calendar.DATE, 1);
@@ -823,6 +836,7 @@ public class DatabaseManager {
                 model.setDuration(0);
                 model.setTimestemp("0");
                 model.setSumcalorie(0);
+                model.setMaxStep(0);
                 list.add(model);
             }
             cal.add(Calendar.DATE, 1);
@@ -886,6 +900,7 @@ public class DatabaseManager {
                 model.setDuration(0);
                 model.setTimestemp("0");
                 model.setSumdistance(0);
+                model.setMaxStep(0);
                 list.add(model);
             }
             cal.add(Calendar.DATE, 1);
@@ -943,6 +958,7 @@ public class DatabaseManager {
                 model.setDuration(0);
                 model.setTimestemp("0");
                 model.setSumstep(0);
+                model.setMaxStep(0);
                 list.add(model);
             }
         }
@@ -996,6 +1012,7 @@ public class DatabaseManager {
                 model.setDuration(0);
                 model.setTimestemp("0");
                 model.setSumcalorie(0);
+                model.setMaxStep(0);
                 list.add(model);
             }
         }
@@ -1050,6 +1067,7 @@ public class DatabaseManager {
                 model.setDuration(0);
                 model.setTimestemp("0");
                 model.setSumdistance(0);
+                model.setMaxStep(0);
                 list.add(model);
             }
         }
@@ -1186,12 +1204,13 @@ public class DatabaseManager {
 
 
     @SuppressLint("Range")
-    public ArrayList<StepCountModel> getMaxStepCount() {
+    public ArrayList<StepCountModel> getsumofdayStep(int date, int month, int year) {
         db = helper.getReadableDatabase();
 
-        String s = "select *,sum(" + DbHelper.KEY_STEP_COUNT + ")  as total from " + DbHelper.TABLE_STEPCOUNT + " GROUP BY " + DbHelper.KEY_STEP_DATE + "," +
-                DbHelper.KEY_STEP_MONTH + "," + DbHelper.KEY_STEP_YEAR;
+        String s = "select *,sum(" + DbHelper.KEY_STEP_COUNT + ")  as total ,max(" + DbHelper.KEY_STEP_MAXSTEP + ")  as maStep from " + DbHelper.TABLE_STEPCOUNT + " where " + DbHelper.KEY_STEP_DATE + " = " + date + " AND "
+                + DbHelper.KEY_STEP_MONTH + " = " + month + " AND  " + DbHelper.KEY_STEP_YEAR + " = " + year;
 
+        Logger.e(s);
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<StepCountModel> list = getSteplistFromCursor(c);
@@ -1204,11 +1223,30 @@ public class DatabaseManager {
         }
     }
 
+    public int updatemaxStep(StepCountModel model) {
+        db = helper.getWritableDatabase();
+        int value;
+
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.KEY_STEP_MAXSTEP, model.getMaxStep());
+
+        value = db.update(DbHelper.TABLE_STEPCOUNT, values,
+                DbHelper.KEY_STEP_DURATION + "=? AND "
+                        + DbHelper.KEY_STEP_DATE + " =? AND "
+                        + DbHelper.KEY_STEP_MONTH + " =? AND "
+                        + DbHelper.KEY_STEP_YEAR + " =?",
+                new String[]{String.valueOf(model.getDuration()), String.valueOf(model.getDate()), String.valueOf(model.getMonth()), String.valueOf(model.getYear())});
+        Logger.e(value);
+        db.close();
+        return value;
+    }
+
     @SuppressLint("Range")
     private ArrayList<StepCountModel> getSteplistFromCursor(Cursor c) {
 
         ArrayList<StepCountModel> list = new ArrayList<StepCountModel>();
         int sum;
+
         try {
             int iKEY_STEP_COUNT = c.getColumnIndex(DbHelper.KEY_STEP_COUNT);
             int iKEY_STEP_DATE = c.getColumnIndex(DbHelper.KEY_STEP_DATE);
@@ -1219,11 +1257,13 @@ public class DatabaseManager {
             int iKEY_STEP_DURATION = c.getColumnIndex(DbHelper.KEY_STEP_DURATION);
             int iKEY_STEP_TIMESTMP = c.getColumnIndex(DbHelper.KEY_STEP_TIMESTMP);
 
+
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 StepCountModel model = new StepCountModel();
 
                 sum = c.getInt(c.getColumnIndex("total"));
-
+                int iKEY_STEP_MAXSTEP = c.getColumnIndex("maStep");
+                Logger.e(iKEY_STEP_MAXSTEP);
                 model.setStep(c.getInt(iKEY_STEP_COUNT));
                 model.setDate(c.getInt(iKEY_STEP_DATE));
                 model.setMonth(c.getInt(iKEY_STEP_MONTH));
@@ -1232,10 +1272,18 @@ public class DatabaseManager {
                 model.setDistance(c.getString(iKEY_STEP_DISTANCE));
                 model.setDuration(c.getInt(iKEY_STEP_DURATION));
                 model.setTimestemp(c.getString(iKEY_STEP_TIMESTMP));
+                if (iKEY_STEP_MAXSTEP != -1) {
+                    Logger.e(c.getInt(iKEY_STEP_MAXSTEP));
+                    model.setMaxStep(c.getInt(iKEY_STEP_MAXSTEP));
+                }
                 model.setSumstep(sum);
+
+                Logger.e(new GsonBuilder().create().toJson(model));
 
                 list.add(model);
             }
+        } catch (Exception e) {
+            Logger.e(e.getMessage());
         } finally {
             if (c != null)
                 c.close();
@@ -1498,6 +1546,26 @@ public class DatabaseManager {
         return sum;
     }
 
+    public ArrayList<ArchivementModel> getArchivementDailySteplist(String label, long maxstep) {
+
+        db = helper.getReadableDatabase();
+
+        String s = "select * from " + DbHelper.TABLE_ARCHIVEMENT + " where " + DbHelper.KEY_ARCHIVEMENT_TYPE + " = \"" + label + "\" AND " + DbHelper.KEY_ARCHIVEMENT_VALUE + " > " + maxstep;
+
+        Logger.e(s);
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<ArchivementModel> list = getArchivementFromCursor(c);
+        db.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+
+    }
 
     public ArrayList<ArchivementModel> getArchivementlist(String label) {
 
