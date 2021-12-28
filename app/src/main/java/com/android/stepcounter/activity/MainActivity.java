@@ -22,6 +22,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +64,7 @@ import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import org.joda.time.DateTime;
@@ -75,13 +77,13 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, DatePickerListener {
 
-    private TextView TvSteps, accuracyText, tvduration, tvkm, tvkcal, tvuserWeight, tvwatergoal, tvwaterlevel, mtvlastdaydiffvalue, mtvAvgstep;
+    private TextView TvSteps, accuracyText, tvduration, tvkm, tvkcal, tvuserWeight, tvwatergoal, tvwaterlevel, mtvlastdaydiffvalue, mtvAvgstep, mTvDisplayLabel, mTvDisplayDesc, mTvDisplayPendingValue;
     private int numSteps;
     Toolbar mToolbar;
     ImageView ivPlay, ivPause;
     BottomNavigationView mbottomNavigation;
     private CircularProgressBar progress;
-    CardView mcvStrat, mcvWater, mcvWeight;
+    CardView mcvStrat, mcvWater, mcvWeight, mCvArchivement;
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
     int StepGoal;
@@ -121,16 +123,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<StepCountModel> stepcountModelArrayList = new ArrayList<>();
     ArrayList<WaterLevelModel> DaywiseWaterlist = new ArrayList<>();
     ArrayList<WeightModel> arrayList = new ArrayList<>();
+    ArrayList<ArchivementModel> archivementModelArrayList = new ArrayList<>();
 
     DatabaseManager dbManager;
     int TotalStepCount;
-
+    ProgressBar Displayprogress;
     long mlevelGoal, mLevelData, Distancegoal, DisplayDistance, TotalDaysgoal, mTotalDaysData, TotalDailygoal, TotalDailyStep;
     String LevelDesc, DistanceDesc, DayDesc, DailyDesc;
+    ExtendedFloatingActionButton mExtFabAdjustOrder;
 
     private class MyReceiver extends BroadcastReceiver {
-
-
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -163,19 +165,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tvkcal.setText(calories);
             }
             waterWeekChartAdapter.notifyDataSetChanged();
-//            checkArchivement(numSteps);
+            checkArchivement(numSteps);
         }
     }
 
     private void checkArchivement(int numSteps) {
-        if (numSteps >= mlevelGoal) {
-            CommanMethod.showCompleteDailog(this, mlevelGoal, LevelDesc);
-        } else if (DisplayDistance >= Distancegoal) {
-            CommanMethod.showCompleteDailog(this, Distancegoal, DistanceDesc);
-        } else if (mTotalDaysData >= TotalDaysgoal) {
-            CommanMethod.showCompleteDailog(this, TotalDaysgoal, DayDesc);
-        } else if (TotalDailyStep >= TotalDailygoal) {
-            CommanMethod.showCompleteDailog(this, TotalDailygoal, DailyDesc);
+        if (numSteps == mlevelGoal) {
+            CommanMethod.showCompleteDailog(this, String.valueOf(mlevelGoal), LevelDesc);
+        } else if (DisplayDistance == Distancegoal) {
+            CommanMethod.showCompleteDailog(this, String.valueOf(Distancegoal), DistanceDesc);
+        } else if (mTotalDaysData == TotalDaysgoal) {
+            CommanMethod.showCompleteDailog(this, String.valueOf(TotalDaysgoal), DayDesc);
+        } else if (TotalDailyStep == TotalDailygoal) {
+            CommanMethod.showCompleteDailog(this, String.valueOf(TotalDailygoal), DailyDesc);
+        }
+
+        ChechArchivementdata(numSteps, mlevelGoal, DisplayDistance, Distancegoal);
+    }
+
+    public void ChechArchivementdata(int currStep, long levelGoal, long CurrDistance, long distanceGoal) {
+
+        float mLevelData = (float) currStep / levelGoal * 100;
+        float mDisanceData = (float) CurrDistance / distanceGoal * 100;
+
+        Logger.e(mLevelData + "--" + mDisanceData);
+
+        ArrayList<Float> floats = new ArrayList<>();
+        floats.remove(floats);
+        floats.add(mLevelData);
+        floats.add(mDisanceData);
+
+        Float obj = Collections.max(floats);
+        int index = floats.indexOf(obj);
+
+        if (index == 0) {
+            if (currStep != 0) {
+                int goal = (int) levelGoal;
+                Displayprogress.setMax(goal);
+                Displayprogress.setProgress(currStep);
+                mTvDisplayPendingValue.setText(goal - currStep + " remians");
+                archivementModelArrayList = dbManager.getArchivementData(constant.ARCHIVEMENT_LEVEL, goal);
+                Logger.e(goal);
+                for (int i = 0; i < archivementModelArrayList.size(); i++) {
+                    Logger.e(archivementModelArrayList.get(i).getLabel());
+                    mTvDisplayLabel.setText(archivementModelArrayList.get(i).getLabel());
+                    mTvDisplayDesc.setText(archivementModelArrayList.get(i).getDescription());
+                }
+            }
+        } else if (index == 1) {
+            int goal = (int) distanceGoal;
+            int value = (int) CurrDistance;
+            if (value != 0) {
+                Displayprogress.setMax(goal);
+                Displayprogress.setProgress(value);
+                mTvDisplayPendingValue.setText(goal - value + " miles");
+                archivementModelArrayList = dbManager.getArchivementData(constant.ARCHIVEMENT_TOTAL_DISTANCE, goal);
+                for (int i = 0; i < archivementModelArrayList.size(); i++) {
+                    mTvDisplayLabel.setText(archivementModelArrayList.get(i).getLabel());
+                    mTvDisplayDesc.setText(archivementModelArrayList.get(i).getDescription());
+                }
+            }
         }
     }
 
@@ -185,14 +234,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         dbManager = new DatabaseManager(this);
 
-        Intent i = new Intent(MainActivity.this, SensorService.class);
-        startService(i);
+        if (StorageManager.getInstance().getIsStepService()) {
+            Intent i = new Intent(MainActivity.this, SensorService.class);
+            startService(i);
+        }
         Steplist = new ArrayList<StepCountModel>();
         getoldSteplist = new ArrayList<StepCountModel>();
 
         myReceiver = new MyReceiver();
         registerReceiver(myReceiver, new IntentFilter("GET_SIGNAL_STRENGTH"));
-
     }
 
     @SuppressLint("DefaultLocale")
@@ -204,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         date = rightNow.get(Calendar.DATE);
         month = rightNow.get(Calendar.MONTH) + 1;
         year = rightNow.get(Calendar.YEAR);
+
 
         selectedDate = String.valueOf(date);
         seletedMonth = String.valueOf(month);
@@ -240,6 +291,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvwatergoal = (TextView) findViewById(R.id.tvwatergoal);
         tvwaterlevel = (TextView) findViewById(R.id.tvwaterlevel);
 
+        mTvDisplayLabel = (TextView) findViewById(R.id.tvDisplayLabel);
+        mTvDisplayDesc = (TextView) findViewById(R.id.tvDisplayDesc);
+        mTvDisplayPendingValue = (TextView) findViewById(R.id.DisplayPendingValue);
+        Displayprogress = (ProgressBar) findViewById(R.id.Displayprogress);
+        mCvArchivement = (CardView) findViewById(R.id.cvArchivement);
+
+        mExtFabAdjustOrder = findViewById(R.id.extFabAdjustOrder);
+        mExtFabAdjustOrder.setOnClickListener(this);
+
         tvuserWeight.setText(userWeight + "");
 
         ivPlay = findViewById(R.id.ivPlay);
@@ -257,11 +317,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivaddwater.setOnClickListener(this);
         llwaterSetting.setOnClickListener(this);
         addWeightDailog.setOnClickListener(this);
+        mCvArchivement.setOnClickListener(this);
 
-        ivPause.setVisibility(View.VISIBLE);
-        ivPlay.setVisibility(View.GONE);
+        if (StorageManager.getInstance().getIsStepService()) {
+            ivPause.setVisibility(View.VISIBLE);
+            ivPlay.setVisibility(View.GONE);
+        } else {
+            ivPause.setVisibility(View.GONE);
+            ivPlay.setVisibility(View.VISIBLE);
+        }
 
         setRecyclerView();
+
+        String prefdate = StorageManager.getInstance().getCurrentDay();
+        String[] s1 = prefdate.split("/");
+
+        if (Integer.parseInt(s1[0]) == date && Integer.parseInt(s1[1]) == month && Integer.parseInt(s1[2]) == year) {
+            ShowYesterdayHistoryDailog();
+        }
+
+        if (Integer.parseInt(s1[0]) == date && Integer.parseInt(s1[1]) == month && Integer.parseInt(s1[2]) == year) {
+            if (!StorageManager.getInstance().getIsStepService()) {
+                ivPause.setVisibility(View.VISIBLE);
+                ivPlay.setVisibility(View.GONE);
+                Intent i = new Intent(MainActivity.this, SensorService.class);
+                startService(i);
+            }
+        }
 
         mbottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -329,6 +411,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             weightModel.setTimestemp(String.valueOf(c.getTimeInMillis()));
             weightModel.setKg((int) userWeight);
             dbManager.addWeightData(weightModel);
+        }
+
+        Logger.e(StorageManager.getInstance().getLevelArchivement());
+        if (StorageManager.getInstance().getLevelArchivement()) {
+            setArchivementData(date, month, year, hour);
         }
     }
 
@@ -573,12 +660,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startService(i);
                 ivPlay.setVisibility(View.GONE);
                 ivPause.setVisibility(View.VISIBLE);
+                StorageManager.getInstance().setIsStepService(true);
                 break;
             case R.id.ivPause:
 //                sensorManager.unregisterListener(MainActivity.this);
                 stopService(i);
                 ivPlay.setVisibility(View.VISIBLE);
                 ivPause.setVisibility(View.GONE);
+                StorageManager.getInstance().setIsStepService(false);
                 break;
             case R.id.cvGPSStrat:
                 startActivity(new Intent(MainActivity.this, TrainingActivity.class));
@@ -588,6 +677,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.cvWeight:
                 startActivity(new Intent(MainActivity.this, HeathActivity.class));
+                break;
+            case R.id.cvArchivement:
+                String s = mTvDisplayLabel.getText().toString();
+                if (s.contains("Level")) {
+                    Intent intent = new Intent(this, LevelActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(this, ArchivementDetailActivity.class);
+                    intent.putExtra("TotalDistance", true);
+                    startActivity(intent);
+                }
                 break;
             case R.id.ivaddwater:
                 IsAddWaterClick = true;
@@ -622,11 +722,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.addWeight:
                 showAddWeightDailog();
                 break;
+            case R.id.extFabAdjustOrder:
+                startActivity(new Intent(MainActivity.this, AdjustOrderActivity.class));
+                break;
         }
     }
 
     private void setdatainprogress() {
-        mCpWaterCircleProgress.setMax(Integer.parseInt(WaterGoalValue[0]));
+//        mCpWaterCircleProgress.setMax(Integer.parseInt(WaterGoalValue[0]));
+        mCpWaterCircleProgress.setMax(100);
 
         ArrayList<WaterLevelModel> waterlevelArrayList = new ArrayList<>();
 
@@ -643,10 +747,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (lastentry != 0) {
                     if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
-//                    Log.e("TAG", "init: " + lastentry);
-                        mCpWaterCircleProgress.setProgress(lastentry);
+                        float progress = (float) lastentry / Integer.parseInt(WaterGoalValue[0]) * 100;
+                        mCpWaterCircleProgress.setProgress((int) progress);
+//                        mCpWaterCircleProgress.setProgress(lastentry);
                     } else {
-                        mCpWaterCircleProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+//                        mCpWaterCircleProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+                        mCpWaterCircleProgress.setProgress(100);
                     }
                 }
                 tvwaterlevel.setText(lastentry + "");
@@ -663,10 +769,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (Fllastentry != 0) {
                     if (Fllastentry < Integer.parseInt(WaterGoalValue[0])) {
-//                    Log.e("TAG", "init: " + lastentry);
-                        mCpWaterCircleProgress.setProgress((int) Fllastentry);
+                        double value = (double) Fllastentry / Integer.parseInt(WaterGoalValue[0]) * 100;
+                        ;
+//                        Log.e("TAG", "init: " + value);
+                        mCpWaterCircleProgress.setProgress((int) value);
+//                        mCpWaterCircleProgress.setProgress((int) Fllastentry);
                     } else {
-                        mCpWaterCircleProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+//                        mCpWaterCircleProgress.setProgress(Integer.parseInt(WaterGoalValue[0]));
+                        mCpWaterCircleProgress.setProgress(100);
                     }
                 }
                 tvwaterlevel.setText(Fllastentry + "");
@@ -844,18 +954,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.action_edit:
                 showEditStepDailog();
                 break;
+            case R.id.action_archivement:
+                startActivity(new Intent(this, ArchivementActivity.class));
+                break;
             case R.id.action_reset:
                 showResetdataDailog();
-//                ShowYesterdayHistoryDailog();
                 break;
             case R.id.action_history:
                 startActivity(new Intent(this, HistoryActivity.class));
                 break;
             case R.id.action_instruction:
-                Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, InstructionActivity.class));
                 break;
             case R.id.action_trunoff:
-                Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                onBackPressed();
                 break;
             case R.id.action_profile:
                 startActivity(new Intent(MainActivity.this, PersonalInfomationActivity.class));
@@ -1136,10 +1248,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ArrayList<ArchivementModel> mLevel = new ArrayList<>();
         mLevel = dbManager.getArchivementlist(constant.ARCHIVEMENT_LEVEL);
 
-        for (int i = 0; i < mLevel.size(); i++) {
-            if (mTotalStepData > mLevel.get(i).getValue()) {
+        String DailogGoal = null;
+        String DailogDesc = null;
 
-//                Logger.e(mTotalStepData + ">" + mLevel.get(i).getValue());
+        for (int i = 0; i < mLevel.size(); i++) {
+            if (mTotalStepData >= mLevel.get(i).getValue()) {
+
+                Logger.e(mTotalStepData + ">" + mLevel.get(i).getValue());
 //                Logger.e((mTotalStepData > mLevel.get(i).getValue()));
 
                 ArchivementModel archivementModel = new ArchivementModel();
@@ -1149,15 +1264,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dbManager.updateArchivementTotalDistance(archivementModel);
 
                 if (mLevel.get(i).getValue() != 0) {
-                    CommanMethod.showCompleteDailog(this, mLevel.get(i).getValue(), mLevel.get(i).getDescription());
+                    DailogGoal = String.valueOf(mLevel.get(i).getValue());
+                    DailogDesc = mLevel.get(i).getDescription();
+//                    CommanMethod.showCompleteDailog(this, String.valueOf(mLevel.get(i).getValue()), mLevel.get(i).getDescription());
 
                     Intent intent = new Intent(this, NotificationReceiver.class);
                     intent.setAction("Notification");
-                    intent.putExtra("value", mlevelGoal);
+                    intent.putExtra("value", mLevel.get(i).getValue());
                     intent.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
                     intent.putExtra("Compeletelevel", true);
                     sendBroadcast(intent);
                 }
+                StorageManager.getInstance().setLevelArchivement(true);
             }
         }
 
@@ -1194,7 +1312,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Logger.e(date + "**" + month + "**" + year + "**" + hour + "**" + MaxStepCount.get(0).getSumstep());
                 dbManager.updatemaxStep(stepCountModel);
 
-                CommanMethod.showCompleteDailog(this, mDailySteplist.get(i).getValue(), mDailySteplist.get(i).getDescription());
+                DailogGoal = String.valueOf(mDailySteplist.get(i).getValue());
+                DailogDesc = mDailySteplist.get(i).getDescription();
+
+//                CommanMethod.showCompleteDailog(this, String.valueOf(mDailySteplist.get(i).getValue()), mDailySteplist.get(i).getDescription());
 
                 Intent intent = new Intent(this, NotificationReceiver.class);
                 intent.setAction("Notification");
@@ -1202,6 +1323,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
                 intent.putExtra("CompeleteDailyStep", true);
                 sendBroadcast(intent);
+                StorageManager.getInstance().setLevelArchivement(true);
+
             }
         }
 
@@ -1223,13 +1346,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
 
-                CommanMethod.showCompleteDailog(this, mTotalDaysList.get(i).getValue(), mTotalDaysList.get(i).getDescription());
+                DailogGoal = String.valueOf(mTotalDaysList.get(i).getValue());
+                DailogDesc = mTotalDaysList.get(i).getDescription();
+
+//                CommanMethod.showCompleteDailog(this, String.valueOf(mTotalDaysList.get(i).getValue()), mTotalDaysList.get(i).getDescription());
                 Intent intent = new Intent(this, NotificationReceiver.class);
                 intent.setAction("Notification");
                 intent.putExtra("value", TotalDaysgoal);
                 intent.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
                 intent.putExtra("CompeleteDaysData", true);
                 sendBroadcast(intent);
+                StorageManager.getInstance().setLevelArchivement(true);
+
             }
         }
 
@@ -1250,13 +1378,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
 
-                CommanMethod.showCompleteDailog(this, mTotalDistanceList.get(i).getValue(), mTotalDistanceList.get(i).getDescription());
+                DailogGoal = String.valueOf(mTotalDistanceList.get(i).getValue());
+                DailogDesc = mTotalDistanceList.get(i).getDescription();
+
+//                CommanMethod.showCompleteDailog(this, String.valueOf(mTotalDistanceList.get(i).getValue()), mTotalDistanceList.get(i).getDescription());
 
                 Intent intent = new Intent(this, NotificationReceiver.class);
                 intent.setAction("Notification");
-                intent.putExtra("value", Distancegoal);
+                intent.putExtra("value", mTotalDistanceList.get(i).getValue());
                 intent.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
                 intent.putExtra("CompeleteDistance", true);
+                sendBroadcast(intent);
+
+                StorageManager.getInstance().setLevelArchivement(true);
+
             }
         }
 
@@ -1300,10 +1435,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 archivementModel.setType(mComboDayList.get(i).getType());
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
-                CommanMethod.showCompleteDailog(this, mComboDayList.get(i).getValue(), mComboDayList.get(i).getDescription());
+
+                DailogGoal = String.valueOf(mComboDayList.get(i).getValue());
+                DailogDesc = mComboDayList.get(i).getDescription();
+
+//                CommanMethod.showCompleteDailog(this, String.valueOf(mComboDayList.get(i).getValue()), mComboDayList.get(i).getDescription());
             }
         }
-
 
 //        -------------------------total distance
         long Distancegoal = 5;
@@ -1318,15 +1456,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        Logger.e("Total Distance" + mTotalDisanceData + "---" + Distancegoal);
 
 //        -------------------------total Days
-        long TotalDaysgoal = 0;
-        String DayDesc = null;
+        long TotalDaysgoal = 7;
+        String DayDesc = "7 Day";
         for (int i = 0; i < mTotalDaysList.size(); i++) {
             if (mTotalDaysList.get(i).isCompeleteStatus()) {
                 TotalDaysgoal = mTotalDaysList.get(i + 1).getValue();
                 DayDesc = mTotalDaysList.get(i + 1).getDescription();
-            } else {
-                TotalDaysgoal = mTotalDaysList.get(0).getValue();
-                DayDesc = mTotalDaysList.get(0).getDescription();
             }
         }
 
@@ -1334,15 +1469,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //        -------------------------Daily Steps
         long TotalDailyStep = Long.parseLong(TvSteps.getText().toString());
-        long TotalDailygoal = 0;
-        String DailyDesc = null;
+        long TotalDailygoal = 3000;
+        String DailyDesc = "Away from sofa";
         for (int i = 0; i < mDailySteplist.size(); i++) {
             if (mDailySteplist.get(i).isCompeleteStatus()) {
                 TotalDailygoal = mDailySteplist.get(i + 1).getValue();
                 DailyDesc = mDailySteplist.get(i + 1).getDescription();
-            } else {
-                TotalDailygoal = mDailySteplist.get(1).getValue();
-                DailyDesc = mDailySteplist.get(1).getDescription();
             }
         }
 
@@ -1357,7 +1489,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 LevelDesc = mLevel.get(i + 1).getDescription();
             }
         }
-//        Logger.e("Level" + mTotalStepData + "------" + mlevelGoal);
+        Logger.e("Level" + mTotalStepData + "------" + mlevelGoal);
 
         float mLevelData = (float) mTotalStepData / mlevelGoal * 100;
         float mDisanceData = (float) mTotalDisanceData / Distancegoal * 100;
@@ -1365,6 +1497,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         float mDailyStep = (float) TotalDailyStep / TotalDailygoal * 100;
 
         Logger.e(mLevelData + "--" + mDisanceData + "--" + mDaysData + "--" + mDailyStep + "--");
+
+        ChechArchivementdata((int) mTotalStepData, mlevelGoal, mTotalDisanceData, Distancegoal);
+
         ArrayList<Float> floats = new ArrayList<>();
         floats.remove(floats);
         floats.add(mLevelData);
@@ -1378,29 +1513,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Logger.e(TotalDailyStep >= TotalDailygoal);
         Logger.e(TotalDailyStep + ">=" + TotalDailygoal);
-        Logger.e(TotalDailyStep + ">=" + StorageManager.getInstance().getStepCountGoalUnit());
+//        Logger.e(TotalDailyStep + ">=" + StorageManager.getInstance().getStepCountGoalUnit());
 
-        if (date == Calendar.DATE) {
-            Intent sendLevel = new Intent(this, NotificationReceiver.class);
+        if (date == rightNow.get(Calendar.DATE)) {
             if (index == 0) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", mlevelGoal - mLevelData);
+                sendLevel.putExtra("value", mlevelGoal - mTotalStepData);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
                 sendLevel.putExtra("Compeletelevel", false);
                 sendBroadcast(sendLevel);
             } else if (index == 1) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", Distancegoal - mTotalDisanceData);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
                 sendLevel.putExtra("CompeleteDistance", false);
                 sendBroadcast(sendLevel);
             } else if (index == 2) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", TotalDaysgoal - mTotalDaysData);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
                 sendLevel.putExtra("CompeleteDaysData", false);
                 sendBroadcast(sendLevel);
             } else if (index == 3) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", TotalDailygoal - TotalDailyStep);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
@@ -1408,8 +1546,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 sendBroadcast(sendLevel);
             }
 
-            Intent intent = new Intent(this, NotificationReceiver.class);
             if (TotalDailyStep >= StorageManager.getInstance().getStepCountGoalUnit()) {
+                Intent intent = new Intent(this, NotificationReceiver.class);
                 intent.setAction("Notification");
                 intent.putExtra("value", TotalDailygoal);
                 intent.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
@@ -1419,8 +1557,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
         } else {
-            Intent sendLevel = new Intent(this, NotificationReceiver.class);
             if (mTotalStepData >= mlevelGoal) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", mlevelGoal);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
@@ -1428,6 +1566,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 sendBroadcast(sendLevel);
 //            CommanMethod.showCompleteDailog(this, mlevelGoal, LevelDesc);
             } else if (mTotalDisanceData >= Distancegoal) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", Distancegoal);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
@@ -1435,6 +1574,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 sendBroadcast(sendLevel);
 //            CommanMethod.showCompleteDailog(this, Distancegoal, DistanceDesc);
             } else if (mTotalDaysData >= TotalDaysgoal) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", TotalDaysgoal);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
@@ -1442,6 +1582,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 sendBroadcast(sendLevel);
 //            CommanMethod.showCompleteDailog(this, TotalDaysgoal, DayDesc);
             } else if (TotalDailyStep >= TotalDailygoal) {
+                Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", TotalDailygoal);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
@@ -1450,6 +1591,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            CommanMethod.showCompleteDailog(this, TotalDailygoal, DailyDesc);
             }
         }
+
+        if (DailogGoal != null && DailogDesc != null) {
+            CommanMethod.showCompleteDailog(this, DailogGoal, DailogDesc);
+        }
+
+        StorageManager.getInstance().setLevelArchivement(false);
 
     }
 
@@ -1466,6 +1613,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView mTvReminderSetting = d.findViewById(R.id.tvReminderSetting);
         TextView mTvYesterdayStep = d.findViewById(R.id.tvYesterdayStep);
         TextView mTvWeeklysteps = d.findViewById(R.id.tvWeeklysteps);
+        Button mBtnCancel = d.findViewById(R.id.btn_cancel);
         mTvReminderSetting.setText(Html.fromHtml("<u>Reminder Setting</u>"));
 
         int avg = 0, j = 0;
@@ -1476,7 +1624,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        mTvWeeklysteps.setText("Weekly Average " + avg / j);
+        try {
+            mTvWeeklysteps.setText("Weekly Average " + avg / j);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Steplist = dbManager.getYesterDayStepcountlist((date - 1), month, year);
         if (Steplist != null) {
@@ -1513,6 +1665,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(Intent.createChooser(shareIntent, "choose one"));
 
 
+                alertDialog.dismiss();
+            }
+        });
+
+        mBtnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DATE, 1);
+                StorageManager.getInstance().setCurrentDay(cal.get(Calendar.DATE) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR));
                 alertDialog.dismiss();
             }
         });

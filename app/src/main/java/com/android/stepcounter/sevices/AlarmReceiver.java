@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
@@ -25,6 +26,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO Auto-generated method stub
+        Log.e("MyReceiver", "AlarmReceiver received!");
         mcontext = context;
 
         String[] waterReminderStart = StorageManager.getInstance().getWaterReminderStart().split(":");
@@ -65,9 +67,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingIntent)
                 .setContentTitle("Drink Water")
                 .setContentText("Do you have to drink water yet?")
-                .setOngoing(true)
-                .setSilent(true)
-                .setAutoCancel(false);
+                .setOngoing(false)
+                .setSilent(false)
+                .setAutoCancel(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder.setSmallIcon(R.drawable.ic_launcher_background);

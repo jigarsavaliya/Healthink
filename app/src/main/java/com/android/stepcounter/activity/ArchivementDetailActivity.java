@@ -1,18 +1,17 @@
 package com.android.stepcounter.activity;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -24,6 +23,7 @@ import com.android.stepcounter.adpter.ArchivementDetailAdapter;
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.ArchivementModel;
 import com.android.stepcounter.model.StepCountModel;
+import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
@@ -40,18 +40,20 @@ public class ArchivementDetailActivity extends AppCompatActivity {
     Toolbar mToolbar;
     RecyclerView mRvArchivementDetail;
     ArchivementDetailAdapter adapter;
-    boolean IsDailyStep, IsComboDay, IsTotalDays, IsTotalDistance;
+    boolean IsDailyStep, IsComboDay, IsTotalDays, IsTotalDistance, IsNofification;
     ArrayList<ArchivementModel> mDailySteplist, mComboDayList, mTotalDaysList, mTotalDistanceList;
     DatabaseManager dbManager;
     TextView mTvDailyLabel, mTvDescription, mTvDetailslabel;
     ProgressBar mPbCompletedBar;
     long mTotalDaysData, mTotalDisanceData, mTotalStepData;
 
-    int StepGoal, StepComboDayGoal, StepDayGoal, StepDistanceGoal;
-    String StepGoalLabel, CurrLavel = "3k", CurrDesc = "Away from",
+    int StepGoal = 3000, StepComboDayGoal, StepDayGoal, StepDistanceGoal = 5;
+    String StepGoalLabel = "3k", CurrLavel = "3k", CurrDesc = "Away from",
             StepComboDayGoalLabel, CurrComboDayLavel = "1x", CurrComboDayDesc = "1 Day",
             StepDayGoalLabel, CurrDayLavel = "7", CurrDayDesc = "7 day",
-            StepDistanceGoalLabel, CurrDistanceLavel = "5", CurrDistanceDesc = "Short Hike";
+            StepDistanceGoalLabel = "5", CurrDistanceLavel = "5", CurrDistanceDesc = "Short Hike";
+
+    File imagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,7 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         IsComboDay = getIntent().getBooleanExtra("ComboDay", false);
         IsTotalDays = getIntent().getBooleanExtra("TotalDays", false);
         IsTotalDistance = getIntent().getBooleanExtra("TotalDistance", false);
+        IsNofification = getIntent().getBooleanExtra("IsNofification", false);
     }
 
     @Override
@@ -94,6 +97,19 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         mPbCompletedBar = findViewById(R.id.pbCompletedBar);
 
         mRvArchivementDetail = findViewById(R.id.rvArchivementDetail);
+
+        if (IsDailyStep && IsNofification) {
+            CommanMethod.showCompleteDailog(this, CurrLavel, CurrDesc);
+        }
+        if (IsComboDay && IsNofification) {
+            CommanMethod.showCompleteDailog(this, CurrComboDayLavel, CurrDayDesc);
+        }
+        if (IsTotalDays && IsNofification) {
+            CommanMethod.showCompleteDailog(this, CurrDayLavel, CurrDayDesc);
+        }
+        if (IsTotalDistance && IsNofification) {
+            CommanMethod.showCompleteDailog(this, CurrDistanceLavel, CurrDistanceDesc);
+        }
 
         if (IsDailyStep) {
             mToolbar.setTitle("DAILY STEP");
@@ -134,6 +150,7 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         mRvArchivementDetail.setHasFixedSize(true);
         mRvArchivementDetail.setLayoutManager(new GridLayoutManager(this, 3));
         mRvArchivementDetail.setAdapter(adapter);
+
     }
 
     private void getDataFromDatabase() {
@@ -215,38 +232,42 @@ public class ArchivementDetailActivity extends AppCompatActivity {
                 Calendar calendar = Calendar.getInstance();
                 try {
                     // image naming and path  to include sd card  appending name you choose for file
-                    String mPath = Environment.getExternalStorageDirectory() + "/" + calendar.getTimeInMillis() + ".jpg";
+//                    String mPath = Environment.getExternalStorageDirectory() + "/" + calendar.getTimeInMillis() + ".jpg";
+//
+//                    // create bitmap screen capture
+//                    View v1 = getWindow().getDecorView().getRootView();
+//                    v1.setDrawingCacheEnabled(true);
+//                    Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+//                    v1.setDrawingCacheEnabled(false);
+//
+//                    File imageFile = new File(mPath);
+//
+//                    FileOutputStream outputStream = new FileOutputStream(imageFile);
+//                    int quality = 100;
+//                    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+//                    outputStream.flush();
+//                    outputStream.close();
+//
+////                    File imageFile = screenshot(getWindow().getDecorView().getRootView(), String.valueOf(calendar.getTimeInMillis()));
+//
+//
+//                    Uri uri = Uri.fromFile(imageFile);
+//                    Intent intent = new Intent();
+//                    intent.setAction(Intent.ACTION_SEND);
+//                    intent.setType("image/*");
+//
+//                    intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "");
+//                    intent.putExtra(android.content.Intent.EXTRA_TEXT, "");
+//                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+//                    try {
+//                        startActivity(Intent.createChooser(intent, "Share Screenshot"));
+//                    } catch (ActivityNotFoundException e) {
+//                        Toast.makeText(getApplicationContext(), "No App Available", Toast.LENGTH_SHORT).show();
+//                    }
 
-                    // create bitmap screen capture
-                    View v1 = getWindow().getDecorView().getRootView();
-                    v1.setDrawingCacheEnabled(true);
-                    Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-                    v1.setDrawingCacheEnabled(false);
-
-                    File imageFile = new File(mPath);
-
-                    FileOutputStream outputStream = new FileOutputStream(imageFile);
-                    int quality = 100;
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-                    outputStream.flush();
-                    outputStream.close();
-
-//                    File imageFile = screenshot(getWindow().getDecorView().getRootView(), String.valueOf(calendar.getTimeInMillis()));
-
-
-                    Uri uri = Uri.fromFile(imageFile);
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_SEND);
-                    intent.setType("image/*");
-
-                    intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "");
-                    intent.putExtra(android.content.Intent.EXTRA_TEXT, "");
-                    intent.putExtra(Intent.EXTRA_STREAM, uri);
-                    try {
-                        startActivity(Intent.createChooser(intent, "Share Screenshot"));
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(getApplicationContext(), "No App Available", Toast.LENGTH_SHORT).show();
-                    }
+                    Bitmap bitmap = takeScreenshot();
+                    saveBitmap(bitmap);
+                    shareIt();
 
                 } catch (Throwable e) {
                     // Several error may come out with file handling or DOM
@@ -257,6 +278,44 @@ public class ArchivementDetailActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    public Bitmap takeScreenshot() {
+        View v1 = getWindow().getDecorView().getRootView();
+        v1.setDrawingCacheEnabled(true);
+        Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+        v1.setDrawingCacheEnabled(false);
+        return bitmap;
+    }
+
+    private void saveBitmap(Bitmap bitmap) {
+        imagePath = new File(Environment.getExternalStorageDirectory() + "/screenshot.png"); ////File imagePath
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream(imagePath);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            Log.e("GREC", e.getMessage(), e);
+        } catch (IOException e) {
+            Log.e("GREC", e.getMessage(), e);
+        }
+
+
+    }
+
+    private void shareIt() {
+        Uri myUri = Uri.fromFile(imagePath);
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("image/*");
+        sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        String shareBody = "My highest score with screen shot";
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "My Catch score");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        sharingIntent.putExtra(Intent.EXTRA_STREAM, myUri);
+
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
     protected static File screenshot(View view, String filename) {
@@ -291,4 +350,10 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         }
         return null;
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
 }

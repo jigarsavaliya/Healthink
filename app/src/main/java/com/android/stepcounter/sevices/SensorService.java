@@ -82,7 +82,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         // Get default sensor type
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        Logger.e("service on create");
+//        Logger.e("service on create");
         StepGoal = StorageManager.getInstance().getStepCountGoalUnit();
     }
 
@@ -154,6 +154,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
             stopSelf();
         }*/
 
+
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             simpleStepDetector.updateAccel(
                     sensorEvent.timestamp, sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]);
@@ -165,12 +166,15 @@ public class SensorService extends Service implements SensorEventListener, StepL
         if (sensor == mSensor) {
             switch (accuracy) {
                 case SensorManager.SENSOR_STATUS_ACCURACY_HIGH: {
+//                    Logger.e("high");
                     break;
                 }
                 case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM: {
+//                    Logger.e("Medium");
                     break;
                 }
                 case SensorManager.SENSOR_STATUS_ACCURACY_LOW: {
+//                    Logger.e("Low");
                     break;
                 }
                 default: {
@@ -235,13 +239,14 @@ public class SensorService extends Service implements SensorEventListener, StepL
                 dbManager.addStepcountData(stepcountModel);
             }
         }
+
         //Archievement level Data
         long mTotalStepData = dbManager.getTotalStepCount();
         ArrayList<ArchivementModel> mLevel = new ArrayList<>();
         mLevel = dbManager.getArchivementlist(constant.ARCHIVEMENT_LEVEL);
 
         for (int i = 0; i < mLevel.size(); i++) {
-            if (mTotalStepData > mLevel.get(i).getValue()) {
+            if (mTotalStepData == mLevel.get(i).getValue()) {
 
 //                Logger.e(mTotalStepData + ">" + mLevel.get(i).getValue());
 //                Logger.e((mTotalStepData > mLevel.get(i).getValue()));
@@ -266,7 +271,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
 //        ArrayList<StepCountModel> MaxStepCountModels = dbManager.getMaxStepCount();
         mDailySteplist = dbManager.getArchivementDailySteplist(constant.ARCHIVEMENT_DAILY_STEP, MaxStepCount.get(0).getMaxStep());
         for (int i = 0; i < mDailySteplist.size(); i++) {
-            if (MaxStepCount.get(0).getSumstep() >= mDailySteplist.get(i).getValue()) {
+            if (MaxStepCount.get(0).getSumstep() == mDailySteplist.get(i).getValue()) {
 
 //                Logger.e(TotalStepCount + ">" + mDailySteplist.get(0).getValue());
 //                Logger.e((TotalStepCount > mDailySteplist.get(i).getValue()));
@@ -302,7 +307,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
 //            Logger.e(mTotalDaysData + ">" + mTotalDaysList.get(i).getValue());
 //            Logger.e((mTotalDaysData > mTotalDaysList.get(i).getValue()));
 
-            if (mTotalDaysData >= mTotalDaysList.get(i).getValue()) {
+            if (mTotalDaysData == mTotalDaysList.get(i).getValue()) {
                 ArchivementModel archivementModel = new ArchivementModel();
                 archivementModel.setValue(mTotalDaysList.get(i).getValue());
                 archivementModel.setType(mTotalDaysList.get(i).getType());
@@ -321,7 +326,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
 //            Logger.e(mTotalDaysData + ">" + mTotalDistanceList.get(i).getValue());
 //            Logger.e((mTotalDaysData > mTotalDistanceList.get(i).getValue()));
 
-            if (mTotalDisanceData >= mTotalDistanceList.get(i).getValue()) {
+            if (mTotalDisanceData == mTotalDistanceList.get(i).getValue()) {
                 ArchivementModel archivementModel = new ArchivementModel();
                 archivementModel.setValue(mTotalDistanceList.get(i).getValue());
                 archivementModel.setType(mTotalDistanceList.get(i).getType());
@@ -330,74 +335,25 @@ public class SensorService extends Service implements SensorEventListener, StepL
             }
         }
 
-        //Archivement Combo Days
-      /*  int currDayStep = 0, YestDayStep = 0;
-        ArrayList<StepCountModel> stepCountModelArrayList = new ArrayList<>();
-        stepCountModelArrayList = dbManager.getCurrentDaySumofStepcountlist(date, month, year);
-        if (stepCountModelArrayList != null) {
-            for (int i = 0; i < stepCountModelArrayList.size(); i++) {
-                currDayStep = stepCountModelArrayList.get(i).getSumstep();
-            }
-        }
-
-        Steplist = dbManager.getYesterDayStepcountlist((date - 1), month, year);
-        if (Steplist != null) {
-            for (int i = 0; i < Steplist.size(); i++) {
-                YestDayStep = Steplist.get(i).getSumstep();
-            }
-        }
-
-//        Logger.e("currDayStep" + currDayStep + "YestDayStep" + YestDayStep);
-//        Logger.e((YestDayStep >= StepGoal));
-//        Logger.e((currDayStep >= StepGoal));
-
-        int Count = StorageManager.getInstance().getComboDayCount();
-        if (currDayStep >= StepGoal) {
-            if (YestDayStep >= StepGoal) {
-                StorageManager.getInstance().setComboDayCount(Count + 1);
-            }
-        } else {
-            StorageManager.getInstance().setComboDayCount(0);
-        }
-
-        ArrayList<ArchivementModel> mComboDayList = new ArrayList<>();
-        mComboDayList = dbManager.getArchivementlist(constant.ARCHIVEMENT_COMBO_DAY);
-
-        for (int i = 0; i < mComboDayList.size(); i++) {
-            if (StorageManager.getInstance().getComboDayCount() == mComboDayList.get(i).getValue()) {
-                ArchivementModel archivementModel = new ArchivementModel();
-                archivementModel.setValue(mComboDayList.get(i).getValue());
-                archivementModel.setType(mComboDayList.get(i).getType());
-                archivementModel.setCompeleteStatus(true);
-                dbManager.updateArchivementTotalDistance(archivementModel);
-            }
-        }*/
-
 //        -------------------------total distance
-        long Distancegoal = 0;
-        String DistanceDesc = null;
+        long Distancegoal = 5;
+        String DistanceDesc = "Short Hike";
         for (int i = 0; i < mTotalDistanceList.size(); i++) {
             if (mTotalDistanceList.get(i).isCompeleteStatus()) {
                 Distancegoal = mTotalDistanceList.get(i + 1).getValue();
                 DistanceDesc = mTotalDistanceList.get(i + 1).getDescription();
-            } else {
-                Distancegoal = mTotalDistanceList.get(0).getValue();
-                DistanceDesc = mTotalDistanceList.get(0).getDescription();
             }
         }
 
         Logger.e("Total Distance" + DisplayDistance + "---" + Distancegoal);
 
 //        -------------------------total Days
-        long TotalDaysgoal = 0;
-        String DayDesc = null;
+        long TotalDaysgoal = 7;
+        String DayDesc = "7 Day";
         for (int i = 0; i < mTotalDaysList.size(); i++) {
             if (mTotalDaysList.get(i).isCompeleteStatus()) {
                 TotalDaysgoal = mTotalDaysList.get(i + 1).getValue();
                 DayDesc = mTotalDaysList.get(i + 1).getDescription();
-            } else {
-                TotalDaysgoal = mTotalDaysList.get(0).getValue();
-                DayDesc = mTotalDaysList.get(0).getDescription();
             }
         }
 
@@ -405,15 +361,13 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
         //        -------------------------Daily Steps
         long TotalDailyStep = Display;
-        long TotalDailygoal = StorageManager.getInstance().getStepCountGoalUnit();
-        String DailyDesc = null;
+        long TotalDailygoal = 3000;
+        String DailyDesc = "Away from sofa";
         for (int i = 0; i < mDailySteplist.size(); i++) {
             if (mDailySteplist.get(i).isCompeleteStatus()) {
                 TotalDailygoal = mDailySteplist.get(i + 1).getValue();
+                Logger.e(TotalDailygoal + "----new ------TotalDailygoal-----------");
                 DailyDesc = mDailySteplist.get(i + 1).getDescription();
-            } else {
-                TotalDailygoal = mDailySteplist.get(1).getValue();
-                DailyDesc = mDailySteplist.get(1).getDescription();
             }
         }
 
@@ -421,14 +375,11 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
         //        -------------------------Level
         long mlevelGoal = 10000;
-        String LevelDesc = null;
+        String LevelDesc = "A good Strat!";
         for (int i = 0; i < mLevel.size(); i++) {
             if (mLevel.get(i).isCompeleteStatus()) {
                 mlevelGoal = mLevel.get(i + 1).getValue();
                 LevelDesc = mLevel.get(i + 1).getDescription();
-            } else {
-                mlevelGoal = mLevel.get(1).getValue();
-                LevelDesc = mLevel.get(1).getDescription();
             }
 
         }
@@ -455,7 +406,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         sendLevel.setAction("GET_SIGNAL_STRENGTH");
         sendLevel.putExtra("stepdata", Display);
         sendLevel.putExtra("mlevelGoal", mlevelGoal);
-        sendLevel.putExtra("mLevelData", mLevelData);
+        sendLevel.putExtra("mLevelData", mTotalStepData);
         sendLevel.putExtra("LevelDesc", LevelDesc);
         sendLevel.putExtra("Distancegoal", Distancegoal);
         sendLevel.putExtra("DisplayDistance", DisplayDistance);
@@ -472,7 +423,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
             Intent intent = new Intent(this, NotificationReceiver.class);
             if (index == 0) {
                 intent.setAction("Notification");
-                intent.putExtra("value", mlevelGoal - mLevelData);
+                intent.putExtra("value", mlevelGoal - mTotalStepData);
                 intent.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
                 intent.putExtra("Compeletelevel", false);
                 sendBroadcast(intent);

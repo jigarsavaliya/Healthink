@@ -6,7 +6,7 @@
         android:id="@+id/action_profile"
         android:icon="@drawable/ic_baseline_person_24"
         android:title=""
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_more"
@@ -18,6 +18,12 @@
                 android:id="@+id/action_edit"
                 android:icon="@drawable/ic_baseline_edit"
                 android:title="Edit steps"
+                app:showAsAction="ifRoom" />
+
+            <item
+                android:id="@+id/action_archivement"
+                android:icon="@drawable/ic_archivements"
+                android:title="Archivement"
                 app:showAsAction="ifRoom" />
             <item
                 android:id="@+id/action_history"

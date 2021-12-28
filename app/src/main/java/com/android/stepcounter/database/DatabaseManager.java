@@ -12,8 +12,6 @@ import com.android.stepcounter.model.ArchivementModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
-import com.android.stepcounter.utils.Logger;
-import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -279,7 +277,7 @@ public class DatabaseManager {
         String s = "select " + DbHelper.KEY_WATER_DATE + " ,sum(" + DbHelper.KEY_WATER_ML + ")  as total from " + DbHelper.TABLE_WATER + " where " + DbHelper.KEY_WATER_DATE + " = " + date + " AND " + DbHelper.KEY_WATER_MONTH +
                 " = " + month + " AND  " + DbHelper.KEY_WATER_YEAR + " = " + year + " GROUP BY " + DbHelper.KEY_WATER_DATE;
 
-        Log.e("list", "" + s);
+//        Log.e("list", "" + s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -381,7 +379,7 @@ public class DatabaseManager {
         String s = "SELECT " + DbHelper.KEY_WATER_DATE + " , sum(" + DbHelper.KEY_WATER_ML + ") as total FROM " + DbHelper.TABLE_WATER + " where " + DbHelper.KEY_WATER_TIMESTMP
                 + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + DbHelper.KEY_WATER_DATE;
 
-        Log.e("list", "" + s);
+//        Log.e("list", "" + s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -571,7 +569,7 @@ public class DatabaseManager {
                 }
             }
         } catch (Exception e) {
-            Log.e("TAG", "getCategorylistFromCursor: " + e.getMessage());
+//            Log.e("TAG", "getCategorylistFromCursor: " + e.getMessage());
         } finally {
             if (c != null)
                 c.close();
@@ -607,7 +605,7 @@ public class DatabaseManager {
         String s = "select * from " + DbHelper.TABLE_STEPCOUNT + " where " + DbHelper.KEY_STEP_DATE + " = " + date + " AND " + DbHelper.KEY_STEP_MONTH +
                 " = " + month + " AND  " + DbHelper.KEY_STEP_YEAR + " = " + year + " ORDER BY " + DbHelper.KEY_STEP_DURATION + " ASC ";
 
-        Log.e("TAG", "getCurrentDayStepcountlist: " + s);
+//        Log.e("TAG", "getCurrentDayStepcountlist: " + s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -630,7 +628,7 @@ public class DatabaseManager {
         String s = "select * , sum(" + DbHelper.KEY_STEP_COUNT + ") as total FROM " + DbHelper.TABLE_STEPCOUNT + " where " + DbHelper.KEY_STEP_DATE + " = " + date + " AND " + DbHelper.KEY_STEP_MONTH +
                 " = " + month + " AND  " + DbHelper.KEY_STEP_YEAR + " = " + year + " ORDER BY " + DbHelper.KEY_STEP_DURATION + " ASC ";
 
-        Log.e("TAG", "getCurrentDayStepcountlist: " + s);
+//        Log.e("TAG", "getCurrentDayStepcountlist: " + s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -653,7 +651,7 @@ public class DatabaseManager {
         String s = "SELECT * , sum(" + DbHelper.KEY_STEP_COUNT + ") as total FROM " + DbHelper.TABLE_STEPCOUNT + " where " + DbHelper.KEY_STEP_DATE + " = " + date + " AND " + DbHelper.KEY_STEP_MONTH +
                 " = " + month + " AND  " + DbHelper.KEY_STEP_YEAR + " = " + year + " GROUP BY " + DbHelper.KEY_STEP_DATE;
 
-        Log.e("TAG", "getDaywiseStepdata: " + s);
+//        Log.e("TAG", "getDaywiseStepdata: " + s);
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<StepCountModel> list = getSteplistFromCursor(c);
@@ -1202,6 +1200,25 @@ public class DatabaseManager {
         return sum;
     }
 
+    @SuppressLint("Range")
+    public long getTotalCaloriesCount() {
+        db = helper.getReadableDatabase();
+
+        int sum;
+        String s = "select sum(" + DbHelper.KEY_STEP_CALORIES + ")  as total from " + DbHelper.TABLE_STEPCOUNT;
+
+        Cursor c = db.rawQuery(s, null);
+
+        c.moveToFirst();
+        do {
+            sum = c.getInt(c.getColumnIndex("total"));
+        } while (c.moveToNext());
+
+
+        c.close();
+        db.close();
+        return sum;
+    }
 
     @SuppressLint("Range")
     public ArrayList<StepCountModel> getsumofdayStep(int date, int month, int year) {
@@ -1210,7 +1227,7 @@ public class DatabaseManager {
         String s = "select *,sum(" + DbHelper.KEY_STEP_COUNT + ")  as total ,max(" + DbHelper.KEY_STEP_MAXSTEP + ")  as maStep from " + DbHelper.TABLE_STEPCOUNT + " where " + DbHelper.KEY_STEP_DATE + " = " + date + " AND "
                 + DbHelper.KEY_STEP_MONTH + " = " + month + " AND  " + DbHelper.KEY_STEP_YEAR + " = " + year;
 
-        Logger.e(s);
+//        Logger.e(s);
         Cursor c = db.rawQuery(s, null);
 
         ArrayList<StepCountModel> list = getSteplistFromCursor(c);
@@ -1236,7 +1253,7 @@ public class DatabaseManager {
                         + DbHelper.KEY_STEP_MONTH + " =? AND "
                         + DbHelper.KEY_STEP_YEAR + " =?",
                 new String[]{String.valueOf(model.getDuration()), String.valueOf(model.getDate()), String.valueOf(model.getMonth()), String.valueOf(model.getYear())});
-        Logger.e(value);
+//        Logger.e(value);
         db.close();
         return value;
     }
@@ -1263,7 +1280,7 @@ public class DatabaseManager {
 
                 sum = c.getInt(c.getColumnIndex("total"));
                 int iKEY_STEP_MAXSTEP = c.getColumnIndex("maStep");
-                Logger.e(iKEY_STEP_MAXSTEP);
+//                Logger.e(iKEY_STEP_MAXSTEP);
                 model.setStep(c.getInt(iKEY_STEP_COUNT));
                 model.setDate(c.getInt(iKEY_STEP_DATE));
                 model.setMonth(c.getInt(iKEY_STEP_MONTH));
@@ -1273,17 +1290,17 @@ public class DatabaseManager {
                 model.setDuration(c.getInt(iKEY_STEP_DURATION));
                 model.setTimestemp(c.getString(iKEY_STEP_TIMESTMP));
                 if (iKEY_STEP_MAXSTEP != -1) {
-                    Logger.e(c.getInt(iKEY_STEP_MAXSTEP));
+//                    Logger.e(c.getInt(iKEY_STEP_MAXSTEP));
                     model.setMaxStep(c.getInt(iKEY_STEP_MAXSTEP));
                 }
                 model.setSumstep(sum);
 
-                Logger.e(new GsonBuilder().create().toJson(model));
+//                Logger.e(new GsonBuilder().create().toJson(model));
 
                 list.add(model);
             }
         } catch (Exception e) {
-            Logger.e(e.getMessage());
+//            Logger.e(e.getMessage());
         } finally {
             if (c != null)
                 c.close();
@@ -1428,7 +1445,7 @@ public class DatabaseManager {
         String s = "SELECT * FROM " + DbHelper.TABLE_WEIGHT + " where " + DbHelper.KEY_WEIGHT_TIMESTMP
                 + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + DbHelper.KEY_WEIGHT_DATE;
 
-        Log.e("TAG", "getMonthWeightdata: " + s);
+//        Log.e("TAG", "getMonthWeightdata: " + s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -1552,7 +1569,7 @@ public class DatabaseManager {
 
         String s = "select * from " + DbHelper.TABLE_ARCHIVEMENT + " where " + DbHelper.KEY_ARCHIVEMENT_TYPE + " = \"" + label + "\" AND " + DbHelper.KEY_ARCHIVEMENT_VALUE + " > " + maxstep;
 
-        Logger.e(s);
+//        Logger.e(s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -1572,6 +1589,27 @@ public class DatabaseManager {
         db = helper.getReadableDatabase();
 
         String s = "select * from " + DbHelper.TABLE_ARCHIVEMENT + " where " + DbHelper.KEY_ARCHIVEMENT_TYPE + " = \"" + label + "\" ";
+
+//        Logger.e(s);
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<ArchivementModel> list = getArchivementFromCursor(c);
+        db.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+
+    }
+
+    public ArrayList<ArchivementModel> getArchivementData(String label, long displayGoal) {
+
+        db = helper.getReadableDatabase();
+
+        String s = "select * from " + DbHelper.TABLE_ARCHIVEMENT + " where " + DbHelper.KEY_ARCHIVEMENT_TYPE + " = \"" + label + "\"  AND " + DbHelper.KEY_ARCHIVEMENT_VALUE + " = " + displayGoal;
 
 //        Logger.e(s);
 

@@ -22,6 +22,8 @@ public class StorageManager {
     public static final String PREF_APP_KEY_COMBO_DAY_COUNT = "ComboDayCOunt";
     public static final String PREF_APP_KEY_DAILY_REMINDER_TIME = "DailyReminderTime";
     public static final String PREF_APP_KEY_DAILY_REMINDER = "DailyReminder";
+    public static final String PREF_APP_KEY_DAILY_REMINDER_DAY = "DailyReminderDay";
+    public static final String PREF_APP_KEY_CURRENTDAY_TIMESTAMP = "CurrentDayTimestamp";
 
     public static final String PREF_APP_KEY_WATER_STARTTIME = "WaterReminderStarttime";
     public static final String PREF_APP_KEY_WATER_ENDTIME = "WaterReminderEndStarttime";
@@ -32,6 +34,9 @@ public class StorageManager {
     public static final String PREF_APP_KEY_WATER_REMINDER = "WaterReminder";
     public static final String PREF_APP_KEY_WATER_GOAL_TARGET = "WaterGoalTarget";
     public static final String PREF_APP_KEY_FIRST_TIME_APP = "FirstTimeInstall";
+
+    public static final String PREF_APP_KEY_LEVEL_COMPLETE = "LevelComplete";
+    public static final String PREF_APP_KEY_STEP_SERVICE = "IsStepService";
 
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -206,5 +211,36 @@ public class StorageManager {
         return preferences.getBoolean(StorageManager.PREF_APP_KEY_DAILY_REMINDER, false);
     }
 
+    public void setDailyReminderDay(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_DAILY_REMINDER_DAY, message).apply();
+    }
 
+    public String getDailyReminderDay() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_DAILY_REMINDER_DAY, "[1,2,3,4,5,6,7]");
+    }
+
+    public void setLevelArchivement(Boolean message) {
+        editor.putBoolean(StorageManager.PREF_APP_KEY_LEVEL_COMPLETE, message).apply();
+    }
+
+    public Boolean getLevelArchivement() {
+        return preferences.getBoolean(StorageManager.PREF_APP_KEY_LEVEL_COMPLETE, true);
+    }
+
+    public void setCurrentDay(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_CURRENTDAY_TIMESTAMP, message).apply();
+    }
+
+    public String getCurrentDay() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_CURRENTDAY_TIMESTAMP, "");
+    }
+
+
+    public void setIsStepService(Boolean message) {
+        editor.putBoolean(StorageManager.PREF_APP_KEY_STEP_SERVICE, message).apply();
+    }
+
+    public Boolean getIsStepService() {
+        return preferences.getBoolean(StorageManager.PREF_APP_KEY_STEP_SERVICE, true);
+    }
 }

@@ -140,7 +140,7 @@ public class CommanMethod {
         return aFloat * 0.03381;
     }
 
-    public static void showCompleteDailog(Activity mainActivity, long mlevelGoal, String levelDesc) {
+    public static void showCompleteDailog(Activity mainActivity, String mlevelGoal, String levelDesc) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mainActivity, R.style.full_screen_dialog);
         LayoutInflater inflater = mainActivity.getLayoutInflater();
         View d = inflater.inflate(R.layout.dailog_archivement, null);

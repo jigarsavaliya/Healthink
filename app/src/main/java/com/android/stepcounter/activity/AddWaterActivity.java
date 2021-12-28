@@ -128,7 +128,7 @@ public class AddWaterActivity extends AppCompatActivity {
                         mCpWaterChart.setProgressWithAnimation(lastentry, 5);
                     } else {
                         mCpWaterChart.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                        mCpWaterChart.setProgress(Integer.parseInt(WaterGoalValue[0], 5));
+                        mCpWaterChart.setProgressWithAnimation(Integer.parseInt(WaterGoalValue[0]), 5);
                     }
                 }
                 mTvTargeGoalDisplay.setText(lastentry + " / " + Watergoal);

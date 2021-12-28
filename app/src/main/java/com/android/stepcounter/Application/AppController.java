@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.ArchivementModel;
+import com.android.stepcounter.model.InstructionModel;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class AppController extends Application {
     private static Context context;
@@ -26,6 +28,9 @@ public class AppController extends Application {
         DatabaseManager.init(this);
 
         InsertArchivementData();
+        Calendar calendar = Calendar.getInstance();
+        StorageManager.getInstance().setCurrentDay(calendar.get(Calendar.DATE) + "/" + (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR));
+
     }
 
     private void InsertArchivementData() {
@@ -53,6 +58,7 @@ public class AppController extends Application {
             } catch (IOException e) {
                 // Handle exceptions here
             }
+
         }
     }
 

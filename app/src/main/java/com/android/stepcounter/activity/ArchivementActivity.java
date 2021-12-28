@@ -34,9 +34,9 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
     ArrayList<ArchivementModel> mDailySteplist, mComboDayList, mTotalDaysList, mTotalDistanceList, mLevelList;
     CardView mCvDailyStep, mCvComboDays, mCvTotalDays, mCvTotalDistance, mCvLevel;
     ProgressBar mPbLevelCompletedBar;
-    int StepGoal;
     TextView mTvDetailslabel, mTvDailyLabel;
-    String StepGoalLabel, CurrLavel;
+    int StepGoal = 10000;
+    String StepGoalLabel = "10000", CurrLavel = "Level 1", CurrDescription = "A good Start!";
     private int numSteps;
     MyReceiver myReceiver;
     int CurrentStepData;
@@ -211,5 +211,10 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
                 startActivity(i);
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

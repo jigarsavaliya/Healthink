@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
@@ -24,7 +25,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
         mcontext = context;
-        Log.e("MyReceiver", "MyAction received!");
+        Log.e("MyReceiver", "Notification received!");
 
         if (intent.getAction().equals("Notification")) {
             long level = intent.getLongExtra("value", 0);
@@ -40,14 +41,16 @@ public class NotificationReceiver extends BroadcastReceiver {
             }
 
             if (Compeletelevel) {
-                showCompleteNotification(Type, level);
+                if (level != 0 && level > 0) {
+                    showCompleteNotification(Type, level);
+                }
             } else if (CompeleteDistance) {
                 showCompleteNotification(Type, level);
             } else if (CompeleteDaysData) {
                 showCompleteNotification(Type, level);
             } else if (CompeleteDailyStep) {
                 showCompleteNotification(Type, level);
-            }else if (CompeleteDailyStepGoal) {
+            } else if (CompeleteDailyStepGoal) {
                 showCompleteNotification(Type, level);
             }
         }
@@ -55,15 +58,21 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     private void showNotification(String type, long level) {
 
+//        RemoteViews contentView = new RemoteViews(mcontext.getPackageName(), R.layout.custom_notification_layout);
+//        contentView.setTextViewText(R.id.tvDailyLabel, level + "");
+//        contentView.setTextViewText(R.id.tvlevel, "Great! New Archivement of " + type + " reached..!!");
+//        contentView.setTextViewText(R.id.tvlevelDesc, "A new badge unloadked..!!");
+
         Intent notificationIntent = new Intent(mcontext, ArchivementActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mcontext, 0, notificationIntent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mcontext, constant.CHANNEL_ID_FOR_STEP)
+//                .setContent(contentView)
                 .setContentIntent(pendingIntent)
                 .setContentTitle(type)
                 .setContentText(level + " remainning for completed " + type + " Level")
-                .setOngoing(true)
-                .setSilent(true)
-                .setAutoCancel(false);
+                .setOngoing(false)
+                .setSilent(false)
+                .setAutoCancel(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder.setSmallIcon(R.drawable.ic_launcher_background);
@@ -92,36 +101,47 @@ public class NotificationReceiver extends BroadcastReceiver {
             notificationIntent.putExtra("ComboDay", false);
             notificationIntent.putExtra("TotalDays", false);
             notificationIntent.putExtra("TotalDistance", false);
+            notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Combo Day")) {
             notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
             notificationIntent.putExtra("DailyStep", false);
             notificationIntent.putExtra("ComboDay", true);
             notificationIntent.putExtra("TotalDays", false);
             notificationIntent.putExtra("TotalDistance", false);
+            notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Total Days")) {
             notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
             notificationIntent.putExtra("DailyStep", false);
             notificationIntent.putExtra("ComboDay", false);
             notificationIntent.putExtra("TotalDays", true);
             notificationIntent.putExtra("TotalDistance", false);
+            notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Total Distance")) {
             notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
             notificationIntent.putExtra("DailyStep", false);
             notificationIntent.putExtra("ComboDay", false);
             notificationIntent.putExtra("TotalDays", false);
             notificationIntent.putExtra("TotalDistance", true);
+            notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Level")) {
             notificationIntent = new Intent(mcontext, LevelActivity.class);
+            notificationIntent.putExtra("IsNofification", true);
         }
+
+        RemoteViews contentView = new RemoteViews(mcontext.getPackageName(), R.layout.custom_notification_layout);
+        contentView.setTextViewText(R.id.tvDailyLabel, level + "");
+        contentView.setTextViewText(R.id.tvlevel, "Great! New Archivement of " + type + " reached..!!");
+        contentView.setTextViewText(R.id.tvlevelDesc, "A new badge unloadked..!!");
 
         PendingIntent pendingIntent = PendingIntent.getActivity(mcontext, 0, notificationIntent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mcontext, constant.CHANNEL_ID_FOR_STEP)
+                .setContent(contentView)
                 .setContentIntent(pendingIntent)
                 .setContentTitle(type)
                 .setContentText(level + " completed " + type)
-                .setOngoing(true)
-                .setSilent(true)
-                .setAutoCancel(false);
+                .setOngoing(false)
+                .setSilent(false)
+                .setAutoCancel(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder.setSmallIcon(R.drawable.ic_launcher_background);

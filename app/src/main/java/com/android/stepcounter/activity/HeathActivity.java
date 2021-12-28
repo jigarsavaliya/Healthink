@@ -1,6 +1,8 @@
 package com.android.stepcounter.activity;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,6 +32,7 @@ import com.android.stepcounter.R;
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
+import com.android.stepcounter.sevices.AlarmReceiver;
 import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.Density;
 import com.android.stepcounter.utils.Logger;
@@ -170,6 +174,24 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         ivForwardDate.setOnClickListener(this);
         scWaterNotification.setOnClickListener(this);
 
+        if (StorageManager.getInstance().getReminder()) {
+            scWaterNotification.setChecked(true);
+        } else {
+            scWaterNotification.setChecked(false);
+        }
+
+        scWaterNotification.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    StorageManager.getInstance().setReminder(b);
+                    setNotification();
+                } else {
+                    StorageManager.getInstance().setReminder(false);
+                }
+            }
+        });
+
         mPcBmiChart = findViewById(R.id.pcBmiChart);
 
         muserWeight.setText(userWeight + "");
@@ -269,6 +291,45 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         });
 
     }
+
+    private void setNotification() {
+        String mReminderIntervalvalue = "1";
+        long intervaltime = 1000 * 60 * 60;
+        if (mReminderIntervalvalue.equals("0.5")) {
+            intervaltime = 1000 * 60 * 30;
+        } else if (mReminderIntervalvalue.equals("1")) {
+            intervaltime = 1000 * 60 * 60;
+        } else if (mReminderIntervalvalue.equals("1.5")) {
+            intervaltime = 1000 * 60 * 90;
+        } else if (mReminderIntervalvalue.equals("2")) {
+            intervaltime = 1000 * 60 * 120;
+        } else if (mReminderIntervalvalue.equals("2.5")) {
+            intervaltime = 1000 * 60 * 150;
+        } else if (mReminderIntervalvalue.equals("3")) {
+            intervaltime = 1000 * 60 * 180;
+        } else if (mReminderIntervalvalue.equals("3.5")) {
+            intervaltime = 1000 * 60 * 210;
+        } else if (mReminderIntervalvalue.equals("4")) {
+            intervaltime = 1000 * 60 * 240;
+        } else if (mReminderIntervalvalue.equals("4.5")) {
+            intervaltime = 1000 * 60 * 270;
+        } else if (mReminderIntervalvalue.equals("5")) {
+            intervaltime = 1000 * 60 * 300;
+        }
+
+        if (StorageManager.getInstance().getReminder()) {
+
+            Calendar calendar = Calendar.getInstance();
+
+            Intent intent1 = new Intent(HeathActivity.this, AlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervaltime, pendingIntent);
+            Logger.e(calendar.getTimeInMillis());
+        }
+
+    }
+
 
     private void setdatainprogress() {
         ArrayList<WaterLevelModel> waterlevelArrayList = new ArrayList<>();
@@ -1148,6 +1209,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 break;
             case R.id.scWaterNoti:
                 //waternotfication service
+
                 break;
         }
     }

@@ -97,7 +97,7 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
         mbtnReminderSave.setOnClickListener(this);
         mtvremindertime.setOnClickListener(this);
 
-        if (StorageManager.getInstance().getDailyReminderFlag()) {
+        if (StorageManager.getInstance().getReminder()) {
             mScReminder.setChecked(true);
         } else {
             mScReminder.setChecked(false);
@@ -271,7 +271,7 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
                 returnIntent.putExtra("hours", mReminderIntervalvalue);
                 setResult(Activity.RESULT_OK, returnIntent);
 
-                long intervaltime = 0;
+                long intervaltime = 1000 * 60 * 60;
                 if (mReminderIntervalvalue.equals("0.5")) {
                     intervaltime = 1000 * 60 * 30;
                 } else if (mReminderIntervalvalue.equals("1")) {

@@ -23,7 +23,11 @@ import com.android.stepcounter.R;
 import com.android.stepcounter.sevices.DailyReminderReceiver;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ReminderActivity extends AppCompatActivity implements View.OnClickListener {
@@ -37,6 +41,8 @@ public class ReminderActivity extends AppCompatActivity implements View.OnClickL
     int mHour, mMinute;
     String starttimeSet = "AM";
     SwitchCompat mScDailyReminder;
+    String[] Days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    boolean[] checkedItems = {false, false, false, false, false, false, false};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +119,37 @@ public class ReminderActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
         });
+
+
+        ArrayList<Integer> integerArrayList = new ArrayList<>();
+
+        Gson gson = new Gson();
+        String json = StorageManager.getInstance().getDailyReminderDay();
+        Type type = new TypeToken<ArrayList<Integer>>() {
+        }.getType();
+
+        integerArrayList = gson.fromJson(json, type);
+
+//        Logger.e(gson.fromJson(json, type));
+
+        String Value = "";
+
+        for (int i = 0; i < integerArrayList.size(); i++) {
+            for (int j = 0; j < Days.length; j++) {
+                if ((integerArrayList.get(i) - 1) == j) {
+                    Value += Days[j].substring(0, 3) + ", ";
+                }
+            }
+        }
+
+        for (int i = 0; i < integerArrayList.size(); i++) {
+            for (int j = 0; j < checkedItems.length; j++) {
+                if ((integerArrayList.get(i) - 1) == j) {
+                    checkedItems[j] = true;
+                }
+            }
+        }
+        mTvDayList.setText(Value + "");
     }
 
     @Override
@@ -150,14 +187,14 @@ public class ReminderActivity extends AppCompatActivity implements View.OnClickL
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Repeat");
 
-                String[] Days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-                boolean[] checkedItems = {true, true, true, true, true, true, true};
                 builder.setMultiChoiceItems(Days, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i, boolean isChecked) {
                         checkedItems[i] = isChecked;
                     }
                 });
+
+                ArrayList<Integer> finalIntegerArrayList = new ArrayList<>();
 
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -166,9 +203,15 @@ public class ReminderActivity extends AppCompatActivity implements View.OnClickL
                         for (int i = 0; i < Days.length; i++) {
                             if (checkedItems[i]) {
                                 Value += Days[i].substring(0, 3) + ", ";
+//                                Logger.e(i);
+                                finalIntegerArrayList.add(i + 1);
                             }
                             mTvDayList.setText(Value);
                         }
+
+                        Gson gson = new Gson();
+                        String json = gson.toJson(finalIntegerArrayList);
+                        StorageManager.getInstance().setDailyReminderDay(json);
                     }
                 });
                 builder.setNegativeButton("Cancel", null);
@@ -188,7 +231,6 @@ public class ReminderActivity extends AppCompatActivity implements View.OnClickL
                     } else {
                         calendar.set(Calendar.AM_PM, Calendar.PM);
                     }
-
 
                     Intent intent1 = new Intent(ReminderActivity.this, DailyReminderReceiver.class);
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);

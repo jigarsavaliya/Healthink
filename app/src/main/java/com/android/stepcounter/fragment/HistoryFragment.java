@@ -7,16 +7,17 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.R;
-
-import java.io.File;
-import java.util.ArrayList;
+import com.android.stepcounter.adpter.LocationHistoryAdapter;
 
 public class HistoryFragment extends Fragment {
 
     View view;
+    RecyclerView mRvHistoryData;
+    LocationHistoryAdapter mTotalDistanceAdapter;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -37,7 +38,11 @@ public class HistoryFragment extends Fragment {
     }
 
     private void init() {
-
+        mRvHistoryData = view.findViewById(R.id.rvHistoryData);
+        mTotalDistanceAdapter = new LocationHistoryAdapter(this, "");
+        mRvHistoryData.setHasFixedSize(true);
+        mRvHistoryData.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRvHistoryData.setAdapter(mTotalDistanceAdapter);
 
     }
 

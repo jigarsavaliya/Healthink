@@ -1,38 +1,70 @@
 package com.android.stepcounter.activity;
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import com.android.stepcounter.R;
+import com.android.stepcounter.database.DatabaseManager;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
 
-public class MoreSettingActivity extends AppCompatActivity implements View.OnClickListener {
+public class MoreSettingActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener {
     Toolbar mToolbar;
-    LinearLayout mLlArchivement, mLlPersonalInfo;
+    LinearLayout mLlArchivement, mLlPersonalInfo, mLlSensitivity, mLlHistory, mLlHistoryData, mLlInstruction;
     AppCompatSpinner mSpGoal;
     CardView mCvReminder;
+    private Sensor mSensor;
+    private SensorManager mSensorManager;
+    TextView mTvKcal, mTvSteps, mTvMiles;
+    long mTotalDisanceData, mTotalStepData, mTotalCaloriesData;
+    DatabaseManager dbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more_setting);
+        dbManager = new DatabaseManager(this);
+        // Get sensor manager on starting the service.
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        // Registering...
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
+
+        // Get default sensor type
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        getDataFromDatabase();
         init();
+    }
+
+    private void getDataFromDatabase() {
+        mTotalStepData = dbManager.getTotalStepCount();
+        mTotalDisanceData = dbManager.getTotalDistanceCount();
+        mTotalCaloriesData = dbManager.getTotalCaloriesCount();
     }
 
     private void init() {
@@ -49,14 +81,31 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
 
         mLlArchivement = findViewById(R.id.llArchivement);
         mLlPersonalInfo = findViewById(R.id.llPersonalInfo);
+        mLlSensitivity = findViewById(R.id.llSensitivity);
+        mLlInstruction = findViewById(R.id.llInstruction);
         mCvReminder = findViewById(R.id.cvReminder);
+        mLlHistory = findViewById(R.id.llHistory);
+        mLlHistoryData = findViewById(R.id.llHistoryData);
+
         mLlArchivement.setOnClickListener(this);
         mLlPersonalInfo.setOnClickListener(this);
+        mLlSensitivity.setOnClickListener(this);
+        mLlHistory.setOnClickListener(this);
+        mLlHistoryData.setOnClickListener(this);
+        mLlInstruction.setOnClickListener(this);
         mCvReminder.setOnClickListener(this);
 
-        mSpGoal = findViewById(R.id.spStepGoal);
-        ArrayList<Integer> list = new ArrayList<>();
+        mTvKcal = findViewById(R.id.tvAKcal);
+        mTvSteps = findViewById(R.id.tvASteps);
+        mTvMiles = findViewById(R.id.tvAMiles);
 
+        mTvKcal.setText(mTotalCaloriesData + "");
+        mTvSteps.setText(mTotalStepData + "");
+        mTvMiles.setText(mTotalDisanceData + "");
+
+        mSpGoal = findViewById(R.id.spStepGoal);
+
+        ArrayList<Integer> list = new ArrayList<>();
         for (int i = 500; i <= 40000; ) {
             list.add(i);
             i = i + 500;
@@ -96,6 +145,104 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
             case R.id.cvReminder:
                 startActivity(new Intent(MoreSettingActivity.this, ReminderActivity.class));
                 break;
+            case R.id.llHistory:
+                startActivity(new Intent(MoreSettingActivity.this, HistoryActivity.class));
+                break;
+            case R.id.llHistoryData:
+                startActivity(new Intent(MoreSettingActivity.this, HistoryActivity.class));
+                break;
+            case R.id.llInstruction:
+                startActivity(new Intent(MoreSettingActivity.this, InstructionActivity.class));
+                break;
+            case R.id.llSensitivity:
+                ShowSensitivitydailog();
+                break;
+        }
+    }
+
+    private void ShowSensitivitydailog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View d = inflater.inflate(R.layout.dailog_sensitivity, null);
+        dialogBuilder.setView(d);
+        AlertDialog alertDialog = dialogBuilder.create();
+
+        TextView mTvSensitivityCount = d.findViewById(R.id.tvSensitivityCount);
+        SeekBar seekBar = d.findViewById(R.id.seekBar);
+        CardView mcvCancel = d.findViewById(R.id.cvCancel);
+        CardView mcvSave = d.findViewById(R.id.cvSave);
+        seekBar.setMax(100);
+        mTvSensitivityCount.setText("Sensitivity 3");
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                seekBar.setProgress(progress);
+                if (progress <= 20) {
+                    mTvSensitivityCount.setText("Sensitivity 1");
+                } else if (progress > 20 && progress <= 40) {
+                    mTvSensitivityCount.setText("Sensitivity 2");
+                } else if (progress > 40 && progress <= 60) {
+                    mTvSensitivityCount.setText("Sensitivity 3");
+                } else if (progress > 60 && progress <= 80) {
+                    mTvSensitivityCount.setText("Sensitivity 4");
+                } else if (progress > 80 && progress <= 100) {
+                    mTvSensitivityCount.setText("Sensitivity 5");
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        mcvCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+        mcvSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+        if (sensor == mSensor) {
+            switch (i) {
+                case SensorManager.SENSOR_STATUS_ACCURACY_HIGH: {
+                    Logger.e("high");
+                    break;
+                }
+                case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM: {
+                    Logger.e("Medium");
+                    break;
+                }
+                case SensorManager.SENSOR_STATUS_ACCURACY_LOW: {
+                    Logger.e("low");
+                    break;
+                }
+                default: {
+                }
+            }
         }
     }
 }

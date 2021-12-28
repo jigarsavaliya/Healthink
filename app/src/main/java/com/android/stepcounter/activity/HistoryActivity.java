@@ -2,6 +2,7 @@ package com.android.stepcounter.activity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -116,6 +117,9 @@ public class HistoryActivity extends AppCompatActivity {
             startTimestamp = Long.parseLong(stepcountModelArrayList.get(0).getTimestemp());
             endtimestamp = Long.parseLong(stepcountModelArrayList.get(stepcountModelArrayList.size() - 1).getTimestemp());
 
+//            Logger.e(startTimestamp);
+//            Logger.e(endtimestamp);
+
             Calendar c = Calendar.getInstance();
             long firstdate, lastdate;
 
@@ -132,11 +136,12 @@ public class HistoryActivity extends AppCompatActivity {
 
             do {
                 String s = getCurrentWeek(c);
-//            Log.e("TAG", "date new : " + c.get(Calendar.DATE));
+                Log.e("TAG", "date new : " + c.get(Calendar.DATE));
 
                 String[] Weekdate = s.split("-");
-//            Log.e("TAG", "date: " + Weekdate[0]);
-//            Log.e("TAG", "date: " + Weekdate[1]);
+                Log.e("TAG", "date: " + Weekdate[0]);
+                Log.e("TAG", "date: " + Weekdate[1]);
+
                 firstdate = Long.parseLong(Weekdate[0].trim());
                 lastdate = Long.parseLong(Weekdate[1].trim());
 //
@@ -162,7 +167,7 @@ public class HistoryActivity extends AppCompatActivity {
                     }
 
                     long timestamp = Long.parseLong(data.getTimestemp().trim());
-                    Logger.e(" - new time: " + formatter.format(new Date(timestamp)) + "condition -----" + (firstdate <= timestamp && lastdate >= timestamp) + "firstdate -- " + firstdate + "lastdate -- " + lastdate + "timestamp -- " + timestamp);
+//                    Logger.e(" - new time: " + formatter.format(new Date(timestamp)) + "condition -----" + (firstdate <= timestamp && lastdate >= timestamp) + "firstdate -- " + firstdate + "lastdate -- " + lastdate + "timestamp -- " + timestamp);
                     if (firstdate <= timestamp && lastdate >= timestamp) {
                         valueModels.add(data);
                         value.setSumstep(value.getSumstep() + data.getSumstep());
@@ -173,7 +178,7 @@ public class HistoryActivity extends AppCompatActivity {
                 // do while 6e atle issue che  a check kro c.add thai atle last week add kre che
                 c.add(Calendar.DAY_OF_YEAR, +7);
             }
-            while (firstdate < endtimestamp);
+            while (lastdate < endtimestamp);
         } else {
             mTvNoDataFound.setVisibility(View.VISIBLE);
             mRvHistrory.setVisibility(View.GONE);

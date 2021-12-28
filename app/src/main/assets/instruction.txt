@@ -1,0 +1,47 @@
+[
+  {
+    "icon": "ic_used",
+    "Tital": "How to use?",
+    "Description": "Click PAUSE Button on home page to storp counting and reduce power consumption;Click RESUME button to start counting again.Please keep your phone with you."
+  },
+  {
+    "icon": "ic_shaking",
+    "Tital": "Counting When Shaking Phone?",
+    "Description": "If you Shake your phone, it might be counted as step beacause of the built-in-sensor.It's not a bug.We will Keep Working hard for a better user experience."
+  },
+  {
+    "icon": "ic_driving",
+    "Tital": "Counting when driving?",
+    "Description": "In certain driving cricumstances,it may count some steps due to system restrictions,which depend on the condition you are driving in and where you place your phone.If this problem occurs, you may tap the PAUSE button to pause the step counter when you're taking a long drive.We are countinuously working on this issue and very sorry for any inconvenience caused."
+  },
+  {
+    "icon": "ic_accuracy",
+    "Tital": "Accuracy",
+    "Description": "We use the built-in-sensor in your phone to count you steps,So the accuracy is based on how good the sensor is."
+  },
+  {
+    "icon": "idea",
+    "Tital": "Placement Suggestion",
+    "Description": "we suggest you put it:in your hand,pocket,bag,armband or places closed to your body. Don't put it:in place away from your body,place that shake too fast or places that have little movement."
+  }, 
+  {
+    "icon": "ic_battery_saving",
+    "Tital": "Battery Saving",
+    "Description": "We read your steps from the built-in-sensor. No Gps tracking. You can pause the app to save the battery when you're not walking."
+  },
+  {
+    "icon": "ic_privacy",
+    "Tital": "Privacy",
+    "Description": "100% private. No personal data collection. No data sharing with third parties."
+  },
+  {
+    "icon": "ic_baseline_local_fire_department_24",
+    "Tital": "Calories & Distance",
+    "Description": "We use your height and weight to calculate your burned calories & distance, so please ensure you input accurate information in the settings."
+  },
+  {
+    "icon": "ic_stepgoal",
+    "Tital": "Step Goal",
+    "Description": "We help you set your goal according to your achived step to keep you motivated."
+  }
+]
