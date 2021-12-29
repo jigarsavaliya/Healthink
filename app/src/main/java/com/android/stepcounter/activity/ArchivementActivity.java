@@ -19,6 +19,7 @@ import com.android.stepcounter.R;
 import com.android.stepcounter.adpter.ArchivementDataAdapter;
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.ArchivementModel;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 
@@ -40,6 +41,7 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
     private int numSteps;
     MyReceiver myReceiver;
     int CurrentStepData;
+    boolean IsDailyStep, IsComboDay, IsTotalDays, IsTotalDistance, IsNofification;
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -71,6 +73,19 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         init();
         myReceiver = new MyReceiver();
         registerReceiver(myReceiver, new IntentFilter("GET_SIGNAL_STRENGTH"));
+
+        IsDailyStep = getIntent().getBooleanExtra("DailyStep", false);
+        IsComboDay = getIntent().getBooleanExtra("ComboDay", false);
+        IsTotalDays = getIntent().getBooleanExtra("TotalDays", false);
+        IsTotalDistance = getIntent().getBooleanExtra("TotalDistance", false);
+        IsNofification = getIntent().getBooleanExtra("IsNofification", false);
+
+        Logger.e(IsDailyStep);
+        Logger.e(IsComboDay);
+        Logger.e(IsTotalDays);
+        Logger.e(IsTotalDistance);
+        Logger.e(IsNofification);
+
     }
 
     private void setSharedPreferences() {
@@ -120,6 +135,19 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         mCvTotalDays.setOnClickListener(this);
         mCvTotalDistance.setOnClickListener(this);
         mCvLevel.setOnClickListener(this);
+
+        if (IsDailyStep) {
+            mCvDailyStep.performClick();
+        }
+        if (IsComboDay) {
+            mCvComboDays.performClick();
+        }
+        if (IsTotalDays) {
+            mCvTotalDays.performClick();
+        }
+        if (IsTotalDistance) {
+            mCvTotalDistance.performClick();
+        }
 
         setRecyclerViewData();
     }
@@ -192,18 +220,22 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         switch (v.getId()) {
             case R.id.cvDailyStep:
                 intent.putExtra("DailyStep", true);
+                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvComboDays:
                 intent.putExtra("ComboDay", true);
+                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvTotalDays:
                 intent.putExtra("TotalDays", true);
+                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvTotalDistance:
                 intent.putExtra("TotalDistance", true);
+                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvLevel:

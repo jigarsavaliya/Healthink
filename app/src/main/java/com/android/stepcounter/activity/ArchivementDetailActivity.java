@@ -70,6 +70,12 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         IsTotalDays = getIntent().getBooleanExtra("TotalDays", false);
         IsTotalDistance = getIntent().getBooleanExtra("TotalDistance", false);
         IsNofification = getIntent().getBooleanExtra("IsNofification", false);
+
+        Logger.e(IsDailyStep);
+        Logger.e(IsComboDay);
+        Logger.e(IsTotalDays);
+        Logger.e(IsTotalDistance);
+        Logger.e(IsNofification);
     }
 
     @Override

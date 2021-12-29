@@ -24,6 +24,7 @@ public class StorageManager {
     public static final String PREF_APP_KEY_DAILY_REMINDER = "DailyReminder";
     public static final String PREF_APP_KEY_DAILY_REMINDER_DAY = "DailyReminderDay";
     public static final String PREF_APP_KEY_CURRENTDAY_TIMESTAMP = "CurrentDayTimestamp";
+    public static final String PREF_APP_KEY_DASHBOARD_COMPONENT = "DashboardComponent";
 
     public static final String PREF_APP_KEY_WATER_STARTTIME = "WaterReminderStarttime";
     public static final String PREF_APP_KEY_WATER_ENDTIME = "WaterReminderEndStarttime";
@@ -37,6 +38,7 @@ public class StorageManager {
 
     public static final String PREF_APP_KEY_LEVEL_COMPLETE = "LevelComplete";
     public static final String PREF_APP_KEY_STEP_SERVICE = "IsStepService";
+    public static final String PREF_APP_KEY_STEP_THRESHOLD = "StepThreshold";
 
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -235,12 +237,27 @@ public class StorageManager {
         return preferences.getString(StorageManager.PREF_APP_KEY_CURRENTDAY_TIMESTAMP, "");
     }
 
-
     public void setIsStepService(Boolean message) {
         editor.putBoolean(StorageManager.PREF_APP_KEY_STEP_SERVICE, message).apply();
     }
 
     public Boolean getIsStepService() {
         return preferences.getBoolean(StorageManager.PREF_APP_KEY_STEP_SERVICE, true);
+    }
+
+    public void setDashboardComponent(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_DASHBOARD_COMPONENT, message).apply();
+    }
+
+    public String getDashboardComponent() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_DASHBOARD_COMPONENT, "");
+    }
+
+    public void setSetThreshold(Integer message) {
+        editor.putInt(StorageManager.PREF_APP_KEY_STEP_THRESHOLD, message).apply();
+    }
+
+    public Integer getSetThreshold() {
+        return preferences.getInt(StorageManager.PREF_APP_KEY_STEP_THRESHOLD, 50);
     }
 }

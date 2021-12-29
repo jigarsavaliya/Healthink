@@ -5,9 +5,10 @@ import android.content.Context;
 
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.ArchivementModel;
-import com.android.stepcounter.model.InstructionModel;
+import com.android.stepcounter.model.DashboardComponentModel;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
+import com.android.stepcounter.utils.constant;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -29,7 +30,36 @@ public class AppController extends Application {
 
         InsertArchivementData();
         Calendar calendar = Calendar.getInstance();
-        StorageManager.getInstance().setCurrentDay(calendar.get(Calendar.DATE) + "/" + (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR));
+        calendar.set(Calendar.HOUR, 12);
+        calendar.set(Calendar.MINUTE, 00);
+        calendar.set(Calendar.AM_PM, Calendar.PM);
+        Logger.e(calendar.getTimeInMillis());
+        StorageManager.getInstance().setCurrentDay(calendar.getTimeInMillis() + "");
+        DashboardComponent();
+    }
+
+    private void DashboardComponent() {
+        ArrayList<DashboardComponentModel> dashboardComponentModels = new ArrayList<>();
+
+        DashboardComponentModel componentModel1 = new DashboardComponentModel();
+        componentModel1.setComponentOrder(constant.DASHBORAD_GPS_TRACKER);
+        componentModel1.setComponentName("GPS Traker");
+        componentModel1.setShowonDashboard(true);
+        dashboardComponentModels.add(componentModel1);
+
+        DashboardComponentModel componentModel2 = new DashboardComponentModel();
+        componentModel2.setComponentOrder(constant.DASHBORAD_WATER_TRACKER);
+        componentModel2.setComponentName("Water Tracker");
+        componentModel2.setShowonDashboard(true);
+        dashboardComponentModels.add(componentModel2);
+
+        DashboardComponentModel componentModel3 = new DashboardComponentModel();
+        componentModel3.setComponentOrder(constant.DASHBORAD_WEIGHT_TRACKER);
+        componentModel3.setComponentName("Weight Tracker");
+        componentModel3.setShowonDashboard(true);
+        dashboardComponentModels.add(componentModel3);
+
+        StorageManager.getInstance().setDashboardComponent(new Gson().toJson(dashboardComponentModels));
 
     }
 

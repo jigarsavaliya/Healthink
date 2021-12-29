@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_delete_24.xml" value="0.36512820512820515" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_monitor_heart_24.xml" value="0.36512820512820515" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_add_water.xml" value="0.17249240121580547" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_adjust_order.xml" value="0.15677083333333333" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_heath.xml" value="0.17249240121580547" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_more_setting.xml" value="0.17249240121580547" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/cardview_row.xml" value="0.3546875" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/main_gps_layout.xml" value="0.3546875" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/main_water_layout.xml" value="0.3546875" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/main_weigth_layout.xml" value="0.3546875" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/menu/menu_water.xml" value="0.3546875" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

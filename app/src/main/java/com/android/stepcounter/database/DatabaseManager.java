@@ -1494,6 +1494,30 @@ public class DatabaseManager {
         }
     }
 
+
+    @SuppressLint("Range")
+    public String getMinMaxWeight() {
+        db = helper.getReadableDatabase();
+
+        int Min, Max;
+        String s = "select min(" + DbHelper.KEY_WEIGHT_KG + ")  as Min,max(" + DbHelper.KEY_WEIGHT_KG + ")  as Max from "
+                + DbHelper.TABLE_WEIGHT;
+
+        Cursor c = db.rawQuery(s, null);
+
+        c.moveToFirst();
+        do {
+            Min = c.getInt(c.getColumnIndex("Min"));
+            Max = c.getInt(c.getColumnIndex("Max"));
+        } while (c.moveToNext());
+
+
+        c.close();
+        db.close();
+        return Min + "-" + Max;
+    }
+
+    //////////////////////////////// Archivement Tabel//////////////////////
     public void addArchivementData(ArrayList<ArchivementModel> archivementModels) {
         db = helper.getWritableDatabase();
 
@@ -1519,48 +1543,6 @@ public class DatabaseManager {
         }
 
         db.close();
-    }
-
-    @SuppressLint("Range")
-    public long getValueofTypeWiseData(String label) {
-        db = helper.getReadableDatabase();
-
-        int sum;
-        String s = "select min(" + DbHelper.KEY_ARCHIVEMENT_VALUE + ")  as total from " + DbHelper.TABLE_ARCHIVEMENT
-                + " where " + DbHelper.KEY_ARCHIVEMENT_TYPE + " = \"" + label + "\" AND " + DbHelper.KEY_ARCHIVEMENT_COUNT + " = 0";
-//        Logger.e(s);
-        Cursor c = db.rawQuery(s, null);
-
-        c.moveToFirst();
-        do {
-            sum = c.getInt(c.getColumnIndex("total"));
-        } while (c.moveToNext());
-
-
-        c.close();
-        db.close();
-        return sum;
-    }
-
-    @SuppressLint("Range")
-    public long getValueTypeWiseData(String label) {
-        db = helper.getReadableDatabase();
-
-        int sum;
-        String s = "select min(" + DbHelper.KEY_ARCHIVEMENT_VALUE + ")  as total from " + DbHelper.TABLE_ARCHIVEMENT
-                + " where " + DbHelper.KEY_ARCHIVEMENT_TYPE + " = \"" + label + "\" AND " + DbHelper.KEY_ARCHIVEMENT_COMPLETED_STATUS + " = 0";
-//        Logger.e(s);
-        Cursor c = db.rawQuery(s, null);
-
-        c.moveToFirst();
-        do {
-            sum = c.getInt(c.getColumnIndex("total"));
-        } while (c.moveToNext());
-
-
-        c.close();
-        db.close();
-        return sum;
     }
 
     public ArrayList<ArchivementModel> getArchivementDailySteplist(String label, long maxstep) {

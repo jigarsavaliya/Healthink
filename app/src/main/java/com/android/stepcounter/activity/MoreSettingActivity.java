@@ -34,9 +34,10 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
     CardView mCvReminder;
     private Sensor mSensor;
     private SensorManager mSensorManager;
-    TextView mTvKcal, mTvSteps, mTvMiles;
+    TextView mTvKcal, mTvSteps, mTvMiles, mTvSensitivity;
     long mTotalDisanceData, mTotalStepData, mTotalCaloriesData;
     DatabaseManager dbManager;
+    int sensitivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,10 +99,24 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
         mTvKcal = findViewById(R.id.tvAKcal);
         mTvSteps = findViewById(R.id.tvASteps);
         mTvMiles = findViewById(R.id.tvAMiles);
+        mTvSensitivity = findViewById(R.id.tvSensitivity);
 
         mTvKcal.setText(mTotalCaloriesData + "");
         mTvSteps.setText(mTotalStepData + "");
         mTvMiles.setText(mTotalDisanceData + "");
+
+        sensitivity = StorageManager.getInstance().getSetThreshold();
+        if (sensitivity <= 20) {
+            mTvSensitivity.setText("Low");
+        } else if (sensitivity > 20 && sensitivity <= 40) {
+            mTvSensitivity.setText("Medium");
+        } else if (sensitivity > 40 && sensitivity <= 60) {
+            mTvSensitivity.setText("Medium");
+        } else if (sensitivity > 60 && sensitivity <= 80) {
+            mTvSensitivity.setText("Medium");
+        } else if (sensitivity > 80 && sensitivity <= 100) {
+            mTvSensitivity.setText("High");
+        }
 
         mSpGoal = findViewById(R.id.spStepGoal);
 
@@ -172,6 +187,7 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
         CardView mcvCancel = d.findViewById(R.id.cvCancel);
         CardView mcvSave = d.findViewById(R.id.cvSave);
         seekBar.setMax(100);
+        seekBar.setProgress(sensitivity);
         mTvSensitivityCount.setText("Sensitivity 3");
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -189,6 +205,7 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
                 } else if (progress > 80 && progress <= 100) {
                     mTvSensitivityCount.setText("Sensitivity 5");
                 }
+                StorageManager.getInstance().setSetThreshold(progress);
             }
 
             @Override
@@ -212,6 +229,18 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
         mcvSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                sensitivity = StorageManager.getInstance().getSetThreshold();
+                if (sensitivity <= 20) {
+                    mTvSensitivity.setText("Low");
+                } else if (sensitivity > 20 && sensitivity <= 40) {
+                    mTvSensitivity.setText("Medium");
+                } else if (sensitivity > 40 && sensitivity <= 60) {
+                    mTvSensitivity.setText("Medium");
+                } else if (sensitivity > 60 && sensitivity <= 80) {
+                    mTvSensitivity.setText("Medium");
+                } else if (sensitivity > 80 && sensitivity <= 100) {
+                    mTvSensitivity.setText("High");
+                }
                 alertDialog.dismiss();
             }
         });
@@ -244,5 +273,10 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
                 }
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

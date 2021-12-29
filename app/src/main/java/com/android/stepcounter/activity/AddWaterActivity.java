@@ -102,12 +102,13 @@ public class AddWaterActivity extends AppCompatActivity {
                 mLlDrinkView.setVisibility(View.GONE);
                 mLlTargetView.setVisibility(View.VISIBLE);
             }
-        }, 10000);
+        }, 2000);
 
     }
 
     private void setdatainprogress() {
-        mCpWaterChart.setMax(Integer.parseInt(WaterGoalValue[0]));
+        mCpWaterChart.setMax(100);
+//        mCpWaterChart.setMax(Integer.parseInt(WaterGoalValue[0]));
 
         ArrayList<WaterLevelModel> waterlevelArrayList = new ArrayList<>();
 
@@ -124,11 +125,12 @@ public class AddWaterActivity extends AppCompatActivity {
                 if (lastentry != 0) {
                     if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
 //                    Log.e("TAG", "init: " + lastentry);
-                        mCpWaterChart.setProgress(lastentry);
-                        mCpWaterChart.setProgressWithAnimation(lastentry, 5);
+                        float progress = (float) lastentry / Integer.parseInt(WaterGoalValue[0]) * 100;
+                        mCpWaterChart.setProgress((int) progress);
+                        mCpWaterChart.setProgressWithAnimation((int) progress, 5);
                     } else {
-                        mCpWaterChart.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                        mCpWaterChart.setProgressWithAnimation(Integer.parseInt(WaterGoalValue[0]), 5);
+                        mCpWaterChart.setProgress(100);
+                        mCpWaterChart.setProgressWithAnimation(100, 5);
                     }
                 }
                 mTvTargeGoalDisplay.setText(lastentry + " / " + Watergoal);
@@ -148,11 +150,12 @@ public class AddWaterActivity extends AppCompatActivity {
                 if (lastentry != 0) {
                     if (lastentry < Integer.parseInt(WaterGoalValue[0])) {
 //                    Log.e("TAG", "init: " + lastentry);
-                        mCpWaterChart.setProgress((int) lastentry);
-                        mCpWaterChart.setProgressWithAnimation((int) lastentry, 5);
+                        double value = (double) lastentry / Integer.parseInt(WaterGoalValue[0]) * 100;
+                        mCpWaterChart.setProgress((int) value);
+                        mCpWaterChart.setProgressWithAnimation((int) value, 5);
                     } else {
-                        mCpWaterChart.setProgress(Integer.parseInt(WaterGoalValue[0]));
-                        mCpWaterChart.setProgressWithAnimation(Integer.parseInt(WaterGoalValue[0]), 5);
+                        mCpWaterChart.setProgress(100);
+                        mCpWaterChart.setProgressWithAnimation(100, 5);
                     }
                 }
                 mTvTargeGoalDisplay.setText(lastentry + " / " + Watergoal);

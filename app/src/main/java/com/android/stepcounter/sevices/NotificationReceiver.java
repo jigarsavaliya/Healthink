@@ -17,6 +17,7 @@ import com.android.stepcounter.R;
 import com.android.stepcounter.activity.ArchivementActivity;
 import com.android.stepcounter.activity.ArchivementDetailActivity;
 import com.android.stepcounter.activity.LevelActivity;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.constant;
 
 public class NotificationReceiver extends BroadcastReceiver {
@@ -31,10 +32,13 @@ public class NotificationReceiver extends BroadcastReceiver {
             long level = intent.getLongExtra("value", 0);
             String Type = intent.getStringExtra("Type");
             boolean Compeletelevel = intent.getBooleanExtra("Compeletelevel", false);
-            boolean CompeleteDistance = intent.getBooleanExtra("CompeleteDistance", false);
-            boolean CompeleteDaysData = intent.getBooleanExtra("CompeleteDaysData", false);
-            boolean CompeleteDailyStep = intent.getBooleanExtra("CompeleteDailyStep", false);
+//            boolean CompeleteDistance = intent.getBooleanExtra("CompeleteDistance", false);
+//            boolean CompeleteDaysData = intent.getBooleanExtra("CompeleteDaysData", false);
+//            boolean CompeleteDailyStep = intent.getBooleanExtra("CompeleteDailyStep", false);
             boolean CompeleteDailyStepGoal = intent.getBooleanExtra("CompeleteDailyStepGoal", false);
+
+
+            Logger.e(Type);
 
             if (level != 0 && level > 0) {
                 showNotification(Type, level);
@@ -44,7 +48,13 @@ public class NotificationReceiver extends BroadcastReceiver {
                 if (level != 0 && level > 0) {
                     showCompleteNotification(Type, level);
                 }
-            } else if (CompeleteDistance) {
+            } else if (CompeleteDailyStepGoal) {
+                showCompleteNotification(Type, level);
+            } else {
+                showCompleteNotification(Type, level);
+            }
+
+                /*if (CompeleteDistance) {
                 showCompleteNotification(Type, level);
             } else if (CompeleteDaysData) {
                 showCompleteNotification(Type, level);
@@ -52,7 +62,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                 showCompleteNotification(Type, level);
             } else if (CompeleteDailyStepGoal) {
                 showCompleteNotification(Type, level);
-            }
+            }*/
         }
     }
 
@@ -96,6 +106,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     private void showCompleteNotification(String type, long level) {
         Intent notificationIntent = new Intent();
         if (type.equals("Daily Step")) {
+            Logger.e("Daily Step");
             notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
             notificationIntent.putExtra("DailyStep", true);
             notificationIntent.putExtra("ComboDay", false);
@@ -103,6 +114,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             notificationIntent.putExtra("TotalDistance", false);
             notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Combo Day")) {
+            Logger.e("Combo Day");
             notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
             notificationIntent.putExtra("DailyStep", false);
             notificationIntent.putExtra("ComboDay", true);
@@ -110,6 +122,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             notificationIntent.putExtra("TotalDistance", false);
             notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Total Days")) {
+            Logger.e("Total Days");
             notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
             notificationIntent.putExtra("DailyStep", false);
             notificationIntent.putExtra("ComboDay", false);
@@ -117,6 +130,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             notificationIntent.putExtra("TotalDistance", false);
             notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Total Distance")) {
+            Logger.e("Total Distance");
             notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
             notificationIntent.putExtra("DailyStep", false);
             notificationIntent.putExtra("ComboDay", false);
@@ -124,6 +138,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             notificationIntent.putExtra("TotalDistance", true);
             notificationIntent.putExtra("IsNofification", true);
         } else if (type.equals("Level")) {
+            Logger.e("Level");
             notificationIntent = new Intent(mcontext, LevelActivity.class);
             notificationIntent.putExtra("IsNofification", true);
         }

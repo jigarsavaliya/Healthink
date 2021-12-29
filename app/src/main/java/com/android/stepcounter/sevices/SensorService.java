@@ -128,7 +128,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
         mSensorManager.registerListener(this, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-     /*   if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        /*if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
             float[] values = sensorEvent.values;
             float x = values[0];

@@ -18,6 +18,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -102,7 +103,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     String Watergoal, WaterUnit, Watercup;
     EditText etweight;
     private BarChart chart;
-    TextView tvchartdate;
+    TextView tvchartdate, tvMore, tvHighestKg, tvLowestkg;
     ImageView ivBackDate, ivForwardDate;
     long firstdayofmonth, lastdayofmonth;
     SwitchCompat scWaterNotification;
@@ -111,6 +112,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     float[] value = {0};
     String[] WaterGoalValue;
     PieChart mPcBmiChart;
+    Boolean item_per = false, item_cap = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +165,14 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         meditHeightWeight = findViewById(R.id.editHeightWeight);
         mtvlastdaydiff = findViewById(R.id.tvlastdaydiff);
         mtvwaterCount = findViewById(R.id.tv_water);
+        tvMore = findViewById(R.id.tvMore);
+        tvHighestKg = findViewById(R.id.tvHighestKg);
+        tvLowestkg = findViewById(R.id.tvLowestkg);
+
+        String Value = dbManager.getMinMaxWeight();
+        String[] MinMax = Value.split("-");
+        tvLowestkg.setText(MinMax[0] + "Kg");
+        tvHighestKg.setText(MinMax[1] + "Kg");
 
         scWaterNotification = findViewById(R.id.scWaterNoti);
         chart = (BarChart) findViewById(R.id.waterchart);
@@ -196,14 +206,6 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
 
         muserWeight.setText(userWeight + "");
 
-        /*ArrayList<WeightModel> modelArrayList = new ArrayList<>();
-        modelArrayList = dbManager.getCurrentDayWeightlist(date, month, year);
-        if (modelArrayList.size() != 0) {
-            for (int i = 0; i < modelArrayList.size(); i++) {
-                muserWeight.setText("" + modelArrayList.get(i).getKg());
-            }
-        }*/
-
         arcProgress = findViewById(R.id.arc_progress);
         llRemovewater = findViewById(R.id.llRemovewater);
         lladdwater = findViewById(R.id.lladdwater);
@@ -220,7 +222,6 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         arcProgress.setMax(Integer.parseInt(WaterGoalValue[0]));
 
         String[] DefultCupValue = DefualtCup.split(" ");
-
 
         setdatainprogress();
 
@@ -251,7 +252,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 }
                 dbManager.addWaterData(waterlevel);
                 setdatainprogress();
-                SetWeekwiseWaterChart();
+                SetWeekwiseWaterChart("cap");
+                item_cap = true;
             }
         });
 
@@ -272,7 +274,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 }
                 dbManager.DeletelastWaterData(lastentry);
                 setdatainprogress();
-                SetWeekwiseWaterChart();
+                SetWeekwiseWaterChart("cap");
+                item_cap = true;
             }
         });
 
@@ -290,6 +293,48 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             }
         });
 
+        tvMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPopupMenu();
+            }
+        });
+
+    }
+
+    private void showPopupMenu() {
+        PopupMenu popup = new PopupMenu(this, tvMore);
+        popup.inflate(R.menu.menu_water);
+        if (item_cap) {
+            popup.getMenu().findItem(R.id.item_cap).setChecked(true);
+        } else {
+            popup.getMenu().findItem(R.id.item_per).setChecked(true);
+        }
+        popup.setOnMenuItemClickListener((PopupMenu.OnMenuItemClickListener) item -> {
+            switch (item.getItemId()) {
+                case R.id.item_per:
+                    item_cap = false;
+                    item_per = true;
+                    if (item.isChecked()) item.setChecked(false);
+                    else item.setChecked(true);
+                    SetWeekwiseWaterChart("per");
+                    break;
+                case R.id.item_cap:
+                    item_cap = true;
+                    item_per = false;
+                    if (item.isChecked()) {
+                        item.setChecked(false);
+                    } else {
+                        item.setChecked(true);
+                    }
+                    SetWeekwiseWaterChart("cap");
+                    break;
+                default:
+                    break;
+            }
+            return false;
+        });
+        popup.show();
     }
 
     private void setNotification() {
@@ -512,12 +557,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         View d = inflater.inflate(R.layout.dailog_add_weight, null);
         dialogBuilder.setView(d);
         AlertDialog alertDialog = dialogBuilder.create();
-        Button mBtnSave = (Button) d.findViewById(R.id.btnSave);
-        Button mBtnCancel = (Button) d.findViewById(R.id.btnCancel);
+        Button mBtnSave = d.findViewById(R.id.btnSave);
+        Button mBtnCancel = d.findViewById(R.id.btnCancel);
 
-        CardView mllLb = (CardView) d.findViewById(R.id.llLb);
-        CardView mllKB = (CardView) d.findViewById(R.id.llKB);
-        etweight = (EditText) d.findViewById(R.id.etweight);
+        CardView mllLb = d.findViewById(R.id.llLb);
+        CardView mllKB = d.findViewById(R.id.llKB);
+        etweight = d.findViewById(R.id.etweight);
 
         final boolean[] iskg = {true};
 
@@ -556,9 +601,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             }
         });
 
-        HorizontalPicker picker = (HorizontalPicker) d.findViewById(R.id.datePicker);
+        HorizontalPicker picker = d.findViewById(R.id.datePicker);
 
-        picker.setListener(HeathActivity.this)
+        picker.setListener(this)
                 .setDays(120)
                 .setOffset(7)
                 .setDateSelectedTextColor(Color.WHITE)
@@ -581,11 +626,12 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 Calendar c = Calendar.getInstance();
                 SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
                 c.set(Calendar.DATE, Integer.parseInt(selectedDate));
-                c.set(Calendar.MONTH, Integer.parseInt(seletedMonth));
+                c.set(Calendar.MONTH, Integer.parseInt(seletedMonth) - 1);
                 c.set(Calendar.YEAR, Integer.parseInt(selecetedYear));
                 c.set(Calendar.HOUR, c.get(Calendar.HOUR));
 
                 s.format(new Date(c.getTimeInMillis()));
+                Log.e("TAG", "onClick: " + c.getTimeInMillis());
 
                 WeightModel weightModel = new WeightModel();
                 weightModel.setDate(Integer.parseInt(selectedDate));
@@ -667,10 +713,11 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
             }
         }
 
+        Logger.e(pervalue);
         int cuurrvalue = Integer.parseInt(muserWeight.getText().toString());
 
         int diff = 0;
-        diff = cuurrvalue - pervalue;
+        diff = pervalue - cuurrvalue;
 
 //        Log.e("TAG", pervalue + "setWeightChart: " + cuurrvalue);
         if (diff > 0) {
@@ -829,7 +876,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         super.onResume();
         setSharedPreferences();
         init();
-        SetWeekwiseWaterChart();
+        SetWeekwiseWaterChart("cap");
         setWeightChart();
         setBMIReportChart();
     }
@@ -1006,7 +1053,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     }
 
 
-    private void SetWeekwiseWaterChart() {
+    private void SetWeekwiseWaterChart(String type) {
 
         final ArrayList<String> xAxisLabel = new ArrayList<>();
         xAxisLabel.add("Mon");
@@ -1064,7 +1111,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         leftAxis.setDrawLabels(false);
 
 
-        BarData data = new BarData(setWeekData());
+        BarData data = new BarData(setWeekData(type));
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
 
@@ -1128,7 +1175,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         return mDateMonday + " - " + mDateSunday;
     }
 
-    private BarDataSet setWeekData() {
+    private BarDataSet setWeekData(String type) {
+        WaterGoalValue = Watergoal.split(" ");
+
         String s1 = getCurrentWeekdate(rightNow);
         String[] Weekdate1 = s1.split("-");
         tvchartdate.setText(Weekdate1[0] + " - " + Weekdate1[1]);
@@ -1143,8 +1192,9 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         watermonthlist = dbManager.getweekWaterdata(fristdate, lastdate);
 
         ArrayList<BarEntry> entries = new ArrayList<>();
-        if (watermonthlist != null) {
-            for (int i = 0; i < watermonthlist.size(); i++) {
+        if (type.equals("cap")) {
+            if (watermonthlist != null) {
+                for (int i = 0; i < watermonthlist.size(); i++) {
 //                Log.e("TAG", watermonthlist.get(i).getDate() + "total days" + watermonthlist.get(i).getSumwater());
                 /*SimpleDateFormat inFormat = new SimpleDateFormat("dd-MM-yyyy");
                 String dayName = null;
@@ -1155,7 +1205,19 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }*/
-                entries.add(new BarEntry(i, watermonthlist.get(i).getSumwater(), watermonthlist.get(i).getDate()));
+                    entries.add(new BarEntry(i, watermonthlist.get(i).getSumwater(), watermonthlist.get(i).getDate()));
+                }
+            }
+        } else {
+            if (watermonthlist != null) {
+                for (int i = 0; i < watermonthlist.size(); i++) {
+                    float value = Float.parseFloat(WaterGoalValue[0]);
+                    float finalValue = watermonthlist.get(i).getSumwater() / value * 100;
+//                    Logger.e(watermonthlist.get(i).getSumwater());
+//                    Logger.e(value);
+//                    Logger.e(finalValue);
+                    entries.add(new BarEntry(i, finalValue, watermonthlist.get(i).getDate()));
+                }
             }
         }
 
@@ -1190,7 +1252,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
                 Log.e("Start", "Start Date = " + s.format(new Date(rightNow.getTimeInMillis())));
 
-                SetWeekwiseWaterChart();
+                SetWeekwiseWaterChart("cap");
 
                 break;
             case R.id.ivForwardDate:
@@ -1205,7 +1267,7 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 Log.e("Start", "Start Date = " + rightNow.getTimeInMillis());
                 Log.e("Start", "Start Date = " + simpleDateFormat.format(new Date(rightNow.getTimeInMillis())));
 
-                SetWeekwiseWaterChart();
+                SetWeekwiseWaterChart("cap");
                 break;
             case R.id.scWaterNoti:
                 //waternotfication service

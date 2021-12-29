@@ -23,5 +23,8 @@ public class constant {
     public static final String ARCHIVEMENT_TOTAL_DAYS = "Total Days";
     public static final String ARCHIVEMENT_TOTAL_DISTANCE = "Total Distance";
 
+    public static final int DASHBORAD_GPS_TRACKER = 1;
+    public static final int DASHBORAD_WATER_TRACKER = 2;
+    public static final int DASHBORAD_WEIGHT_TRACKER = 3;
 
 }

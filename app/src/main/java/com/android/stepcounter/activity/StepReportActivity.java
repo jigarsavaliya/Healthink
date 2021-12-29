@@ -1866,38 +1866,30 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
             }
         } else {
 
+            long NotiValue = 0;
+            String NotiType = null;
+
             if (mTotalStepData >= mlevelGoal) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", mlevelGoal);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
-                sendLevel.putExtra("Compeletelevel", true);
-                sendBroadcast(sendLevel);
-//            CommanMethod.showCompleteDailog(this, mlevelGoal, LevelDesc);
+                NotiValue = mlevelGoal;
+                NotiType = constant.ARCHIVEMENT_LEVEL;
             } else if (mTotalDisanceData >= Distancegoal) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", Distancegoal);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
-                sendLevel.putExtra("CompeleteDistance", true);
-                sendBroadcast(sendLevel);
-//            CommanMethod.showCompleteDailog(this, Distancegoal, DistanceDesc);
+                NotiValue = Distancegoal;
+                NotiType = constant.ARCHIVEMENT_TOTAL_DISTANCE;
             } else if (mTotalDaysData >= TotalDaysgoal) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", TotalDaysgoal);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
-                sendLevel.putExtra("CompeleteDaysData", true);
-                sendBroadcast(sendLevel);
-//            CommanMethod.showCompleteDailog(this, TotalDaysgoal, DayDesc);
+                NotiValue = TotalDaysgoal;
+                NotiType = constant.ARCHIVEMENT_TOTAL_DAYS;
             } else if (TotalDailyStep >= TotalDailygoal) {
+                NotiValue = TotalDailygoal;
+                NotiType = constant.ARCHIVEMENT_DAILY_STEP;
+            }
+
+            if (NotiValue != 0 && NotiType != null) {
                 Intent sendLevel = new Intent(this, NotificationReceiver.class);
                 sendLevel.setAction("Notification");
                 sendLevel.putExtra("value", TotalDailygoal);
                 sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
                 sendLevel.putExtra("CompeleteDailyStep", true);
                 sendBroadcast(sendLevel);
-//            CommanMethod.showCompleteDailog(this, TotalDailygoal, DailyDesc);
             }
         }
 
