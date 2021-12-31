@@ -21,10 +21,15 @@ public class CommanMethod {
     }
 
 
-//    public static float calculateDistance(int num_steps, float height) {
-//        double distance = num_steps * height * 0.3937 * 0.414 * 2.54e-2;
-//        return (float) distance;
-//    }
+    public static float calculateMileToKM(float value) {
+        double Mile = value / 0.62137;
+        return (float) Mile;
+    }
+
+    public static float calculateKmToMile(float value) {
+        double Mile = value * 0.62137;
+        return (float) Mile;
+    }
 
     public float getDistanceRun(long steps) {
         float distance = (float) (steps * 78) / (float) 100000;
@@ -172,4 +177,5 @@ public class CommanMethod {
 
         alertDialog.show();
     }
+
 }

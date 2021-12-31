@@ -10,6 +10,7 @@ public class constant {
     public static final int DEFAULT_WATER_GOAL = 24;
     public static Boolean IsProfile = false;
     public static Boolean IsHistoryDelete = false;
+    public static Boolean IsLocationHistoryDelete = false;
 
 
     public static int NOTIFICATION_ID_FOR_STEP = 1001;

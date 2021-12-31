@@ -19,6 +19,7 @@ import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.R;
 import com.android.stepcounter.adpter.HistoryAdapter;
 import com.android.stepcounter.database.DatabaseManager;
+import com.android.stepcounter.model.GpsTrackerModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.StepHistoryModel;
 import com.android.stepcounter.utils.Logger;

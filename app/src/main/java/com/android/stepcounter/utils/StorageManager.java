@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.Calendar;
+
 public class StorageManager {
     private Context context;
     private SharedPreferences preferences;
@@ -39,6 +41,13 @@ public class StorageManager {
     public static final String PREF_APP_KEY_LEVEL_COMPLETE = "LevelComplete";
     public static final String PREF_APP_KEY_STEP_SERVICE = "IsStepService";
     public static final String PREF_APP_KEY_STEP_THRESHOLD = "StepThreshold";
+
+
+    public static final String PREF_APP_KEY_TTYPE = "TargetType";
+    public static final String PREF_APP_KEY_TDISTANCE = "TargetDistance";
+    public static final String PREF_APP_KEY_TDURATION = "TargetDuration";
+    public static final String PREF_APP_KEY_TCALORIES = "TargetCalories";
+    public static final String PREF_APP_KEY_TYPE = "StepType";
 
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -259,5 +268,47 @@ public class StorageManager {
 
     public Integer getSetThreshold() {
         return preferences.getInt(StorageManager.PREF_APP_KEY_STEP_THRESHOLD, 50);
+    }
+
+    public void setTargetDistance(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_TDISTANCE, message).apply();
+    }
+
+    public String getTargetDistance() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_TDISTANCE, "2.0");
+    }
+
+    public void setTargetDuration(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_TDURATION, message).apply();
+    }
+
+    public String getTargetDuration() {
+        Calendar calendar= Calendar.getInstance();
+        calendar.set(Calendar.MINUTE,20);
+        return preferences.getString(StorageManager.PREF_APP_KEY_TDURATION, String.valueOf(calendar.get(Calendar.MINUTE)));
+    }
+
+    public void setTargetCalories(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_TCALORIES, message).apply();
+    }
+
+    public String getTargetCalories() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_TCALORIES, "50");
+    }
+
+    public void setTargetType(Integer message) {
+        editor.putInt(StorageManager.PREF_APP_KEY_TTYPE, message).apply();
+    }
+
+    public Integer getTargetType() {
+        return preferences.getInt(StorageManager.PREF_APP_KEY_TTYPE, 0);
+    }
+
+    public void setStepType(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_TYPE, message).apply();
+    }
+
+    public String getStepType() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_TYPE, "Walk");
     }
 }

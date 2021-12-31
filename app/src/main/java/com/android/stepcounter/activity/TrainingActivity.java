@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.android.stepcounter.R;
+import com.android.stepcounter.utils.constant;
 import com.android.stepcounter.viewpageradpter.MainViewPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
@@ -26,5 +27,11 @@ public class TrainingActivity extends AppCompatActivity {
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        constant.IsLocationHistoryDelete = false;
     }
 }

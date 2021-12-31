@@ -833,8 +833,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button mBtnSave = d.findViewById(R.id.btnSave);
         Button mBtnCancel = d.findViewById(R.id.btnCancel);
 
-        CardView mllLb = d.findViewById(R.id.llLb);
-        CardView mllKB = d.findViewById(R.id.llKB);
+        CardView mllLb = d.findViewById(R.id.cvKm);
+        CardView mllKB = d.findViewById(R.id.lcvMile);
         etweight = d.findViewById(R.id.etweight);
 
         final boolean[] iskg = {true};

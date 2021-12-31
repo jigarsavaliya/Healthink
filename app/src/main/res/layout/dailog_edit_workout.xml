@@ -9,9 +9,17 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Weight"
+        android:text="Edit Workout"
         android:textColor="@color/black"
         android:textSize="@dimen/_18sdp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Distance"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_16sdp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +41,7 @@
                 android:layout_weight="2.6">
 
                 <EditText
-                    android:id="@+id/etweight"
+                    android:id="@+id/etDistance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -43,7 +51,7 @@
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llKB"
+                android:id="@+id/lcvMile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_5sdp"
@@ -55,13 +63,13 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="@dimen/_5sdp"
-                    android:text="KG"
+                    android:text="Mile"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_14sdp" />
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llLb"
+                android:id="@+id/cvKm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
@@ -73,7 +81,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="@dimen/_5sdp"
-                    android:text="LB"
+                    android:text="Km"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_14sdp" />
             </androidx.cardview.widget.CardView>
@@ -83,15 +91,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Height"
+            android:text="Calories"
             android:textColor="@color/black"
-            android:textSize="@dimen/_18sdp" />
+            android:textSize="@dimen/_16sdp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_marginTop="@dimen/_10sdp"
+            android:gravity="center"
             android:orientation="horizontal"
             android:weightSum="3">
 
@@ -102,7 +110,7 @@
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/etHeight"
+                    android:id="@+id/etCalories"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -110,39 +118,14 @@
                     android:textSize="@dimen/_12sdp"
                     android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2.6"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/etft"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="0"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12sdp"
-                        android:textStyle="bold" />
-
-                    <EditText
-                        android:id="@+id/etin"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12sdp"
-                        android:textStyle="bold" />
-                </LinearLayout>
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llcm"
+                android:id="@+id/cvKcal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_weight="0.2"
+                android:layout_weight="0.4"
                 app:cardBackgroundColor="#F4F4F4">
 
                 <TextView
@@ -150,25 +133,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="@dimen/_5sdp"
-                    android:text="CM"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_14sdp" />
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/llIN"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_weight="0.2"
-                app:cardBackgroundColor="#F4F4F4">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="@dimen/_5sdp"
-                    android:text="IN"
+                    android:text="Kcal"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_14sdp" />
             </androidx.cardview.widget.CardView>

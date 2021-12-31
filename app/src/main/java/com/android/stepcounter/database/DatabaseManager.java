@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.android.stepcounter.model.ArchivementModel;
+import com.android.stepcounter.model.GpsTrackerModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
@@ -39,6 +40,7 @@ public class DatabaseManager {
     public static DatabaseManager getInstance() {
         return adapter;
     }
+
 
     private class DbHelper extends SQLiteOpenHelper {
         Context mContext;
@@ -90,6 +92,24 @@ public class DatabaseManager {
         public static final String KEY_ARCHIVEMENT_COMPLETED_STATUS = "CompleteStatus";
         public static final String KEY_ARCHIVEMENT_COUNT = "Count";
 
+
+        // Table Name
+        public static final String TABLE_GPS_TRACKER = "Table_GPSTracker";
+        // Table columns
+        public static final String GPS_ID = "Gps_id";
+        public static final String KEY_GPS_TYPE = "GpsType";
+        public static final String KEY_GPS_ACTION = "GpsAction";
+        public static final String KEY_GPS_GOAL = "GpsGoal";
+        public static final String KEY_GPS_DISTANCE = "GpsDistance";
+        public static final String KEY_GPS_DURATION = "GpsDuration";
+        public static final String KEY_GPS_CALORIES = "GpsCalories";
+        public static final String KEY_GPS_STEP = "Step";
+        public static final String KEY_GPS_SLATITUDE = "Slatitude";
+        public static final String KEY_GPS_SLONGTITUDE = "Slogtitude";
+        public static final String KEY_GPS_ELATITUDE = "Elatitude";
+        public static final String KEY_GPS_ELONGTITUDE = "Elongtitude";
+
+
         public static final String WaterTable = "CREATE TABLE " + TABLE_WATER + " ("
                 + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + KEY_WATER_DATE + " INTEGER,"
@@ -129,6 +149,20 @@ public class DatabaseManager {
                 + KEY_ARCHIVEMENT_COMPLETED_STATUS + " INTEGER,"
                 + KEY_ARCHIVEMENT_COUNT + " INTEGER)";
 
+        public static final String GpsTrackerTable = "CREATE TABLE " + TABLE_GPS_TRACKER + " ("
+                + GPS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + KEY_GPS_TYPE + " TEXT,"
+                + KEY_GPS_ACTION + " TEXT,"
+//                + KEY_GPS_GOAL + " TEXT,"
+                + KEY_GPS_STEP + " INTEGER,"
+                + KEY_GPS_DISTANCE + " TEXT,"
+                + KEY_GPS_DURATION + " TEXT,"
+                + KEY_GPS_CALORIES + " INTEGER,"
+                + KEY_GPS_SLATITUDE + " TEXT,"
+                + KEY_GPS_SLONGTITUDE + " TEXT,"
+                + KEY_GPS_ELATITUDE + " TEXT,"
+                + KEY_GPS_ELONGTITUDE + " TEXT)";
+
 
         DbHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
@@ -141,6 +175,7 @@ public class DatabaseManager {
             sqLiteDatabase.execSQL(StepTable);
             sqLiteDatabase.execSQL(WeightTable);
             sqLiteDatabase.execSQL(ArchivementTable);
+            sqLiteDatabase.execSQL(GpsTrackerTable);
         }
 
         @Override
@@ -149,6 +184,7 @@ public class DatabaseManager {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_STEPCOUNT);
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_WEIGHT);
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ARCHIVEMENT);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_GPS_TRACKER);
             onCreate(sqLiteDatabase);
         }
 
@@ -1676,4 +1712,134 @@ public class DatabaseManager {
         return values;
     }
 
+    /// GPS table
+    public void addGpsData(GpsTrackerModel GpsTrackerModel) {
+        db = helper.getWritableDatabase();
+
+        ContentValues initialValues = new ContentValues();
+
+        Log.e("TAG", "insertdata: ");
+
+        initialValues.put(DbHelper.KEY_GPS_TYPE, GpsTrackerModel.getType());
+        initialValues.put(DbHelper.KEY_GPS_ACTION, GpsTrackerModel.getAction());
+//        initialValues.put(DbHelper.KEY_GPS_GOAL, GpsTrackerModel.getGoal());
+        initialValues.put(DbHelper.KEY_GPS_STEP, GpsTrackerModel.getStep());
+        initialValues.put(DbHelper.KEY_GPS_DISTANCE, GpsTrackerModel.getDistance());
+        initialValues.put(DbHelper.KEY_GPS_DURATION, GpsTrackerModel.getDuration());
+        initialValues.put(DbHelper.KEY_GPS_CALORIES, GpsTrackerModel.getCalories());
+        initialValues.put(DbHelper.KEY_GPS_SLATITUDE, GpsTrackerModel.getSlatitude());
+        initialValues.put(DbHelper.KEY_GPS_SLONGTITUDE, GpsTrackerModel.getSlogtitude());
+        initialValues.put(DbHelper.KEY_GPS_ELATITUDE, GpsTrackerModel.getElatitude());
+        initialValues.put(DbHelper.KEY_GPS_ELONGTITUDE, GpsTrackerModel.getElongtitude());
+
+        try {
+            db.insert(DbHelper.TABLE_GPS_TRACKER, null, initialValues);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        db.close();
+    }
+
+    public ArrayList<GpsTrackerModel> getGpsTrackerlist() {
+
+        db = helper.getReadableDatabase();
+
+        String s = "select * from " + DbHelper.TABLE_GPS_TRACKER;
+
+//        Logger.e(s);
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArrayList<GpsTrackerModel> list = getGpsTrackerFromCursor(c);
+        db.close();
+
+        if (list != null && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+
+    }
+
+    private ArrayList<GpsTrackerModel> getGpsTrackerFromCursor(Cursor c) {
+        ArrayList<GpsTrackerModel> list = new ArrayList<GpsTrackerModel>();
+
+        try {
+            int iKEY_GPS_TYPE = c.getColumnIndex(DbHelper.KEY_GPS_TYPE);
+            int iKEY_GPS_ACTION = c.getColumnIndex(DbHelper.KEY_GPS_ACTION);
+            int iKEY_GPS_STEP = c.getColumnIndex(DbHelper.KEY_GPS_STEP);
+            int iKEY_GPS_DISTANCE = c.getColumnIndex(DbHelper.KEY_GPS_DISTANCE);
+            int iKEY_GPS_DURATION = c.getColumnIndex(DbHelper.KEY_GPS_DURATION);
+            int iKEY_GPS_CALORIES = c.getColumnIndex(DbHelper.KEY_GPS_CALORIES);
+            int iKEY_GPS_SLATITUDE = c.getColumnIndex(DbHelper.KEY_GPS_SLATITUDE);
+            int iKEY_GPS_SLONGTITUDE = c.getColumnIndex(DbHelper.KEY_GPS_SLONGTITUDE);
+            int iKEY_GPS_ELATITUDE = c.getColumnIndex(DbHelper.KEY_GPS_ELATITUDE);
+            int iKEY_GPS_ELONGTITUDE = c.getColumnIndex(DbHelper.KEY_GPS_ELONGTITUDE);
+
+
+            for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                GpsTrackerModel model = new GpsTrackerModel();
+
+                model.setType(c.getString(iKEY_GPS_TYPE));
+                model.setAction(c.getString(iKEY_GPS_ACTION));
+                model.setStep(c.getInt(iKEY_GPS_STEP));
+                model.setDistance(c.getString(iKEY_GPS_DISTANCE));
+                model.setDuration(c.getString(iKEY_GPS_DURATION));
+                model.setCalories(c.getInt(iKEY_GPS_CALORIES));
+                model.setSlatitude(c.getString(iKEY_GPS_SLATITUDE));
+                model.setSlogtitude(c.getString(iKEY_GPS_SLONGTITUDE));
+                model.setElatitude(c.getString(iKEY_GPS_ELATITUDE));
+                model.setElongtitude(c.getString(iKEY_GPS_ELONGTITUDE));
+
+                list.add(model);
+            }
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        return list;
+
+    }
+
+    @SuppressLint("Range")
+    public float getSumOfGpsMilesList() {
+        db = helper.getReadableDatabase();
+
+        Float sum;
+        String s = "select sum(" + DbHelper.KEY_GPS_DISTANCE + ")  as total from " + DbHelper.TABLE_GPS_TRACKER;
+
+        Cursor c = db.rawQuery(s, null);
+
+        c.moveToFirst();
+        do {
+            sum = c.getFloat(c.getColumnIndex("total"));
+        } while (c.moveToNext());
+
+
+        c.close();
+        db.close();
+        return sum;
+    }
+
+    public int updateGPSData(GpsTrackerModel gpsTrackerModel) {
+        db = helper.getWritableDatabase();
+        int value;
+
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.KEY_GPS_DISTANCE, gpsTrackerModel.getDistance());
+        values.put(DbHelper.KEY_GPS_CALORIES, gpsTrackerModel.getCalories());
+
+        value = db.update(DbHelper.TABLE_GPS_TRACKER, values,
+                DbHelper.KEY_GPS_TYPE + "=? AND "
+                        + DbHelper.KEY_GPS_ACTION + " =? AND "
+                        + DbHelper.KEY_GPS_DURATION + " =? AND "
+                        + DbHelper.KEY_GPS_STEP + " =? ",
+                new String[]{gpsTrackerModel.getType(), gpsTrackerModel.getAction(),
+                        gpsTrackerModel.getDuration(), String.valueOf(gpsTrackerModel.getStep())});
+
+//        Logger.e(value);
+        db.close();
+        return value;
+    }
 }

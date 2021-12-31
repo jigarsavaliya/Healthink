@@ -52,6 +52,8 @@ public class SensorService extends Service implements SensorEventListener, StepL
     ArrayList<StepCountModel> Steplist = new ArrayList<StepCountModel>();
     int hour, date, month, year;
     int StepGoal;
+    public static int mapStep = 0;
+    public static boolean isGpsService = false;
 
 
     @Override
@@ -186,6 +188,15 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
     @Override
     public void step(long timeNs) {
+
+        if (isGpsService) {
+            Logger.e("mapStep"+mapStep);
+            mapStep++;
+            Intent intent = new Intent();
+            intent.setAction("GET_SIGNAL");
+            intent.putExtra("mapstepdata", mapStep);
+            sendBroadcast(intent);
+        }
 
         int Display = 0;
 

@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/tvTotalDuration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -20,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="gfcxm"
+        android:text="Total Distance(Miles)"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textSize="@dimen/_12sdp" />
 
@@ -46,10 +47,20 @@
                     android:textColor="@color/black" />
 
                 <ImageView
+                    android:id="@+id/ivDelete"
                     android:layout_width="@dimen/_20sdp"
                     android:layout_height="@dimen/_20sdp"
                     android:layout_alignParentRight="true"
-                    android:src="@drawable/ic_baseline_delete_24_black" />
+                    android:src="@drawable/ic_baseline_delete_24_black"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/ivClosed"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_baseline_close_24"
+                    android:visibility="gone" />
 
             </RelativeLayout>
 
@@ -59,6 +70,19 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
                 android:layout_marginRight="@dimen/_10sdp" />
+
+            <TextView
+                android:id="@+id/tvNoDataFound"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/toolbar"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:gravity="center"
+                android:padding="@dimen/_5sdp"
+                android:text="No Data Found"
+                android:textSize="@dimen/_18sdp"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

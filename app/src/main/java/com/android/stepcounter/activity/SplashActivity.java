@@ -22,6 +22,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.stepcounter.R;
+import com.android.stepcounter.database.DatabaseManager;
+import com.android.stepcounter.model.GpsTrackerModel;
 import com.android.stepcounter.utils.StorageManager;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -73,6 +75,19 @@ public class SplashActivity extends AppCompatActivity {
         weightModel.setTimestemp("1637552747000");
         weightModel.setKg(120);
         dbManager.addWeightData(weightModel);*/
+
+//        GpsTrackerModel gpsTrackerModel = new GpsTrackerModel();
+//        gpsTrackerModel.setAction("Target Distance");
+//        gpsTrackerModel.setType("Walk");
+//        gpsTrackerModel.setStep(10);
+//        gpsTrackerModel.setDistance("0.01");
+//        gpsTrackerModel.setDuration("00:00:05");
+//        gpsTrackerModel.setCalories(0);
+//        gpsTrackerModel.setSlatitude("");
+//        gpsTrackerModel.setSlogtitude("");
+//        gpsTrackerModel.setElatitude("");
+//        gpsTrackerModel.setElongtitude("");
+//        dbManager.addGpsData(gpsTrackerModel);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)

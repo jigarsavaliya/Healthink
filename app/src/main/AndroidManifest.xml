@@ -21,7 +21,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.StepCounter">
-        <activity android:name=".activity.AdjustOrderActivity"></activity>
+        <activity
+            android:name=".activity.ShareGPSActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.FinishGpsDataActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.GPSStartActivity"
+            android:exported="false" />
+        <activity android:name=".activity.AdjustOrderActivity" />
         <activity android:name=".activity.InstructionActivity" />
         <activity android:name=".activity.ReminderActivity" />
         <activity android:name=".activity.LevelActivity" />
