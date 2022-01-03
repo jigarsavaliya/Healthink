@@ -1,5 +1,6 @@
 package com.android.stepcounter.sevices;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,6 +13,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -54,7 +56,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
     int StepGoal;
     public static int mapStep = 0;
     public static boolean isGpsService = false;
-
+    public static String IsTargetType = "Target Distance";
 
     @Override
     public void onCreate() {
@@ -190,12 +192,64 @@ public class SensorService extends Service implements SensorEventListener, StepL
     public void step(long timeNs) {
 
         if (isGpsService) {
-            Logger.e("mapStep"+mapStep);
+            Logger.e("mapStep" + mapStep);
             mapStep++;
             Intent intent = new Intent();
             intent.setAction("GET_SIGNAL");
             intent.putExtra("mapstepdata", mapStep);
             sendBroadcast(intent);
+
+            String Calories = String.valueOf(CommanMethod.calculateCalories(mapStep, userWeight, userHeight));
+            String Distance = String.format("%.2f", CommanMethod.calculateDistance(mapStep));
+
+            if (IsTargetType != null && IsTargetType.equals("Target Distance")) {
+                float goal = Float.parseFloat(StorageManager.getInstance().getTargetDistance());
+                float Current = Float.parseFloat(Distance);
+
+                float progress = 0;
+                if (Current != 0) {
+                    if (Current < goal) {
+                        progress = Current / goal * 100;
+                    } else {
+                        progress = 100;
+                    }
+                }
+                showGpsNotification(IsTargetType, 100, (int) progress, Current);
+            } else if (IsTargetType != null && IsTargetType.equals("Target Duration")) {
+
+                int progress;
+                int goal = Integer.parseInt(StorageManager.getInstance().getTargetDuration()) * 60 * 1000;
+                new CountDownTimer(goal, 1000) {
+
+                    public void onTick(long millisUntilFinished) {
+//                        mTextField.setText("seconds remaining: " + millisUntilFinished / 1000);
+                        Logger.e("seconds remaining: " + millisUntilFinished / 1000);
+                    }
+
+                    public void onFinish() {
+//                        mTextField.setText("done!");
+                    }
+
+                }.start();
+
+//                showGpsNotification(Distance);
+
+            } else if (IsTargetType != null && IsTargetType.equals("Target Calories")) {
+
+                float goal = Float.parseFloat(StorageManager.getInstance().getTargetCalories());
+                float Current = Float.parseFloat(Calories);
+
+                float progress = 0;
+                if (Current != 0) {
+                    if (Current < goal) {
+                        progress = Current / goal * 100;
+                    } else {
+                        progress = 100;
+                    }
+                }
+                showGpsNotification(IsTargetType, 100, (int) progress, Current);
+            }
+
         }
 
         int Display = 0;
@@ -525,6 +579,45 @@ public class SensorService extends Service implements SensorEventListener, StepL
             notificationManager.createNotificationChannel(channel);
         }
         startForeground(constant.NOTIFICATION_ID_FOR_STEP, notification);
+
+    }
+
+    private void showGpsNotification(String type, int goal, int progress, float currvalue) {
+
+        @SuppressLint("RemoteViewLayout")
+        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.custom_gps_notification);
+        contentView.setTextViewText(R.id.type, type + "");
+        contentView.setTextViewText(R.id.currtvalue, currvalue + "");
+        contentView.setProgressBar(R.id.gpsprogress, goal, progress, false);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, constant.CHANNEL_ID_FOR_STEP)
+                .setContent(contentView)
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .setSilent(true)
+                .setAutoCancel(false);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setSmallIcon(R.drawable.ic_launcher_background);
+        } else {
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+        }
+
+        Notification notification = builder.build();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(constant.CHANNEL_ID_FOR_STEP,
+                    constant.CHANNEL_NAME_FOR_STEP,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
+            channel.setShowBadge(false);
+            NotificationManager notificationManager = (NotificationManager)
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
+        startForeground(constant.NOTIFICATION_ID_FOR_GPS, notification);
 
     }
 

@@ -5,6 +5,7 @@ import static com.android.stepcounter.sevices.SensorService.mapStep;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -63,6 +65,7 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +115,7 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
         mCvPause.setOnClickListener(this);
         mCvResume.setOnClickListener(this);
         mCvFinish.setOnClickListener(this);
+        mCvPause.setVisibility(View.VISIBLE);
 
         mTimerValue = findViewById(R.id.timervalue);
         mTimerText = findViewById(R.id.timer);
@@ -295,39 +299,85 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
                 mapStep = 0;
                 mCvResume.setVisibility(View.GONE);
                 mCvFinish.setVisibility(View.GONE);
-                mCvPause.setVisibility(View.VISIBLE);
-
-                GpsTrackerModel gpsTrackerModel = new GpsTrackerModel();
-                gpsTrackerModel.setType(TargetType);
-                gpsTrackerModel.setAction(StorageManager.getInstance().getStepType());
-                gpsTrackerModel.setStep(numStep);
-                gpsTrackerModel.setDistance(Distance);
-                gpsTrackerModel.setCalories(Integer.valueOf(Calories));
-                gpsTrackerModel.setSlatitude("");
-                gpsTrackerModel.setSlogtitude("");
-                gpsTrackerModel.setElatitude("");
-                gpsTrackerModel.setElongtitude("");
-
-                if (TargetType != null && TargetType.equals("Target Duration")) {
-                    gpsTrackerModel.setDuration(mTvCurrentValue.getText().toString());
-                } else {
-                    gpsTrackerModel.setDuration(mTimerValue.getText().toString());
-                }
-
-                Logger.e(new Gson().toJson(gpsTrackerModel));
-                dbManager.addGpsData(gpsTrackerModel);
-
-                Intent i = new Intent(this, FinishGpsDataActivity.class);
-                i.putExtra("Date", rightnow.get(Calendar.HOUR) + ":" + rightnow.get(Calendar.MINUTE));
-                i.putExtra("AMPM", rightnow.get(Calendar.AM_PM));
-                startActivity(i);
+                InsetDataInDatabase();
                 break;
         }
     }
 
+    private void InsetDataInDatabase() {
+        GpsTrackerModel gpsTrackerModel = new GpsTrackerModel();
+        gpsTrackerModel.setType(TargetType);
+        gpsTrackerModel.setAction(StorageManager.getInstance().getStepType());
+        gpsTrackerModel.setStep(numStep);
+        gpsTrackerModel.setDistance(Distance);
+        gpsTrackerModel.setCalories(Integer.valueOf(Calories));
+        gpsTrackerModel.setSlatitude("");
+        gpsTrackerModel.setSlogtitude("");
+        gpsTrackerModel.setElatitude("");
+        gpsTrackerModel.setElongtitude("");
+
+        if (TargetType != null && TargetType.equals("Target Duration")) {
+            gpsTrackerModel.setDuration(mTvCurrentValue.getText().toString());
+        } else {
+            gpsTrackerModel.setDuration(mTimerValue.getText().toString());
+        }
+
+        Logger.e(new Gson().toJson(gpsTrackerModel));
+        dbManager.addGpsData(gpsTrackerModel);
+
+        Intent i = new Intent(this, FinishGpsDataActivity.class);
+        i.putExtra("Date", rightnow.get(Calendar.HOUR) + ":" + rightnow.get(Calendar.MINUTE));
+        i.putExtra("AMPM", rightnow.get(Calendar.AM_PM));
+        startActivity(i);
+    }
+
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (isGpsService) {
+            ShowQuictDailog();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void ShowQuictDailog() {
+        isGpsService = false;
+        IsTimerStart = false;
+        mCvPause.setVisibility(View.VISIBLE);
+
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setTitle("QUIT WORKOUT?");
+        builder1.setMessage("If you get tired,take a break,but DON'T QUIT!");
+        builder1.setCancelable(true);
+
+        builder1.setPositiveButton(
+                "QUIT",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        isGpsService = false;
+                        mapStep = 0;
+                        InsetDataInDatabase();
+                        dialog.cancel();
+                    }
+                });
+
+        builder1.setNegativeButton(
+                "CANCEL",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        isGpsService = true;
+                        IsTimerStart = true;
+                        mCvResume.setVisibility(View.GONE);
+                        mCvFinish.setVisibility(View.GONE);
+                        mCvPause.setVisibility(View.VISIBLE);
+
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
     }
 
 }

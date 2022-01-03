@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.stepcounter">
 
+
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -55,10 +56,14 @@
         </activity>
         <activity android:name=".activity.MainActivity" />
 
-        <service android:name=".sevices.SensorService" /> <!-- Register the Alarm Receiver -->
+        <service android:name=".sevices.SensorService" />
+
+        <!-- Register the Alarm Receiver -->
         <receiver android:name=".sevices.AlarmReceiver" />
         <receiver android:name=".sevices.DailyReminderReceiver" />
-        <receiver android:name=".sevices.NotificationReceiver">
+        <receiver
+            android:name=".sevices.NotificationReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="MyAction" />
             </intent-filter>

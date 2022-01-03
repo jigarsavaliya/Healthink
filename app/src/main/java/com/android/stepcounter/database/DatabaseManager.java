@@ -1842,4 +1842,16 @@ public class DatabaseManager {
         db.close();
         return value;
     }
+
+    public void DeleteGpsTrakerData(String Action,String Distance,Integer Calories,String Duration,Integer Step) {
+        db = helper.getWritableDatabase();
+
+        int b = db.delete(DbHelper.TABLE_GPS_TRACKER, DbHelper.KEY_GPS_ACTION + " = ?  AND "
+                        + DbHelper.KEY_GPS_DISTANCE + " =? AND "
+                        + DbHelper.KEY_GPS_CALORIES + " =? AND "
+                        + DbHelper.KEY_GPS_DURATION + " =? AND "
+                        + DbHelper.KEY_GPS_STEP + " =?",
+                new String[]{Action, Distance, String.valueOf(Calories),Duration,String.valueOf(Step)});
+        db.close();
+    }
 }

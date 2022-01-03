@@ -48,6 +48,7 @@ public class StorageManager {
     public static final String PREF_APP_KEY_TDURATION = "TargetDuration";
     public static final String PREF_APP_KEY_TCALORIES = "TargetCalories";
     public static final String PREF_APP_KEY_TYPE = "StepType";
+    public static final String PREF_APP_KEY_FEELINGDATA = "Feeling Data";
 
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -310,5 +311,14 @@ public class StorageManager {
 
     public String getStepType() {
         return preferences.getString(StorageManager.PREF_APP_KEY_TYPE, "Walk");
+    }
+
+
+    public void setFeelingData(String message) {
+        editor.putString(StorageManager.PREF_APP_KEY_FEELINGDATA, message).apply();
+    }
+
+    public String getFeelingData() {
+        return preferences.getString(StorageManager.PREF_APP_KEY_FEELINGDATA, "");
     }
 }

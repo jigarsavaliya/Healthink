@@ -13,6 +13,7 @@ public class constant {
     public static Boolean IsLocationHistoryDelete = false;
 
 
+    public static int NOTIFICATION_ID_FOR_GPS = 1003;
     public static int NOTIFICATION_ID_FOR_STEP = 1001;
     public static int NOTIFICATION_ID_FOR_WATER = 1002;
     public static final String CHANNEL_ID_FOR_STEP = "Location Update";
@@ -27,5 +28,8 @@ public class constant {
     public static final int DASHBORAD_GPS_TRACKER = 1;
     public static final int DASHBORAD_WATER_TRACKER = 2;
     public static final int DASHBORAD_WEIGHT_TRACKER = 3;
+
+
+
 
 }

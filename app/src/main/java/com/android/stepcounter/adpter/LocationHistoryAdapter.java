@@ -1,16 +1,15 @@
 package com.android.stepcounter.adpter;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.GpsAdapterCallBack;
 import com.android.stepcounter.R;
 import com.android.stepcounter.fragment.HistoryFragment;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistoryAdapter.ViewHolder> {
 
     ArrayList<GpsTrackerModel> gpsTrackerModels;
+    ArrayList<GpsTrackerModel> gpsTrackerModelArrayList = new ArrayList<>();
     HistoryFragment activity;
     private GpsAdapterCallBack myAdapterListener;
 
@@ -40,9 +40,9 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        viewHolder.mTvType.setText(gpsTrackerModels.get(i).getType());
-        viewHolder.mTvMile.setText(gpsTrackerModels.get(i).getDistance()+" Mile");
+    public void onBindViewHolder(ViewHolder viewHolder, @SuppressLint("RecyclerView") int i) {
+        viewHolder.mTvType.setText(gpsTrackerModels.get(i).getAction());
+        viewHolder.mTvMile.setText(gpsTrackerModels.get(i).getDistance() + " Mile");
         viewHolder.mTvDuration.setText(gpsTrackerModels.get(i).getDuration());
         viewHolder.mTvKcal.setText(gpsTrackerModels.get(i).getCalories() + " Kcal");
         viewHolder.mTvSteps.setText(gpsTrackerModels.get(i).getStep() + " Steps");
@@ -57,13 +57,11 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-//                    countModelArrayList.add(gpsTrackerModels.get(i));
-//                    Logger.e(countModelArrayList.size() + "new");
+                    gpsTrackerModelArrayList.add(gpsTrackerModels.get(i));
                 } else {
-//                    countModelArrayList.remove(gpsTrackerModels.get(i));
-//                    Logger.e(countModelArrayList.size() + "remove");
+                    gpsTrackerModelArrayList.remove(gpsTrackerModels.get(i));
                 }
-                myAdapterListener.onMethodCallback(gpsTrackerModels);
+                myAdapterListener.onMethodCallback(gpsTrackerModelArrayList);
             }
         });
 
@@ -73,8 +71,6 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
     public int getItemCount() {
         return gpsTrackerModels.size();
     }
-
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView mTvType, mTvMile, mTvDuration, mTvKcal, mTvSteps;
@@ -96,7 +92,9 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
         this.myAdapterListener = adapterCallback;
     }
 
-    public void updateList() {
-
+    public void updatelist(ArrayList<GpsTrackerModel> gpsTrackerModelArrayList) {
+        gpsTrackerModels = gpsTrackerModelArrayList;
+        notifyDataSetChanged();
     }
+
 }  

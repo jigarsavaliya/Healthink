@@ -14,6 +14,7 @@ public class TrainingActivity extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     MainViewPagerAdapter viewPagerAdapter;
+    public static boolean isGPSFinish = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +31,18 @@ public class TrainingActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (isGPSFinish) {
+            isGPSFinish = false;
+            constant.IsLocationHistoryDelete = false;
+            viewPager.setCurrentItem(2);
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
-        constant.IsLocationHistoryDelete = false;
+//        startActivity(new Intent(this, MainActivity.class));
     }
 }

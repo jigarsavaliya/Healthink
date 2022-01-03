@@ -127,11 +127,12 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     for (int i = 0; i < gpsTrackerModelArrayList.size(); i++) {
-//                                        dbManager.DeleteCurrentDayStepCountData();
+                                        DbManger.DeleteGpsTrakerData(gpsTrackerModelArrayList.get(i).getAction(), gpsTrackerModelArrayList.get(i).getDistance(),
+                                                gpsTrackerModelArrayList.get(i).getCalories(), gpsTrackerModelArrayList.get(i).getDuration(),
+                                                gpsTrackerModelArrayList.get(i).getStep());
                                     }
                                     getDataFromDataBase();
-//                                    mlocationHistoryAdapter.updatelist(stringArrayListHashMap, headerMap);
-//                                    mlocationHistoryAdapter.notifyDataSetChanged();
+                                    mlocationHistoryAdapter.updatelist(gpsTrackerModelArrayList);
                                     dialog.cancel();
                                 }
                             });

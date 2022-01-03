@@ -1,5 +1,7 @@
 package com.android.stepcounter.activity;
 
+import static com.android.stepcounter.activity.TrainingActivity.isGPSFinish;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
     int Calories = 0;
     ImageView mIvClosed;
     CardView mCvShare;
+    EditText mEtFeelingData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,7 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
         mTvCurrDate.setText("Today " + Date + " " + formation);
         mTvEditDailog.setOnClickListener(this);
 
+        mEtFeelingData = findViewById(R.id.etFeelingData);
         mTvCurrentValue = findViewById(R.id.tvCurrentValue);
         mTvGoalValue = findViewById(R.id.tvGoalValue);
         mTimerValue = findViewById(R.id.timervalue);
@@ -85,6 +89,8 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
 
         getDataFromDatabase();
         setData();
+
+        mEtFeelingData.setText(StorageManager.getInstance().getFeelingData());
 
     }
 
@@ -273,9 +279,22 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
                 showEditWorkoutDailog();
                 break;
             case R.id.ivClosed:
+                String Feelingdata = mEtFeelingData.getText().toString();
+                if (Feelingdata != null) {
+                    StorageManager.getInstance().setFeelingData(Feelingdata);
+                } else {
+                    StorageManager.getInstance().setFeelingData("");
+                }
+                isGPSFinish = true;
                 startActivity(new Intent(this, TrainingActivity.class));
                 break;
             case R.id.cvShare:
+                String Feeling = mEtFeelingData.getText().toString();
+                if (Feeling != null) {
+                    StorageManager.getInstance().setFeelingData(Feeling);
+                } else {
+                    StorageManager.getInstance().setFeelingData("");
+                }
                 startActivity(new Intent(this, ShareGPSActivity.class));
                 break;
         }

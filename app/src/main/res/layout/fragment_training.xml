@@ -116,11 +116,11 @@
             android:layout_height="wrap_content">
 
             <fragment
-                android:id="@+id/fragment_view_map"
-                android:name="com.google.android.gms.maps.MapFragment"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:ignore="FragmentTagUsage" />
+                tools:context="com.imaadv.leaynik.ClinicFragment" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -132,8 +132,8 @@
                     android:id="@+id/btnStart"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/_5sdp"
                     android:layout_marginBottom="@dimen/_10sdp"
+                    android:padding="@dimen/_5sdp"
                     android:text="Start" />
             </LinearLayout>
         </RelativeLayout>
