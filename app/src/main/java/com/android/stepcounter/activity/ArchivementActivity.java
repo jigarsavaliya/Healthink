@@ -36,8 +36,8 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
     CardView mCvDailyStep, mCvComboDays, mCvTotalDays, mCvTotalDistance, mCvLevel;
     ProgressBar mPbLevelCompletedBar;
     TextView mTvDetailslabel, mTvDailyLabel;
-    int StepGoal = 10000;
-    String StepGoalLabel = "10000", CurrLavel = "Level 1", CurrDescription = "A good Start!";
+    int StepGoal;
+    String StepGoalLabel, CurrLavel, CurrDescription = "A good Start!";
     private int numSteps;
     MyReceiver myReceiver;
     int CurrentStepData;
@@ -198,7 +198,6 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         mTotalStepData = dbManager.getTotalStepCount();
         mTotalDisanceData = dbManager.getTotalDistanceCount();
 
-
         mLevelList = dbManager.getArchivementlist(constant.ARCHIVEMENT_LEVEL);
         mDailySteplist = dbManager.getArchivementlist(constant.ARCHIVEMENT_DAILY_STEP);
         mComboDayList = dbManager.getArchivementlist(constant.ARCHIVEMENT_COMBO_DAY);
@@ -206,7 +205,7 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         mTotalDistanceList = dbManager.getArchivementlist(constant.ARCHIVEMENT_TOTAL_DISTANCE);
 
         for (int i = 0; i < mLevelList.size(); i++) {
-            if (mLevelList.get(i).isCompeleteStatus()) {
+            if (mLevelList.get(i).isCompeleteStatus() && mLevelList.size() - 1 != i) {
                 CurrLavel = mLevelList.get(i).getLabel();
                 StepGoal = (int) mLevelList.get(i + 1).getValue();
                 StepGoalLabel = mLevelList.get(i + 1).getLabel();

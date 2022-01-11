@@ -29,4 +29,24 @@
         <item name="android:backgroundDimEnabled">false</item>
 
     </style>
+
+    <style name="Theme.Transparent" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Fill the screen -->
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+
+        <!-- No backgrounds, titles or window float -->
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+
+        <!-- Just to prove it's working -->
+        <item name="android:background">#80000000</item>
+        <item name="android:windowIsTranslucent">true</item>
+<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowNoTitle">true</item>
+<!--        <item name="android:windowIsFloating">false</item>-->
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>

@@ -53,7 +53,7 @@ public class DailyReminderReceiver extends BroadcastReceiver {
 
         Intent notificationIntent = new Intent(mcontext, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mcontext, 0, notificationIntent, 0);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mcontext, constant.CHANNEL_ID_FOR_STEP)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mcontext, constant.CHANNEL_ID_FOR_WATER)
                 .setContentIntent(pendingIntent)
                 .setContentTitle("Step Counter")
                 .setContentText("You need to start step.")
@@ -71,8 +71,8 @@ public class DailyReminderReceiver extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(constant.CHANNEL_ID_FOR_STEP,
-                    constant.CHANNEL_NAME_FOR_STEP,
+            NotificationChannel channel = new NotificationChannel(constant.CHANNEL_ID_FOR_WATER,
+                    constant.CHANNEL_NAME_FOR_WATER,
                     NotificationManager.IMPORTANCE_DEFAULT);
             channel.setShowBadge(false);
             notificationManager.createNotificationChannel(channel);

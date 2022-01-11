@@ -9,6 +9,7 @@
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_arrow_back.xml" value="0.24947916666666667" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.2375" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_arrow_back_ios_24.xml" value="0.2375" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_check_24.xml" value="0.36512820512820515" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_close_24.xml" value="0.37083333333333335" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_delete_24.xml" value="0.36512820512820515" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/ic_baseline_delete_24_black.xml" value="0.37083333333333335" />
@@ -18,6 +19,7 @@
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/drawable/top_round_drawable.xml" value="0.36512820512820515" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_add_water.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_adjust_order.xml" value="0.15677083333333333" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_archivement_detail.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_finish_gps_data.xml" value="0.340625" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_gpsstart.xml" value="0.26614583333333336" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/activity_heath.xml" value="0.17249240121580547" />
@@ -30,19 +32,24 @@
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/cardview_row.xml" value="0.3546875" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/custom_gps_notification.xml" value="0.3546875" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/custom_notification.xml" value="0.17249240121580547" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/custom_notification_layout.xml" value="0.16259057971014493" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/dailog_add_weight.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/dailog_archivement.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/dailog_edit_heightweight.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/dailog_edit_workout.xml" value="0.3546875" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/dailog_gps_finish.xml" value="0.3546875" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/dailog_gps_resume_pause.xml" value="0.3546875" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/dailog_sensitivity.xml" value="0.16259057971014493" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/fragment_history.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/fragment_training.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/item_location_history.xml" value="0.16757246376811594" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/item_step_history.xml" value="0.17249240121580547" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/item_step_history_details.xml" value="0.2223731884057971" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/main_gps_layout.xml" value="0.3546875" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/main_water_layout.xml" value="0.3546875" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/layout/main_weigth_layout.xml" value="0.3546875" />
         <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/menu/menu_water.xml" value="0.3546875" />
+        <entry key="..\:/Android/Projects/StepCounter/app/src/main/res/menu/share_menu.xml" value="0.190625" />
       </map>
     </option>
   </component>

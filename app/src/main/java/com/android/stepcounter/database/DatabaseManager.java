@@ -41,7 +41,6 @@ public class DatabaseManager {
         return adapter;
     }
 
-
     private class DbHelper extends SQLiteOpenHelper {
         Context mContext;
         // Table Name
@@ -90,6 +89,7 @@ public class DatabaseManager {
         public static final String KEY_ARCHIVEMENT_VALUE = "Value";
         public static final String KEY_ARCHIVEMENT_DESCRIPTION = "Description";
         public static final String KEY_ARCHIVEMENT_COMPLETED_STATUS = "CompleteStatus";
+        public static final String KEY_ARCHIVEMENT_REMINDER_STATUS = "ReminderStatus";
         public static final String KEY_ARCHIVEMENT_COUNT = "Count";
 
 
@@ -99,7 +99,6 @@ public class DatabaseManager {
         public static final String GPS_ID = "Gps_id";
         public static final String KEY_GPS_TYPE = "GpsType";
         public static final String KEY_GPS_ACTION = "GpsAction";
-        public static final String KEY_GPS_GOAL = "GpsGoal";
         public static final String KEY_GPS_DISTANCE = "GpsDistance";
         public static final String KEY_GPS_DURATION = "GpsDuration";
         public static final String KEY_GPS_CALORIES = "GpsCalories";
@@ -147,6 +146,7 @@ public class DatabaseManager {
                 + KEY_ARCHIVEMENT_VALUE + " INTEGER,"
                 + KEY_ARCHIVEMENT_DESCRIPTION + " TEXT,"
                 + KEY_ARCHIVEMENT_COMPLETED_STATUS + " INTEGER,"
+                + KEY_ARCHIVEMENT_REMINDER_STATUS + " INTEGER,"
                 + KEY_ARCHIVEMENT_COUNT + " INTEGER)";
 
         public static final String GpsTrackerTable = "CREATE TABLE " + TABLE_GPS_TRACKER + " ("
@@ -1569,6 +1569,7 @@ public class DatabaseManager {
             initialValues.put(DbHelper.KEY_ARCHIVEMENT_VALUE, archivementModel.getValue());
             initialValues.put(DbHelper.KEY_ARCHIVEMENT_DESCRIPTION, archivementModel.getDescription());
             initialValues.put(DbHelper.KEY_ARCHIVEMENT_COMPLETED_STATUS, archivementModel.isCompeleteStatus());
+            initialValues.put(DbHelper.KEY_ARCHIVEMENT_REMINDER_STATUS, archivementModel.isCompeleteStatus());
             initialValues.put(DbHelper.KEY_ARCHIVEMENT_COUNT, archivementModel.getCount());
 
             try {
@@ -1594,12 +1595,64 @@ public class DatabaseManager {
         ArrayList<ArchivementModel> list = getArchivementFromCursor(c);
         db.close();
 
-        if (list != null && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
 
+        return list;
+
+    }
+
+    public ArchivementModel getArchivement(String label, long Value) {
+
+        db = helper.getReadableDatabase();
+
+        String s = "select * from " + DbHelper.TABLE_ARCHIVEMENT + " where " + DbHelper.KEY_ARCHIVEMENT_TYPE + " = \"" + label + "\" AND " + DbHelper.KEY_ARCHIVEMENT_VALUE + " = " + Value;
+
+//        Logger.e(s);
+
+        Cursor c = db.rawQuery(s, null);
+
+        ArchivementModel list = getArchivementCursor(c);
+        db.close();
+
+
+        return list;
+
+
+    }
+
+    private ArchivementModel getArchivementCursor(Cursor c) {
+        ArchivementModel model = new ArchivementModel();
+        try {
+            int iKEY_ARCHIVEMENT_TYPE = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_TYPE);
+            int iKEY_ARCHIVEMENT_LABEL = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_LABEL);
+            int iKEY_ARCHIVEMENT_VALUE = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_VALUE);
+            int iKEY_ARCHIVEMENT_DESCRIPTION = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_DESCRIPTION);
+            int iKEY_ARCHIVEMENT_COMPLETED_STATUS = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_COMPLETED_STATUS);
+            int iKEY_ARCHIVEMENT_REMINDER_STATUS = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_REMINDER_STATUS);
+            int iKEY_ARCHIVEMENT_COUNT = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_COUNT);
+
+            for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                model.setType(c.getString(iKEY_ARCHIVEMENT_TYPE));
+                model.setLabel(c.getString(iKEY_ARCHIVEMENT_LABEL));
+                model.setValue(c.getInt(iKEY_ARCHIVEMENT_VALUE));
+                model.setDescription(c.getString(iKEY_ARCHIVEMENT_DESCRIPTION));
+                if (c.getInt(iKEY_ARCHIVEMENT_COMPLETED_STATUS) == 1) {
+                    model.setCompeleteStatus(true);
+                } else {
+                    model.setCompeleteStatus(false);
+                }
+
+                if (c.getInt(iKEY_ARCHIVEMENT_REMINDER_STATUS) == 1) {
+                    model.setReminderStatus(true);
+                } else {
+                    model.setReminderStatus(false);
+                }
+                model.setCount(c.getInt(iKEY_ARCHIVEMENT_COUNT));
+            }
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        return model;
     }
 
     public ArrayList<ArchivementModel> getArchivementlist(String label) {
@@ -1615,11 +1668,9 @@ public class DatabaseManager {
         ArrayList<ArchivementModel> list = getArchivementFromCursor(c);
         db.close();
 
-        if (list != null && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
+
+        return list;
+
 
     }
 
@@ -1653,6 +1704,7 @@ public class DatabaseManager {
             int iKEY_ARCHIVEMENT_VALUE = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_VALUE);
             int iKEY_ARCHIVEMENT_DESCRIPTION = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_DESCRIPTION);
             int iKEY_ARCHIVEMENT_COMPLETED_STATUS = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_COMPLETED_STATUS);
+            int iKEY_ARCHIVEMENT_REMINDER_STATUS = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_REMINDER_STATUS);
             int iKEY_ARCHIVEMENT_COUNT = c.getColumnIndex(DbHelper.KEY_ARCHIVEMENT_COUNT);
 
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
@@ -1666,6 +1718,12 @@ public class DatabaseManager {
                     model.setCompeleteStatus(true);
                 } else {
                     model.setCompeleteStatus(false);
+                }
+
+                if (c.getInt(iKEY_ARCHIVEMENT_REMINDER_STATUS) == 1) {
+                    model.setReminderStatus(true);
+                } else {
+                    model.setReminderStatus(false);
                 }
                 model.setCount(c.getInt(iKEY_ARCHIVEMENT_COUNT));
 
@@ -1712,6 +1770,23 @@ public class DatabaseManager {
         return values;
     }
 
+    public int updateArchivementReminingLevel(String archivementLevel, long mlevelGoal) {
+        db = helper.getWritableDatabase();
+        int a;
+        a = db.update(DbHelper.TABLE_ARCHIVEMENT, getContentValuesArchivementReminingLevel(),
+                DbHelper.KEY_ARCHIVEMENT_TYPE + " =? AND " + DbHelper.KEY_ARCHIVEMENT_VALUE + " =? ",
+                new String[]{archivementLevel, String.valueOf(mlevelGoal)});
+        db.close();
+        return a;
+    }
+
+    public ContentValues getContentValuesArchivementReminingLevel() {
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.KEY_ARCHIVEMENT_REMINDER_STATUS, 1);
+
+        return values;
+    }
+
     /// GPS table
     public void addGpsData(GpsTrackerModel GpsTrackerModel) {
         db = helper.getWritableDatabase();
@@ -1753,13 +1828,7 @@ public class DatabaseManager {
 
         ArrayList<GpsTrackerModel> list = getGpsTrackerFromCursor(c);
         db.close();
-
-        if (list != null && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
-
+        return list;
     }
 
     private ArrayList<GpsTrackerModel> getGpsTrackerFromCursor(Cursor c) {
@@ -1843,7 +1912,7 @@ public class DatabaseManager {
         return value;
     }
 
-    public void DeleteGpsTrakerData(String Action,String Distance,Integer Calories,String Duration,Integer Step) {
+    public void DeleteGpsTrakerData(String Action, String Distance, Integer Calories, String Duration, Integer Step) {
         db = helper.getWritableDatabase();
 
         int b = db.delete(DbHelper.TABLE_GPS_TRACKER, DbHelper.KEY_GPS_ACTION + " = ?  AND "
@@ -1851,7 +1920,24 @@ public class DatabaseManager {
                         + DbHelper.KEY_GPS_CALORIES + " =? AND "
                         + DbHelper.KEY_GPS_DURATION + " =? AND "
                         + DbHelper.KEY_GPS_STEP + " =?",
-                new String[]{Action, Distance, String.valueOf(Calories),Duration,String.valueOf(Step)});
+                new String[]{Action, Distance, String.valueOf(Calories), Duration, String.valueOf(Step)});
         db.close();
+    }
+
+    public int updateArchivementReminLevel(String archivementLevel) {
+        db = helper.getWritableDatabase();
+        int a;
+        a = db.update(DbHelper.TABLE_ARCHIVEMENT, getContentValuesArchivementRemineLevel(),
+                DbHelper.KEY_ARCHIVEMENT_TYPE + " =? ",
+                new String[]{archivementLevel});
+        db.close();
+        return a;
+    }
+
+    public ContentValues getContentValuesArchivementRemineLevel() {
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.KEY_ARCHIVEMENT_REMINDER_STATUS, 0);
+
+        return values;
     }
 }

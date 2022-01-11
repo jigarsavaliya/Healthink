@@ -32,6 +32,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     LocationHistoryAdapter mlocationHistoryAdapter;
     DatabaseManager DbManger;
     ArrayList<GpsTrackerModel> gpsTrackerModelArrayList = new ArrayList<>();
+    ArrayList<GpsTrackerModel> gpsTrackerModelList = new ArrayList<>();
     float Miles;
     ImageView mIvDelete, mIvClosed;
 
@@ -69,6 +70,12 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         mTvTotalDuration.setText(Miles + "");
         mRvHistoryData = view.findViewById(R.id.rvHistoryData);
 
+        setRecyclerview();
+
+
+    }
+
+    private void setRecyclerview() {
         if (gpsTrackerModelArrayList != null) {
             mTvNoDataFound.setVisibility(View.GONE);
             mlocationHistoryAdapter = new LocationHistoryAdapter(this, gpsTrackerModelArrayList);
@@ -78,14 +85,16 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
             mlocationHistoryAdapter.setMyAdapterListener(new GpsAdapterCallBack() {
                 @Override
                 public void onMethodCallback(ArrayList<GpsTrackerModel> gpsTrackerModels) {
-                    gpsTrackerModelArrayList = gpsTrackerModels;
-                    Logger.e(gpsTrackerModels.size());
+                    gpsTrackerModelList = gpsTrackerModels;
+                    Logger.e("count" + gpsTrackerModels.size());
                     if (gpsTrackerModels.size() != 0) {
                         mIvDelete.setVisibility(View.GONE);
                         mIvClosed.setVisibility(View.VISIBLE);
                     } else {
+                        constant.IsLocationHistoryDelete = false;
                         mIvDelete.setVisibility(View.VISIBLE);
                         mIvClosed.setVisibility(View.GONE);
+                        mlocationHistoryAdapter.notifyDataSetChanged();
                     }
                 }
             });
@@ -93,8 +102,6 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         } else {
             mTvNoDataFound.setVisibility(View.VISIBLE);
         }
-
-
     }
 
     private void getDataFromDataBase() {
@@ -107,48 +114,65 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ivDelete:
-                constant.IsLocationHistoryDelete = true;
-                mlocationHistoryAdapter.notifyDataSetChanged();
-                mIvDelete.setVisibility(View.GONE);
-                mIvClosed.setVisibility(View.VISIBLE);
+                Logger.e("count" + gpsTrackerModelList.size());
+                if (gpsTrackerModelList != null) {
+                    constant.IsLocationHistoryDelete = true;
+                    mlocationHistoryAdapter.notifyDataSetChanged();
+                    mIvDelete.setVisibility(View.GONE);
+                    mIvClosed.setVisibility(View.VISIBLE);
+                }
                 break;
             case R.id.ivClosed:
-                constant.IsLocationHistoryDelete = false;
-                mIvDelete.setVisibility(View.VISIBLE);
-                mIvClosed.setVisibility(View.GONE);
+                if (gpsTrackerModelList != null) {
+                    constant.IsLocationHistoryDelete = false;
+                    Logger.e("count" + gpsTrackerModelList.size());
+                    if (gpsTrackerModelList.size() != 0) {
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
+                        builder1.setMessage("Are You sure you want to delete data?");
+                        builder1.setCancelable(true);
 
-                if (gpsTrackerModelArrayList.size() != 0) {
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
-                    builder1.setMessage("Are You sure you want to delete data?");
-                    builder1.setCancelable(true);
-
-                    builder1.setPositiveButton(
-                            "DELETE",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    for (int i = 0; i < gpsTrackerModelArrayList.size(); i++) {
-                                        DbManger.DeleteGpsTrakerData(gpsTrackerModelArrayList.get(i).getAction(), gpsTrackerModelArrayList.get(i).getDistance(),
-                                                gpsTrackerModelArrayList.get(i).getCalories(), gpsTrackerModelArrayList.get(i).getDuration(),
-                                                gpsTrackerModelArrayList.get(i).getStep());
+                        builder1.setPositiveButton(
+                                "DELETE",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        for (int i = 0; i < gpsTrackerModelList.size(); i++) {
+                                            DbManger.DeleteGpsTrakerData(gpsTrackerModelList.get(i).getAction(), gpsTrackerModelList.get(i).getDistance(),
+                                                    gpsTrackerModelList.get(i).getCalories(), gpsTrackerModelList.get(i).getDuration(),
+                                                    gpsTrackerModelList.get(i).getStep());
+                                        }
+                                        getDataFromDataBase();
+                                        if (gpsTrackerModelArrayList.size() > 0) {
+                                            mTvNoDataFound.setVisibility(View.GONE);
+                                            mlocationHistoryAdapter.updatelist(gpsTrackerModelArrayList);
+                                            mlocationHistoryAdapter.notifyDataSetChanged();
+                                        } else {
+                                            mlocationHistoryAdapter.updatelist(gpsTrackerModelArrayList);
+                                            mlocationHistoryAdapter.notifyDataSetChanged();
+                                            mTvNoDataFound.setVisibility(View.VISIBLE);
+                                        }
+                                        mTvTotalDuration.setText(Miles + "");
+                                        gpsTrackerModelList.clear();
+                                        mIvDelete.setVisibility(View.VISIBLE);
+                                        mIvClosed.setVisibility(View.GONE);
+                                        dialog.cancel();
                                     }
-                                    getDataFromDataBase();
-                                    mlocationHistoryAdapter.updatelist(gpsTrackerModelArrayList);
-                                    dialog.cancel();
-                                }
-                            });
+                                });
 
-                    builder1.setNegativeButton(
-                            "CANCEL",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            });
+                        builder1.setNegativeButton(
+                                "CANCEL",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
 
-                    AlertDialog alert11 = builder1.create();
-                    alert11.show();
-                } else {
-                    mlocationHistoryAdapter.notifyDataSetChanged();
+                        AlertDialog alert11 = builder1.create();
+                        alert11.show();
+                    } else {
+                        mIvDelete.setVisibility(View.VISIBLE);
+                        mIvClosed.setVisibility(View.GONE);
+                        mlocationHistoryAdapter.notifyDataSetChanged();
+                    }
                 }
                 break;
         }

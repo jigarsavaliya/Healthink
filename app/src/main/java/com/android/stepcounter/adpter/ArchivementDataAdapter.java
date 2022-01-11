@@ -17,6 +17,7 @@ import com.android.stepcounter.activity.ArchivementActivity;
 import com.android.stepcounter.activity.ArchivementDetailActivity;
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.ArchivementModel;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 
@@ -54,7 +55,7 @@ public class ArchivementDataAdapter extends RecyclerView.Adapter<ArchivementData
 
     @SuppressLint("ResourceAsColor")
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(ViewHolder viewHolder, @SuppressLint("RecyclerView") int i) {
 //        progressMaxValue = dbManager.getValueofTypeWiseData(mDailyStepDatalist.get(i).getType());
 //        progressValue = dbManager.getValueTypeWiseData(mDailyStepDatalist.get(i).getType());
 

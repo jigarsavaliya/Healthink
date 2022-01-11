@@ -13,8 +13,20 @@ public class ArchivementModel {
     private String description;
     @SerializedName("CompeleteStatus")
     private boolean compeleteStatus;
+
+    @SerializedName("ReminderStatus")
+    private boolean ReminderStatus;
+
     @SerializedName("Count")
     private long count;
+
+    public boolean isReminderStatus() {
+        return ReminderStatus;
+    }
+
+    public void setReminderStatus(boolean reminderStatus) {
+        ReminderStatus = reminderStatus;
+    }
 
     public String getType() {
         return type;

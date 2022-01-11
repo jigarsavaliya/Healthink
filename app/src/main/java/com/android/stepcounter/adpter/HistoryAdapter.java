@@ -54,7 +54,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         long key = mKeys.get(i);
-        Logger.e(key);
+//        Logger.e(key);
         StepHistoryModel weekHeader = headerMap.get(key);
 
         Calendar c = Calendar.getInstance();
@@ -87,7 +87,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         viewHolder.mrvdetails.setHasFixedSize(true);
         viewHolder.mrvdetails.setLayoutManager(new LinearLayoutManager(activity));
         viewHolder.mrvdetails.setAdapter(HistoryDetailsAdapter);
-//        }
+
     }
 
     @Override

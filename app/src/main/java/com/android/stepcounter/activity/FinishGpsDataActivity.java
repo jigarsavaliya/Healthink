@@ -4,6 +4,7 @@ import static com.android.stepcounter.activity.TrainingActivity.isGPSFinish;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -22,10 +24,17 @@ import com.android.stepcounter.model.GpsTrackerModel;
 import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class FinishGpsDataActivity extends AppCompatActivity implements View.OnClickListener {
+public class FinishGpsDataActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
 
     String Date, TargetType;
     Integer AMPM, numStep;
@@ -34,11 +43,11 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
     TextView mTvCurrDate, mTvEditDailog;
     TextView mTimerValue, mTimerText, mTvCurrentValue, mTvGoalValue, mStepValue, mStep, mTvKcalValue, mTvKcal, mTvmileValue, mTvmile;
     ArrayList<GpsTrackerModel> gpsTrackerModelArrayList = new ArrayList<>();
-    String Distance = "0.0", Duration;
+    String Distance = "0.0", Duration, sLatetitue, sLongtitude, Elatitude, Elongtitude;
     int Calories = 0;
     ImageView mIvClosed;
     CardView mCvShare;
-    EditText mEtFeelingData;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +64,7 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
             formation = "AM";
         }
 
-        Logger.e(Date);
+//        Logger.e(Date);
     }
 
     @Override
@@ -65,6 +74,12 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
     }
 
     private void init() {
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_view_map);
+
+        mapFragment.getMapAsync(this);
+
         mTvCurrDate = findViewById(R.id.tvCurrDate);
         mTvEditDailog = findViewById(R.id.tvEditDailog);
 
@@ -75,7 +90,6 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
         mTvCurrDate.setText("Today " + Date + " " + formation);
         mTvEditDailog.setOnClickListener(this);
 
-        mEtFeelingData = findViewById(R.id.etFeelingData);
         mTvCurrentValue = findViewById(R.id.tvCurrentValue);
         mTvGoalValue = findViewById(R.id.tvGoalValue);
         mTimerValue = findViewById(R.id.timervalue);
@@ -90,19 +104,23 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
         getDataFromDatabase();
         setData();
 
-        mEtFeelingData.setText(StorageManager.getInstance().getFeelingData());
 
     }
 
     private void getDataFromDatabase() {
         gpsTrackerModelArrayList = dbManager.getGpsTrackerlist();
-
-        for (int i = 0; i < gpsTrackerModelArrayList.size(); i++) {
-            TargetType = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getType();
-            numStep = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getStep();
-            Calories = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getCalories();
-            Distance = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getDistance();
-            Duration = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getDuration();
+        if (gpsTrackerModelArrayList != null) {
+            for (int i = 0; i < gpsTrackerModelArrayList.size(); i++) {
+                TargetType = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getType();
+                numStep = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getStep();
+                Calories = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getCalories();
+                Distance = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getDistance();
+                Duration = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getDuration();
+                sLatetitue = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getSlatitude();
+                sLongtitude = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getSlogtitude();
+                Elatitude = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getElatitude();
+                Elongtitude = gpsTrackerModelArrayList.get(gpsTrackerModelArrayList.size() - 1).getElongtitude();
+            }
         }
     }
 
@@ -279,24 +297,37 @@ public class FinishGpsDataActivity extends AppCompatActivity implements View.OnC
                 showEditWorkoutDailog();
                 break;
             case R.id.ivClosed:
-                String Feelingdata = mEtFeelingData.getText().toString();
-                if (Feelingdata != null) {
-                    StorageManager.getInstance().setFeelingData(Feelingdata);
-                } else {
-                    StorageManager.getInstance().setFeelingData("");
-                }
                 isGPSFinish = true;
                 startActivity(new Intent(this, TrainingActivity.class));
                 break;
             case R.id.cvShare:
-                String Feeling = mEtFeelingData.getText().toString();
-                if (Feeling != null) {
-                    StorageManager.getInstance().setFeelingData(Feeling);
-                } else {
-                    StorageManager.getInstance().setFeelingData("");
-                }
                 startActivity(new Intent(this, ShareGPSActivity.class));
                 break;
         }
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        Logger.e(Double.parseDouble(sLatetitue) + "-" + Double.parseDouble(sLongtitude) + "-" + Double.parseDouble(Elatitude) + "-" + Double.parseDouble(Elongtitude));
+
+        mMap = googleMap;
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.add(new LatLng(Double.parseDouble(sLatetitue), Double.parseDouble(sLongtitude)), new LatLng(Double.parseDouble(Elatitude), Double.parseDouble(Elongtitude)))
+                .width(5).color(Color.BLUE);
+        mMap.addPolyline(polylineOptions);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(sLatetitue), Double.parseDouble(sLongtitude)), 18));
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.title("Position");
+        LatLng latLng = new LatLng(Double.parseDouble(sLatetitue), Double.parseDouble(sLongtitude));
+        markerOptions.position(latLng);
+
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(20), 2000, null);
+        googleMap.addMarker(markerOptions);
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, TrainingActivity.class));
     }
 }

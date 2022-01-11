@@ -244,7 +244,12 @@ public class StorageManager {
     }
 
     public String getCurrentDay() {
-        return preferences.getString(StorageManager.PREF_APP_KEY_CURRENTDAY_TIMESTAMP, "");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, 12);
+        calendar.set(Calendar.MINUTE, 00);
+        calendar.set(Calendar.AM_PM, Calendar.PM);
+//        Logger.e(calendar.getTimeInMillis());
+        return preferences.getString(StorageManager.PREF_APP_KEY_CURRENTDAY_TIMESTAMP, calendar.getTimeInMillis() + "");
     }
 
     public void setIsStepService(Boolean message) {
@@ -284,8 +289,8 @@ public class StorageManager {
     }
 
     public String getTargetDuration() {
-        Calendar calendar= Calendar.getInstance();
-        calendar.set(Calendar.MINUTE,20);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MINUTE, 20);
         return preferences.getString(StorageManager.PREF_APP_KEY_TDURATION, String.valueOf(calendar.get(Calendar.MINUTE)));
     }
 
@@ -313,12 +318,4 @@ public class StorageManager {
         return preferences.getString(StorageManager.PREF_APP_KEY_TYPE, "Walk");
     }
 
-
-    public void setFeelingData(String message) {
-        editor.putString(StorageManager.PREF_APP_KEY_FEELINGDATA, message).apply();
-    }
-
-    public String getFeelingData() {
-        return preferences.getString(StorageManager.PREF_APP_KEY_FEELINGDATA, "");
-    }
 }

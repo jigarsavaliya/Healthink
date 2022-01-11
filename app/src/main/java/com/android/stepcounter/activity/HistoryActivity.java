@@ -2,7 +2,6 @@ package com.android.stepcounter.activity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,7 +18,6 @@ import com.android.stepcounter.AdapterCallback;
 import com.android.stepcounter.R;
 import com.android.stepcounter.adpter.HistoryAdapter;
 import com.android.stepcounter.database.DatabaseManager;
-import com.android.stepcounter.model.GpsTrackerModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.StepHistoryModel;
 import com.android.stepcounter.utils.Logger;
@@ -87,11 +85,13 @@ public class HistoryActivity extends AppCompatActivity {
                 public void onMethodCallback(ArrayList<StepCountModel> countModelArrayList) {
 //                Logger.e(countModelArrayList.size());
                     mCountModelArrayList = countModelArrayList;
-                    Logger.e(countModelArrayList.size());
+//                    Logger.e(countModelArrayList.size());
                     if (countModelArrayList.size() != 0) {
                         myMenu.findItem(R.id.action_delete).setVisible(false);
                         myMenu.findItem(R.id.action_tick).setVisible(true);
                     } else {
+                        constant.IsHistoryDelete = false;
+                        mHistoryAdapter.notifyDataSetChanged();
                         myMenu.findItem(R.id.action_delete).setVisible(true);
                         myMenu.findItem(R.id.action_tick).setVisible(false);
                     }
@@ -137,33 +137,39 @@ public class HistoryActivity extends AppCompatActivity {
 
             do {
                 String s = getCurrentWeek(c);
-                Log.e("TAG", "date new : " + c.get(Calendar.DATE));
+//                Log.e("TAG", "date new : " + c.get(Calendar.DATE));
 
                 String[] Weekdate = s.split("-");
-                Log.e("TAG", "date: " + Weekdate[0]);
-                Log.e("TAG", "date: " + Weekdate[1]);
+//                Log.e("TAG", "date: " + Weekdate[0]);
+//                Log.e("TAG", "date: " + Weekdate[1]);
 
                 firstdate = Long.parseLong(Weekdate[0].trim());
                 lastdate = Long.parseLong(Weekdate[1].trim());
 //
-                Logger.e(formatter.format(new Date(firstdate)) + " - " + formatter.format(new Date(lastdate)));
-                Logger.e(firstdate + " - " + lastdate);
+//                Logger.e(formatter.format(new Date(firstdate)) + " - " + formatter.format(new Date(lastdate)));
+//                Logger.e(firstdate + " - " + lastdate);
 
-                StepHistoryModel waterHistoryModel = new StepHistoryModel();
-                waterHistoryModel.setFirstdate(firstdate);
-                waterHistoryModel.setLastdate(lastdate);
+                StepHistoryModel mStepHistoryModel = new StepHistoryModel();
+                mStepHistoryModel.setFirstdate(firstdate);
+                mStepHistoryModel.setLastdate(lastdate);
 
                 for (StepCountModel data : stepcountModelArrayList) {
-                    StepHistoryModel value = headerMap.get(waterHistoryModel.getFirstdate());
-                    ArrayList<StepCountModel> valueModels = stringArrayListHashMap.get(waterHistoryModel.getFirstdate());
+                    StepHistoryModel value = headerMap.get(mStepHistoryModel.getFirstdate());
+                    ArrayList<StepCountModel> valueModels = stringArrayListHashMap.get(mStepHistoryModel.getFirstdate());
 
                     if (valueModels == null) {
                         value = new StepHistoryModel();
                         value.setFirstdate(firstdate);
                         value.setLastdate(lastdate);
                         valueModels = new ArrayList<>();
-                        headerMap.put(waterHistoryModel.getFirstdate(), value);
-                        stringArrayListHashMap.put(waterHistoryModel.getFirstdate(), valueModels);
+
+                        Logger.e(data.getSumstep());
+                        Logger.e(mStepHistoryModel.getFirstdate());
+
+                        if (data.getSumstep() != 0) {
+                            headerMap.put(mStepHistoryModel.getFirstdate(), value);
+                            stringArrayListHashMap.put(mStepHistoryModel.getFirstdate(), valueModels);
+                        }
 //                    Logger.e(value.getFirstdate() + " - new value: " + value.getSumstep());
                     }
 
@@ -172,7 +178,7 @@ public class HistoryActivity extends AppCompatActivity {
                     if (firstdate <= timestamp && lastdate >= timestamp) {
                         valueModels.add(data);
                         value.setSumstep(value.getSumstep() + data.getSumstep());
-//                    Logger.e(value.getFirstdate() + " - add value: " + value.getSumstep());
+                        Logger.e(value.getFirstdate() + " - add value: " + value.getSumstep() + "**" + data.getSumstep());
                     }
                 }
 
@@ -239,9 +245,6 @@ public class HistoryActivity extends AppCompatActivity {
                 break;
             case R.id.action_tick:
                 constant.IsHistoryDelete = false;
-                myMenu.findItem(R.id.action_delete).setVisible(true);
-                myMenu.findItem(R.id.action_tick).setVisible(false);
-
                 if (mCountModelArrayList.size() != 0) {
                     AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
                     builder1.setMessage("Are You sure you want to delete data?");
@@ -257,6 +260,9 @@ public class HistoryActivity extends AppCompatActivity {
                                     getdataFromDatabase();
                                     mHistoryAdapter.updatelist(stringArrayListHashMap, headerMap);
                                     mHistoryAdapter.notifyDataSetChanged();
+                                    myMenu.findItem(R.id.action_delete).setVisible(true);
+                                    myMenu.findItem(R.id.action_tick).setVisible(false);
+                                    mCountModelArrayList.clear();
                                     dialog.cancel();
                                 }
                             });
@@ -272,6 +278,8 @@ public class HistoryActivity extends AppCompatActivity {
                     AlertDialog alert11 = builder1.create();
                     alert11.show();
                 } else {
+                    myMenu.findItem(R.id.action_delete).setVisible(true);
+                    myMenu.findItem(R.id.action_tick).setVisible(false);
                     mHistoryAdapter.notifyDataSetChanged();
                 }
                 break;

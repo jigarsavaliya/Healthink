@@ -1,20 +1,30 @@
 package com.android.stepcounter.utils;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
 
 import com.android.stepcounter.R;
 
-import java.text.DateFormat;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Date;
 
@@ -197,6 +207,7 @@ public class CommanMethod {
 
     /**
      * Stores the location updates state in SharedPreferences.
+     *
      * @param requestingLocationUpdates The location updates state.
      */
     public static void setRequestingLocationUpdates(Context context, boolean requestingLocationUpdates) {
@@ -208,12 +219,67 @@ public class CommanMethod {
 
     /**
      * Returns the {@code location} object as a human readable string.
-     * @param location  The {@link Location}.
+     *
+     * @param location The {@link Location}.
      */
     public static String getLocationText(Location location) {
         return location == null ? "Unknown location" :
                 "(" + location.getLatitude() + ", " + location.getLongitude() + ")";
     }
 
+
+    public static void TakeScreenShot(View view, Activity activity) {
+
+        //This is used to provide file name with Date a format
+        Date date = new Date();
+        CharSequence format = DateFormat.format("MM-dd-yyyy_hh:mm:ss", date);
+
+        //It will make sure to store file to given below Directory and If the file Directory dosen't exist then it will create it.
+        try {
+            File mainDir = new File(
+                    activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath(), "FilShare");
+            if (!mainDir.exists()) {
+                boolean mkdir = mainDir.mkdir();
+            }
+
+            //Providing file name along with Bitmap to capture screenview
+            String path = mainDir + "/" + "StepCounter" + "-" + format + ".jpeg";
+            view.setDrawingCacheEnabled(true);
+            Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
+            view.setDrawingCacheEnabled(false);
+
+//This logic is used to save file at given location with the given filename and compress the Image Quality.
+            File imageFile = new File(path);
+            FileOutputStream fileOutputStream = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+
+//Create New Method to take ScreenShot with the imageFile.
+            shareScreenShot(imageFile, activity);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void shareScreenShot(File imageFile, Activity activity) {
+        //Using sub-class of Content provider
+        Uri uri = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider", imageFile);
+
+        //Explicit intent
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setType("image/*");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, "This is Sample App to take ScreenShot");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+
+        //It will show the application which are available to share Image; else Toast message will throw.
+        try {
+            activity.startActivity(Intent.createChooser(intent, "Share With"));
+        } catch (ActivityNotFoundException e) {
+//            Toast.makeText(activity, "No App Available", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }

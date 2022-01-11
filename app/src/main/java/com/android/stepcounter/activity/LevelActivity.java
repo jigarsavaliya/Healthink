@@ -1,12 +1,6 @@
 package com.android.stepcounter.activity;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,11 +21,7 @@ import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.constant;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class LevelActivity extends AppCompatActivity {
     Toolbar mToolbar;
@@ -102,7 +92,7 @@ public class LevelActivity extends AppCompatActivity {
         mLevellist = dbManager.getArchivementlist(constant.ARCHIVEMENT_LEVEL);
 
         for (int i = 0; i < mLevellist.size(); i++) {
-            if (mLevellist.get(i).isCompeleteStatus()) {
+            if (mLevellist.get(i).isCompeleteStatus() && mLevellist.size() - 1 != i) {
                 CurrLavel = mLevellist.get(i).getLabel();
                 CurrDescription = mLevellist.get(i).getDescription();
                 StepGoal = (int) mLevellist.get(i + 1).getValue();
@@ -122,57 +112,9 @@ public class LevelActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
-                Bitmap bitmap = takeScreenshot();
-                saveBitmap(bitmap);
-                shareIt();
+                CommanMethod.TakeScreenShot(getWindow().getDecorView(), this);
                 break;
         }
         return true;
-    }
-
-    public Bitmap takeScreenshot() {
-        View rootView = findViewById(android.R.id.content).getRootView();
-        rootView.setDrawingCacheEnabled(true);
-        return rootView.getDrawingCache();
-    }
-
-    public void saveBitmap(Bitmap bitmap) {
-        Calendar calendar = Calendar.getInstance();
-
-//        File folder = new File(Environment.getExternalStorageDirectory() + "/StepCounter");
-//        if (!folder.exists()) {
-//            folder.mkdir();
-//        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
-            imagePath = new File(getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/" + calendar.getTimeInMillis() + ".jpeg");
-        } else {
-            imagePath = new File(Environment.getExternalStorageDirectory().toString() + "/" + calendar.getTimeInMillis() + ".jpeg");
-        }
-
-//        imagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/StepCounter/" + calendar.getTimeInMillis() + ".jpg";
-        FileOutputStream fos;
-        try {
-            fos = new FileOutputStream(imagePath);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
-            fos.close();
-        } catch (FileNotFoundException e) {
-            Log.e("GREC", e.getMessage(), e);
-        } catch (IOException e) {
-            Log.e("GREC", e.getMessage(), e);
-        }
-    }
-
-    private void shareIt() {
-        Uri uri = Uri.fromFile(imagePath);
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.setType("image/*");
-        String shareBody = "In Tweecher, My highest score with screen shot";
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "My Tweecher score");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-        sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-
-        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 }

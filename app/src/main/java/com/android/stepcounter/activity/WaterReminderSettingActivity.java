@@ -23,7 +23,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.sevices.AlarmReceiver;
-import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
@@ -298,11 +297,12 @@ public class WaterReminderSettingActivity extends AppCompatActivity implements V
 
                     Calendar calendar = Calendar.getInstance();
 
+                    long time = calendar.getTimeInMillis() + intervaltime;
                     Intent intent1 = new Intent(WaterReminderSettingActivity.this, AlarmReceiver.class);
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
                     AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
-                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervaltime, pendingIntent);
-                    Logger.e(calendar.getTimeInMillis());
+                    am.setRepeating(AlarmManager.RTC_WAKEUP, time, intervaltime, pendingIntent);
+//                    Logger.e(time);
                 }
 
                 finish();

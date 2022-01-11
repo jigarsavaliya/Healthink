@@ -113,6 +113,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     String[] WaterGoalValue;
     PieChart mPcBmiChart;
     Boolean item_per = false, item_cap = true;
+    RelativeLayout rlDrinkNoti;
+    boolean isScnoti = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,10 +181,10 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         tvchartdate = findViewById(R.id.tvchartdate);
         ivBackDate = findViewById(R.id.ivBackDate);
         ivForwardDate = findViewById(R.id.ivForwardDate);
+        rlDrinkNoti = findViewById(R.id.rlDrinkNoti);
 
         ivBackDate.setOnClickListener(this);
         ivForwardDate.setOnClickListener(this);
-        scWaterNotification.setOnClickListener(this);
 
         if (StorageManager.getInstance().getReminder()) {
             scWaterNotification.setChecked(true);
@@ -198,6 +200,22 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                     setNotification();
                 } else {
                     StorageManager.getInstance().setReminder(false);
+                }
+            }
+        });
+
+        rlDrinkNoti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isScnoti) {
+                    isScnoti=false;
+                    StorageManager.getInstance().setReminder(true);
+                    scWaterNotification.setChecked(true);
+                    setNotification();
+                } else {
+                    isScnoti=true;
+                    StorageManager.getInstance().setReminder(false);
+                    scWaterNotification.setChecked(false);
                 }
             }
         });
@@ -560,8 +578,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         Button mBtnSave = d.findViewById(R.id.btnSave);
         Button mBtnCancel = d.findViewById(R.id.btnCancel);
 
-        CardView mllLb = d.findViewById(R.id.llLb);
-        CardView mllKB = d.findViewById(R.id.llKB);
+        CardView mllLb = d.findViewById(R.id.cvKm);
+        CardView mllKB = d.findViewById(R.id.lcvMile);
         etweight = d.findViewById(R.id.etweight);
 
         final boolean[] iskg = {true};
@@ -741,8 +759,8 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Kg");
         mv.setChartView(WeightChart);
         WeightChart.setMarker(mv);
-        WeightChart.setDragEnabled(true);
-        WeightChart.setScaleEnabled(true);
+        WeightChart.setDragEnabled(false);
+        WeightChart.setScaleEnabled(false);
         WeightChart.setPinchZoom(false);
 
         WeightChart.getAxisLeft().setDrawGridLines(false);
@@ -1268,10 +1286,6 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
                 Log.e("Start", "Start Date = " + simpleDateFormat.format(new Date(rightNow.getTimeInMillis())));
 
                 SetWeekwiseWaterChart("cap");
-                break;
-            case R.id.scWaterNoti:
-                //waternotfication service
-
                 break;
         }
     }

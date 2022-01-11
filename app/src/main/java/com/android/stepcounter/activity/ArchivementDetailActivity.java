@@ -1,20 +1,23 @@
 package com.android.stepcounter.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,7 +32,6 @@ import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,11 +49,11 @@ public class ArchivementDetailActivity extends AppCompatActivity {
     ProgressBar mPbCompletedBar;
     long mTotalDaysData, mTotalDisanceData, mTotalStepData;
 
-    int StepGoal = 3000, StepComboDayGoal, StepDayGoal, StepDistanceGoal = 5;
-    String StepGoalLabel = "3k", CurrLavel = "3k", CurrDesc = "Away from",
-            StepComboDayGoalLabel, CurrComboDayLavel = "1x", CurrComboDayDesc = "1 Day",
-            StepDayGoalLabel, CurrDayLavel = "7", CurrDayDesc = "7 day",
-            StepDistanceGoalLabel = "5", CurrDistanceLavel = "5", CurrDistanceDesc = "Short Hike";
+    int StepGoal, StepComboDayGoal, StepDayGoal, StepDistanceGoal;
+    String StepGoalLabel, CurrLavel, CurrDesc,
+            StepComboDayGoalLabel, CurrComboDayLavel, CurrComboDayDesc,
+            StepDayGoalLabel, CurrDayLavel, CurrDayDesc,
+            StepDistanceGoalLabel, CurrDistanceLavel, CurrDistanceDesc;
 
     File imagePath;
 
@@ -148,8 +150,8 @@ public class ArchivementDetailActivity extends AppCompatActivity {
             mTvDailyLabel.setText(CurrDistanceLavel);
             mTvDescription.setText(CurrDistanceDesc);
             mTvDetailslabel.setText((StepDistanceGoal - mTotalDisanceData) + " more than to finish your " + StepDistanceGoalLabel + " journey");
-            Logger.e((StepDistanceGoal - mTotalDisanceData));
-            Logger.e(StepDistanceGoal + "----" + mTotalDisanceData);
+//            Logger.e((StepDistanceGoal - mTotalDisanceData));
+//            Logger.e(StepDistanceGoal + "----" + mTotalDisanceData);
             adapter = new ArchivementDetailAdapter(this, mTotalDistanceList);
         }
 
@@ -173,12 +175,22 @@ public class ArchivementDetailActivity extends AppCompatActivity {
             }
         }
         mDailySteplist = dbManager.getArchivementlist(constant.ARCHIVEMENT_DAILY_STEP);
+
         mComboDayList = dbManager.getArchivementlist(constant.ARCHIVEMENT_COMBO_DAY);
+
         mTotalDaysList = dbManager.getArchivementlist(constant.ARCHIVEMENT_TOTAL_DAYS);
+
         mTotalDistanceList = dbManager.getArchivementlist(constant.ARCHIVEMENT_TOTAL_DISTANCE);
 
         for (int i = 0; i < mDailySteplist.size(); i++) {
-            if (mDailySteplist.get(i).isCompeleteStatus()) {
+            if (i == 0) {
+                CurrLavel = mDailySteplist.get(0).getLabel();
+                CurrDesc = mDailySteplist.get(0).getDescription();
+                StepGoal = (int) mDailySteplist.get(0).getValue();
+                StepGoalLabel = mDailySteplist.get(0).getLabel();
+            }
+
+            if (mDailySteplist.get(i).isCompeleteStatus() && mDailySteplist.size() - 1 != i) {
                 CurrLavel = mDailySteplist.get(i).getLabel();
                 CurrDesc = mDailySteplist.get(i).getDescription();
                 StepGoal = (int) mDailySteplist.get(i + 1).getValue();
@@ -187,7 +199,13 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         }
 
         for (int i = 0; i < mComboDayList.size(); i++) {
-            if (mComboDayList.get(i).isCompeleteStatus()) {
+            if (i == 0) {
+                CurrComboDayLavel = mComboDayList.get(0).getLabel();
+                CurrComboDayDesc = mComboDayList.get(0).getDescription();
+                StepComboDayGoal = (int) mComboDayList.get(0).getValue();
+                StepComboDayGoalLabel = mComboDayList.get(0).getLabel();
+            }
+            if (mComboDayList.get(i).isCompeleteStatus() && mComboDayList.size() - 1 != i) {
                 CurrComboDayLavel = mComboDayList.get(i).getLabel();
                 CurrComboDayDesc = mComboDayList.get(i).getDescription();
                 StepComboDayGoal = (int) mComboDayList.get(i + 1).getValue();
@@ -199,7 +217,13 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         }
 
         for (int i = 0; i < mTotalDaysList.size(); i++) {
-            if (mTotalDaysList.get(i).isCompeleteStatus()) {
+            if (i == 0) {
+                CurrDayLavel = mTotalDaysList.get(0).getLabel();
+                CurrDayDesc = mTotalDaysList.get(0).getDescription();
+                StepDayGoal = (int) mTotalDaysList.get(0).getValue();
+                StepDayGoalLabel = mTotalDaysList.get(0).getLabel();
+            }
+            if (mTotalDaysList.get(i).isCompeleteStatus() && mTotalDaysList.size() - 1 != i) {
                 CurrDayLavel = mTotalDaysList.get(i).getLabel();
                 CurrDayDesc = mTotalDaysList.get(i).getDescription();
                 StepDayGoal = (int) mTotalDaysList.get(i + 1).getValue();
@@ -211,7 +235,14 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         }
 
         for (int i = 0; i < mTotalDistanceList.size(); i++) {
-            if (mTotalDistanceList.get(i).isCompeleteStatus()) {
+            if (i == 0) {
+                CurrDistanceLavel = mTotalDistanceList.get(0).getLabel();
+                CurrDistanceDesc = mTotalDistanceList.get(0).getDescription();
+                StepDistanceGoal = (int) mTotalDistanceList.get(0).getValue();
+                StepDistanceGoalLabel = mTotalDistanceList.get(0).getLabel();
+            }
+
+            if (mTotalDistanceList.get(i).isCompeleteStatus() && mTotalDistanceList.size() - 1 != i) {
                 CurrDistanceLavel = mTotalDistanceList.get(i).getLabel();
                 CurrDistanceDesc = mTotalDistanceList.get(i).getDescription();
                 StepDistanceGoal = (int) mTotalDistanceList.get(i + 1).getValue();
@@ -235,127 +266,15 @@ public class ArchivementDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
-                Calendar calendar = Calendar.getInstance();
-                try {
-                    // image naming and path  to include sd card  appending name you choose for file
-//                    String mPath = Environment.getExternalStorageDirectory() + "/" + calendar.getTimeInMillis() + ".jpg";
-//
-//                    // create bitmap screen capture
-//                    View v1 = getWindow().getDecorView().getRootView();
-//                    v1.setDrawingCacheEnabled(true);
-//                    Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-//                    v1.setDrawingCacheEnabled(false);
-//
-//                    File imageFile = new File(mPath);
-//
-//                    FileOutputStream outputStream = new FileOutputStream(imageFile);
-//                    int quality = 100;
-//                    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-//                    outputStream.flush();
-//                    outputStream.close();
-//
-////                    File imageFile = screenshot(getWindow().getDecorView().getRootView(), String.valueOf(calendar.getTimeInMillis()));
-//
-//
-//                    Uri uri = Uri.fromFile(imageFile);
-//                    Intent intent = new Intent();
-//                    intent.setAction(Intent.ACTION_SEND);
-//                    intent.setType("image/*");
-//
-//                    intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "");
-//                    intent.putExtra(android.content.Intent.EXTRA_TEXT, "");
-//                    intent.putExtra(Intent.EXTRA_STREAM, uri);
-//                    try {
-//                        startActivity(Intent.createChooser(intent, "Share Screenshot"));
-//                    } catch (ActivityNotFoundException e) {
-//                        Toast.makeText(getApplicationContext(), "No App Available", Toast.LENGTH_SHORT).show();
-//                    }
-
-                    Bitmap bitmap = takeScreenshot();
-                    saveBitmap(bitmap);
-                    shareIt();
-
-                } catch (Throwable e) {
-                    // Several error may come out with file handling or DOM
-                    e.printStackTrace();
-                    Logger.e(e.getMessage());
-                }
-
+                CommanMethod.TakeScreenShot(getWindow().getDecorView(),this);
                 break;
         }
         return true;
     }
 
-    public Bitmap takeScreenshot() {
-        View v1 = getWindow().getDecorView().getRootView();
-        v1.setDrawingCacheEnabled(true);
-        Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-        v1.setDrawingCacheEnabled(false);
-        return bitmap;
-    }
-
-    private void saveBitmap(Bitmap bitmap) {
-        imagePath = new File(Environment.getExternalStorageDirectory() + "/screenshot.png"); ////File imagePath
-        FileOutputStream fos;
-        try {
-            fos = new FileOutputStream(imagePath);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-            fos.close();
-        } catch (FileNotFoundException e) {
-            Log.e("GREC", e.getMessage(), e);
-        } catch (IOException e) {
-            Log.e("GREC", e.getMessage(), e);
-        }
 
 
-    }
 
-    private void shareIt() {
-        Uri myUri = Uri.fromFile(imagePath);
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.setType("image/*");
-        sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        String shareBody = "My highest score with screen shot";
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "My Catch score");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-        sharingIntent.putExtra(Intent.EXTRA_STREAM, myUri);
-
-        startActivity(Intent.createChooser(sharingIntent, "Share via"));
-    }
-
-    protected static File screenshot(View view, String filename) {
-        Date date = new Date();
-
-        // Here we are initialising the format of our image name
-        CharSequence format = android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", date);
-        try {
-            // Initialising the directory of storage
-            String dirpath = Environment.getExternalStorageDirectory() + "";
-            File file = new File(dirpath);
-            if (!file.exists()) {
-                boolean mkdir = file.mkdir();
-            }
-
-            // File name
-            String path = dirpath + "/" + filename + ".jpeg";
-            view.setDrawingCacheEnabled(true);
-            Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
-            view.setDrawingCacheEnabled(false);
-            File imageurl = new File(path);
-            FileOutputStream outputStream = new FileOutputStream(imageurl);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
-            outputStream.flush();
-            outputStream.close();
-            return imageurl;
-
-        } catch (FileNotFoundException io) {
-            io.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     @Override
     public void onBackPressed() {

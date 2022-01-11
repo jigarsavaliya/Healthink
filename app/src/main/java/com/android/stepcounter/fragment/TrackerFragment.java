@@ -1,6 +1,8 @@
 package com.android.stepcounter.fragment;
 
+import static com.android.stepcounter.sevices.SensorService.IsServiceStart;
 import static com.android.stepcounter.sevices.SensorService.IsTargetType;
+import static com.android.stepcounter.sevices.SensorService.IsTimerStart;
 import static com.android.stepcounter.sevices.SensorService.isGpsService;
 
 import android.Manifest;
@@ -33,6 +35,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.GPSStartActivity;
+import com.android.stepcounter.sevices.LocationBgService;
 import com.android.stepcounter.sevices.SensorService;
 import com.android.stepcounter.utils.StorageManager;
 import com.google.android.gms.common.ConnectionResult;
@@ -55,6 +58,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+
 public class TrackerFragment extends Fragment implements View.OnClickListener, OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -76,10 +80,6 @@ public class TrackerFragment extends Fragment implements View.OnClickListener, O
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
     private GoogleMap mMap;
-
-    public TrackerFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -109,14 +109,21 @@ public class TrackerFragment extends Fragment implements View.OnClickListener, O
     @SuppressLint("MissingPermission")
     private void init() {
 
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkLocationPermission();
+        }
 
-//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        checkLocationPermission();
-//        }
-//        SupportMapFragment mapFragment = (SupportMapFragment) getActivity().getSupportFragmentManager()
-//                .findFragmentById(R.id.fragment_view_map);
-//
-//        mapFragment.getMapAsync(this);
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+        }
 
         mlladdwater = view.findViewById(R.id.lladdwater);
         mllRemovewater = view.findViewById(R.id.llRemovewater);
@@ -269,12 +276,15 @@ public class TrackerFragment extends Fragment implements View.OnClickListener, O
                     StorageManager.getInstance().setIsStepService(true);
                 }
                 isGpsService = true;
+                IsTimerStart = true;
+                IsServiceStart = true;
                 IsTargetType = TargetType;
-                StorageManager.getInstance().setFeelingData("");
 
                 Intent i = new Intent(getActivity(), GPSStartActivity.class);
-                i.putExtra("TargetType", TargetType);
                 getActivity().startActivity(i);
+
+                Intent intent = new Intent(getActivity(), LocationBgService.class);
+                getActivity().startService(intent);
                 break;
         }
     }
@@ -331,17 +341,19 @@ public class TrackerFragment extends Fragment implements View.OnClickListener, O
 
     @Override
     public void onLocationChanged(Location location) {
+
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
+
 //Showing Current Location Marker on Map
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        LocationManager locationManager = (LocationManager)
-                getActivity().getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         String provider = locationManager.getBestProvider(new Criteria(), true);
+
         if (ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -402,6 +414,7 @@ public class TrackerFragment extends Fragment implements View.OnClickListener, O
         } else {
             return true;
         }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -428,4 +441,5 @@ public class TrackerFragment extends Fragment implements View.OnClickListener, O
             }
         }
     }
+
 }

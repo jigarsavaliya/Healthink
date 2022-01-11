@@ -51,7 +51,7 @@
                 android:layout_height="match_parent"
                 android:text="L1"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_16sdp"
+                android:textSize="@dimen/_14sdp"
                 android:textStyle="bold" />
 
             <TextView

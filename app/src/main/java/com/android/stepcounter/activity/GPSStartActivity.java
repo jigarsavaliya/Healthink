@@ -1,5 +1,9 @@
 package com.android.stepcounter.activity;
 
+import static com.android.stepcounter.sevices.SensorService.IsNotiFlag;
+import static com.android.stepcounter.sevices.SensorService.IsServiceStart;
+import static com.android.stepcounter.sevices.SensorService.IsTargetType;
+import static com.android.stepcounter.sevices.SensorService.IsTimerStart;
 import static com.android.stepcounter.sevices.SensorService.isGpsService;
 import static com.android.stepcounter.sevices.SensorService.mapStep;
 
@@ -10,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -20,14 +25,19 @@ import androidx.cardview.widget.CardView;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DatabaseManager;
+import com.android.stepcounter.model.GpsModel;
 import com.android.stepcounter.model.GpsTrackerModel;
+import com.android.stepcounter.model.location;
+import com.android.stepcounter.sevices.LocationBgService;
+import com.android.stepcounter.sevices.SensorService;
 import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 import com.bikomobile.donutprogress.DonutProgress;
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -36,7 +46,7 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
     private int seconds = 0;
     CardView mCvPause, mCvFinish, mCvResume;
     TextView mTimerValue, mTimerText, mTvCurrentValue, mTvGoalValue, mStepValue, mStep, mTvKcalValue, mTvKcal, mTvmileValue, mTvmile;
-    Boolean IsTimerStart = true;
+    //    Boolean IsTimerStart = true;
     String TargetType;
     DonutProgress mCpGoalChart;
     MyReceiver myReceiver;
@@ -48,13 +58,20 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
     Calendar calendar = Calendar.getInstance();
     DatabaseManager dbManager;
     Calendar rightnow = Calendar.getInstance();
+    ArrayList<location> locationArrayList = new ArrayList<>();
+    GpsModel gpsModel;
 
     private class MyReceiver extends BroadcastReceiver {
+
         @Override
         public void onReceive(Context context, Intent intent) {
 
             if (intent.getAction().equals("GET_SIGNAL")) {
-                numStep = intent.getIntExtra("mapstepdata", 0);
+                TargetType = IsTargetType;
+                gpsModel = (GpsModel) intent.getExtras().getSerializable("gpsmodeldata");
+                numStep = gpsModel.getCurrStep();
+//                Logger.e("GSON" + new GsonBuilder().create().toJson(gpsModel));
+
                 mStepValue.setText(numStep + "");
 
                 Calories = String.valueOf(CommanMethod.calculateCalories(numStep, userWeight, userHeight));
@@ -62,9 +79,27 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
 
                 setData();
             }
+
+            if (intent.getAction().equals("LOCATION")) {
+//                Logger.e("" + intent.getDoubleExtra("Latitude", 0));
+//                Logger.e("" + intent.getDoubleExtra("Longitude", 0));
+
+                location mLocation = new location();
+                mLocation.setLatitude(intent.getDoubleExtra("Latitude", 0));
+                mLocation.setLongtitude(intent.getDoubleExtra("Longitude", 0));
+                locationArrayList.add(mLocation);
+
+//                Logger.e(locationArrayList.size());
+            }
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        gpsModel = (GpsModel) getIntent().getExtras().getSerializable("Notigpsmodel");
+        Logger.e("GSON activity" + new GsonBuilder().create().toJson(gpsModel));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +109,23 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
 
         myReceiver = new MyReceiver();
         registerReceiver(myReceiver, new IntentFilter("GET_SIGNAL"));
+        registerReceiver(myReceiver, new IntentFilter("LOCATION"));
 
-        TargetType = getIntent().getStringExtra("TargetType");
+        TargetType = IsTargetType;
+
+
+        if (IsNotiFlag) {
+            gpsModel = (GpsModel) getIntent().getExtras().getSerializable("Notigpsmodel");
+
+            Logger.e("GSON activity" + new GsonBuilder().create().toJson(gpsModel));
+
+            numStep = gpsModel.getCurrStep();
+            seconds = gpsModel.getSecond();
+
+            Calories = String.valueOf(CommanMethod.calculateCalories(numStep, userWeight, userHeight));
+            Distance = String.format("%.2f", CommanMethod.calculateDistance(numStep));
+            IsNotiFlag = false;
+        }
 
         rightnow.get(Calendar.HOUR);
         rightnow.get(Calendar.MINUTE);
@@ -110,11 +160,7 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
         mTvGoalValue = findViewById(R.id.tvGoalValue);
         mCpGoalChart = findViewById(R.id.cpGoalChart);
         mCvPause = findViewById(R.id.cvPause);
-        mCvFinish = findViewById(R.id.cvFinish);
-        mCvResume = findViewById(R.id.cvResume);
         mCvPause.setOnClickListener(this);
-        mCvResume.setOnClickListener(this);
-        mCvFinish.setOnClickListener(this);
         mCvPause.setVisibility(View.VISIBLE);
 
         mTimerValue = findViewById(R.id.timervalue);
@@ -178,6 +224,17 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
             mTvKcalValue.setText(Calories + "");
             mTvKcal.setText("Kcal");
 
+            float goal = Float.parseFloat(StorageManager.getInstance().getTargetCalories());
+            float Current = Float.parseFloat(Calories);
+
+            if (Current != 0) {
+                if (Current < goal) {
+                    float progress = Current / goal * 100;
+                    mCpGoalChart.setProgress((int) progress);
+                } else {
+                    mCpGoalChart.setProgress(100);
+                }
+            }
 
         } else if (TargetType != null && TargetType.equals("Target Calories")) {
             mTvCurrentValue.setText(Calories + "");
@@ -261,12 +318,14 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
                     seconds++;
                     int Current = seconds;
 
-                    if (Current != 0) {
-                        if (Current < goal) {
-                            float progress = (float) Current / goal * 100;
-                            mCpGoalChart.setProgress((int) progress);
-                        } else {
-                            mCpGoalChart.setProgress(100);
+                    if (TargetType != null && TargetType.equals("Target Duration")) {
+                        if (Current != 0) {
+                            if (Current < goal) {
+                                float progress = (float) Current / goal * 100;
+                                mCpGoalChart.setProgress((int) progress);
+                            } else {
+                                mCpGoalChart.setProgress(100);
+                            }
                         }
                     }
                 }
@@ -283,38 +342,76 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
             case R.id.cvPause:
                 isGpsService = false;
                 IsTimerStart = false;
-                mCvResume.setVisibility(View.VISIBLE);
-                mCvFinish.setVisibility(View.VISIBLE);
-                mCvPause.setVisibility(View.GONE);
-                break;
-            case R.id.cvResume:
-                isGpsService = true;
-                IsTimerStart = true;
-                mCvResume.setVisibility(View.GONE);
-                mCvFinish.setVisibility(View.GONE);
-                mCvPause.setVisibility(View.VISIBLE);
-                break;
-            case R.id.cvFinish:
-                isGpsService = false;
-                mapStep = 0;
-                mCvResume.setVisibility(View.GONE);
-                mCvFinish.setVisibility(View.GONE);
-                InsetDataInDatabase();
+                IsServiceStart = false;
+//                mCvResume.setVisibility(View.VISIBLE);
+//                mCvFinish.setVisibility(View.VISIBLE);
+//                mCvPause.setVisibility(View.GONE);
+                StorageManager.getInstance().setIsStepService(false);
+//                Intent intent1 = new Intent(this, SensorService.class);
+//                stopService(intent1);
+
+                showDailog();
                 break;
         }
     }
 
+    public void showDailog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(GPSStartActivity.this, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        LayoutInflater inflater = getLayoutInflater();
+        View d = inflater.inflate(R.layout.dailog_gps_resume_pause, null);
+        dialogBuilder.setView(d);
+        AlertDialog alertDialog = dialogBuilder.create();
+
+        CardView cvResume = d.findViewById(R.id.cvResume);
+        CardView cvFinish = d.findViewById(R.id.cvFinish);
+
+        cvResume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isGpsService = true;
+                IsTimerStart = true;
+                IsServiceStart = true;
+
+                StorageManager.getInstance().setIsStepService(true);
+//                Intent intent1 = new Intent(GPSStartActivity.this, SensorService.class);
+//                startService(intent1);
+
+                alertDialog.dismiss();
+            }
+        });
+
+        cvFinish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isGpsService = false;
+                IsServiceStart = false;
+                mapStep = 0;
+                InsetDataInDatabase();
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+    }
+
     private void InsetDataInDatabase() {
+        double mSlatitude = 0, mSlogtitude = 0, mElatitude = 0, mElongtitude = 0;
+
+        mSlatitude = locationArrayList.get(0).getLatitude();
+        mSlogtitude = locationArrayList.get(0).getLongtitude();
+        mElatitude = locationArrayList.get(locationArrayList.size() - 1).getLatitude();
+        mElongtitude = locationArrayList.get(locationArrayList.size() - 1).getLongtitude();
+
         GpsTrackerModel gpsTrackerModel = new GpsTrackerModel();
         gpsTrackerModel.setType(TargetType);
         gpsTrackerModel.setAction(StorageManager.getInstance().getStepType());
         gpsTrackerModel.setStep(numStep);
         gpsTrackerModel.setDistance(Distance);
         gpsTrackerModel.setCalories(Integer.valueOf(Calories));
-        gpsTrackerModel.setSlatitude("");
-        gpsTrackerModel.setSlogtitude("");
-        gpsTrackerModel.setElatitude("");
-        gpsTrackerModel.setElongtitude("");
+        gpsTrackerModel.setSlatitude(String.valueOf(mSlatitude));
+        gpsTrackerModel.setSlogtitude(String.valueOf(mSlogtitude));
+        gpsTrackerModel.setElatitude(String.valueOf(mElatitude));
+        gpsTrackerModel.setElongtitude(String.valueOf(mElongtitude));
 
         if (TargetType != null && TargetType.equals("Target Duration")) {
             gpsTrackerModel.setDuration(mTvCurrentValue.getText().toString());
@@ -322,13 +419,22 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
             gpsTrackerModel.setDuration(mTimerValue.getText().toString());
         }
 
-        Logger.e(new Gson().toJson(gpsTrackerModel));
+//        Logger.e(new Gson().toJson(gpsTrackerModel));
         dbManager.addGpsData(gpsTrackerModel);
+
+        Intent intent = new Intent(this, LocationBgService.class);
+        stopService(intent);
+
+        locationArrayList.clear();
+
+        Intent intent1 = new Intent(this, SensorService.class);
+        stopService(intent1);
 
         Intent i = new Intent(this, FinishGpsDataActivity.class);
         i.putExtra("Date", rightnow.get(Calendar.HOUR) + ":" + rightnow.get(Calendar.MINUTE));
         i.putExtra("AMPM", rightnow.get(Calendar.AM_PM));
         startActivity(i);
+
     }
 
     @Override

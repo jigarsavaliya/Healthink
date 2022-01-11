@@ -333,6 +333,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int TotalStepCount = dbManager.getSumOfStepList(date, month, year);
         tvTotal.setText(TotalStepCount + "");
 
+        Legend L;
+        L = chart.getLegend();
+        L.setEnabled(false);
+
         chart.setPinchZoom(false);
         chart.setScaleEnabled(false);
         chart.setDrawBarShadow(false);
@@ -350,9 +354,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         xAxis.setDrawAxisLine(true);
         xAxis.setCenterAxisLabels(true);
 
-        Legend L;
-        L = chart.getLegend();
-        L.setEnabled(false);
+        LimitLine ll1 = new LimitLine(StepGoal);
+        ll1.setLineWidth(1f);
+        ll1.enableDashedLine(1f, 1f, 0f);
 
         rightAxis.setDrawAxisLine(false);
         rightAxis.setDrawGridLines(false);
@@ -366,6 +370,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Steps");
         mv.setChartView(chart);
         chart.setMarker(mv);
+
+//        chart.getXAxis().setEnabled(false);
+//        chart.getAxisRight().setAxisMaximum(StepGoal);
+//        chart.getAxisRight().setAxisMinimum(0);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -497,6 +505,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     }
 
     private void SetWeekwiseStepChart() {
+        Legend L;
+        L = chart.getLegend();
+        L.setEnabled(false);
 
         final ArrayList<String> xAxisLabel = new ArrayList<>();
         xAxisLabel.add("Mon");
@@ -516,9 +527,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         chart.setDrawGridBackground(false);
 
-        Legend L = chart.getLegend();
-        L.setEnabled(false);
-
+        LimitLine ll1 = new LimitLine(StepGoal);
+        ll1.setLineWidth(1f);
+        ll1.enableDashedLine(1f, 1f, 0f);
 
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -555,6 +566,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, "Steps");
         mv.setChartView(chart);
         chart.setMarker(mv);
+
+        chart.getXAxis().setEnabled(false);
+        chart.getAxisRight().setAxisMaximum(StepGoal);
+        chart.getAxisRight().setAxisMinimum(0);
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -1467,7 +1482,11 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                                 selectedmonth[0] = month + 1;
                                 selectedday[0] = day;
 
-                                tvdate.setText(selectedday[0] + " - " + selectedmonth[0] + " - " + selectedyear[0]);
+                                if (selectedday[0] == date) {
+                                    tvdate.setText("Today");
+                                } else {
+                                    tvdate.setText(selectedday[0] + " - " + selectedmonth[0] + " - " + selectedyear[0]);
+                                }
 
                                 if (selectedday[0] != dayOfMonth[0]) {
                                     for (int i = 0; i < 24; i++) {
@@ -1613,6 +1632,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         String DailogGoal = null;
         String DailogDesc = null;
 
+
+        long NotificationValue = 0;
+        String NotificationType = null;
+
         for (int i = 0; i < mLevel.size(); i++) {
             if (mTotalStepData >= mLevel.get(i).getValue()) {
 
@@ -1624,9 +1647,14 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 archivementModel.setType(mLevel.get(i).getType());
                 archivementModel.setCompeleteStatus(true);
                 dbManager.updateArchivementTotalDistance(archivementModel);
-                DailogGoal = String.valueOf(mLevel.get(i).getValue());
-                DailogDesc = mLevel.get(i).getDescription();
+                if (mLevel.get(i).getValue() != 0) {
+                    DailogGoal = String.valueOf(mLevel.get(i).getValue());
+                    DailogDesc = mLevel.get(i).getDescription();
 
+                    NotificationValue = mLevel.get(i).getValue();
+                    NotificationType = constant.ARCHIVEMENT_LEVEL;
+
+                }
 //                CommanMethod.showCompleteDailog(this, String.valueOf(mLevel.get(i).getValue()), mLevel.get(i).getDescription());
             }
         }
@@ -1666,6 +1694,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
                 DailogGoal = String.valueOf(mDailySteplist.get(i).getValue());
                 DailogDesc = mDailySteplist.get(i).getDescription();
+
+                NotificationValue = mDailySteplist.get(i).getValue();
+                NotificationType = constant.ARCHIVEMENT_DAILY_STEP;
 //                CommanMethod.showCompleteDailog(this, String.valueOf(mDailySteplist.get(i).getValue()), mDailySteplist.get(i).getDescription());
             }
         }
@@ -1690,6 +1721,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
                 DailogGoal = String.valueOf(mTotalDaysList.get(i).getValue());
                 DailogDesc = mTotalDaysList.get(i).getDescription();
+
 //                CommanMethod.showCompleteDailog(this, String.valueOf(mTotalDaysList.get(i).getValue()), mTotalDaysList.get(i).getDescription());
             }
         }
@@ -1713,6 +1745,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
                 DailogGoal = String.valueOf(mTotalDistanceList.get(i).getValue());
                 DailogDesc = mTotalDistanceList.get(i).getDescription();
+
+                NotificationValue = mTotalDistanceList.get(i).getValue();
+                NotificationType = constant.ARCHIVEMENT_TOTAL_DISTANCE;
 //                CommanMethod.showCompleteDailog(this, String.valueOf(mTotalDistanceList.get(i).getValue()), mTotalDistanceList.get(i).getDescription());
             }
         }
@@ -1766,9 +1801,14 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
 
 //        -------------------------total distance
-        long Distancegoal = 5;
-        String DistanceDesc = "Short Hike";
+        long Distancegoal = 0;
+        String DistanceDesc = "";
         for (int i = 0; i < mTotalDistanceList.size(); i++) {
+            if (i == 0) {
+                Distancegoal = mTotalDistanceList.get(0).getValue();
+                DistanceDesc = mTotalDistanceList.get(0).getDescription();
+            }
+
             if (mTotalDistanceList.get(i).isCompeleteStatus()) {
                 Distancegoal = mTotalDistanceList.get(i + 1).getValue();
                 DistanceDesc = mTotalDistanceList.get(i + 1).getDescription();
@@ -1778,10 +1818,16 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 //        Logger.e("Total Distance" + mTotalDisanceData + "---" + Distancegoal);
 
 //        -------------------------total Days
-        long TotalDaysgoal = 7;
-        String DayDesc = "7 Day";
+        long TotalDaysgoal = 0;
+        String DayDesc = "";
         for (int i = 0; i < mTotalDaysList.size(); i++) {
-            if (mTotalDaysList.get(i).isCompeleteStatus()) {
+
+            if (i == 0) {
+                TotalDaysgoal = mTotalDaysList.get(0).getValue();
+                DayDesc = mTotalDaysList.get(0).getDescription();
+            }
+
+            if (mTotalDaysList.get(i).isCompeleteStatus() && mTotalDaysList.size() - 1 != i) {
                 TotalDaysgoal = mTotalDaysList.get(i + 1).getValue();
                 DayDesc = mTotalDaysList.get(i + 1).getDescription();
             }
@@ -1791,25 +1837,36 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         //        -------------------------Daily Steps
         long TotalDailyStep = dbManager.getSumOfStepList(date, month, year);
-        long TotalDailygoal = StorageManager.getInstance().getStepCountGoalUnit();
-        String DailyDesc = "Away from sofa";
-        for (int i = 0; i < mDailySteplist.size(); i++) {
-            if (mDailySteplist.get(i).isCompeleteStatus()) {
-                TotalDailygoal = mDailySteplist.get(i + 1).getValue();
-                DailyDesc = mDailySteplist.get(i + 1).getDescription();
-            } else {
-                TotalDailygoal = mDailySteplist.get(0).getValue();
-                DailyDesc = mDailySteplist.get(0).getDescription();
+        long TotalDailygoal = 0;
+        String DailyDesc = "";
+
+        ArrayList<ArchivementModel> mDailyStepDatalist = new ArrayList<>();
+
+        mDailyStepDatalist = dbManager.getArchivementlist(constant.ARCHIVEMENT_DAILY_STEP);
+        Logger.e(mDailyStepDatalist.size());
+        for (int i = 0; i < mDailyStepDatalist.size(); i++) {
+//            Logger.e(mDailySteplist.get(i).isCompeleteStatus() + mDailySteplist.get(i).getLabel());
+
+            if (i == 0) {
+                TotalDailygoal = mDailyStepDatalist.get(0).getValue();
+                DailyDesc = mDailyStepDatalist.get(0).getDescription();
+            }
+
+            if (mDailyStepDatalist.get(i).isCompeleteStatus() && mDailyStepDatalist.size() - 1 != i) {
+                TotalDailygoal = mDailyStepDatalist.get(i + 1).getValue();
+                Logger.e(TotalDailygoal + "----new ------TotalDailygoal-----------");
+                DailyDesc = mDailyStepDatalist.get(i + 1).getDescription();
             }
         }
 
-//        Logger.e("Daily steps" + TotalDailyStep + "---" + TotalDailygoal);
+
+        Logger.e("Daily steps" + TotalDailyStep + "---" + TotalDailygoal);
 
         //        -------------------------Level
-        long mlevelGoal = 10000;
-        String LevelDesc = "A good Strat!";
+        long mlevelGoal = 0;
+        String LevelDesc = "";
         for (int i = 0; i < mLevel.size(); i++) {
-            if (mLevel.get(i).isCompeleteStatus()) {
+            if (mLevel.get(i).isCompeleteStatus() && mLevel.size() - 1 != i) {
                 mlevelGoal = mLevel.get(i + 1).getValue();
                 LevelDesc = mLevel.get(i + 1).getDescription();
             }
@@ -1834,69 +1891,103 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int index = floats.indexOf(obj);
 //        Logger.e(obj + "--" + index);
 
-        if (date == Calendar.DATE) {
+        if (date == Calendar.DATE && floats.get(index) > 90) {
             if (index == 0) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", mlevelGoal - mTotalStepData);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
-                sendLevel.putExtra("Compeletelevel", false);
-                sendBroadcast(sendLevel);
+                ArchivementModel archivementModels = dbManager.getArchivement(constant.ARCHIVEMENT_LEVEL, mlevelGoal);
+                if (!archivementModels.isReminderStatus()) {
+                    dbManager.updateArchivementReminingLevel(constant.ARCHIVEMENT_LEVEL, mlevelGoal);
+                    Intent sendLevel = new Intent(this, NotificationReceiver.class);
+                    sendLevel.setAction("Notification");
+                    sendLevel.putExtra("value", mlevelGoal - mTotalStepData);
+                    sendLevel.putExtra("Type", constant.ARCHIVEMENT_LEVEL);
+                    sendLevel.putExtra("Compeletelevel", false);
+                    sendBroadcast(sendLevel);
+                }
             } else if (index == 1) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", Distancegoal - mTotalDisanceData);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
-                sendLevel.putExtra("CompeleteDistance", false);
-                sendBroadcast(sendLevel);
+                ArchivementModel archivementModels = dbManager.getArchivement(constant.ARCHIVEMENT_TOTAL_DISTANCE, Distancegoal);
+                if (!archivementModels.isReminderStatus()) {
+                    dbManager.updateArchivementReminingLevel(constant.ARCHIVEMENT_TOTAL_DISTANCE, Distancegoal);
+                    Intent sendLevel = new Intent(this, NotificationReceiver.class);
+                    sendLevel.setAction("Notification");
+                    sendLevel.putExtra("value", Distancegoal - mTotalDisanceData);
+                    sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DISTANCE);
+                    sendLevel.putExtra("CompeleteDistance", false);
+                    sendBroadcast(sendLevel);
+                }
             } else if (index == 2) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", TotalDaysgoal - mTotalDaysData);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
-                sendLevel.putExtra("CompeleteDaysData", false);
-                sendBroadcast(sendLevel);
+                ArchivementModel archivementModels = dbManager.getArchivement(constant.ARCHIVEMENT_TOTAL_DAYS, TotalDaysgoal);
+                if (!archivementModels.isReminderStatus()) {
+                    dbManager.updateArchivementReminingLevel(constant.ARCHIVEMENT_TOTAL_DAYS, TotalDaysgoal);
+                    Intent sendLevel = new Intent(this, NotificationReceiver.class);
+                    sendLevel.setAction("Notification");
+                    sendLevel.putExtra("value", TotalDaysgoal - mTotalDaysData);
+                    sendLevel.putExtra("Type", constant.ARCHIVEMENT_TOTAL_DAYS);
+                    sendLevel.putExtra("CompeleteDaysData", false);
+                    sendBroadcast(sendLevel);
+                }
             } else if (index == 3) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", TotalDailygoal - TotalDailyStep);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
-                sendLevel.putExtra("CompeleteDailyStep", false);
-                sendBroadcast(sendLevel);
-            }
-        } else {
-
-            long NotiValue = 0;
-            String NotiType = null;
-
-            if (mTotalStepData >= mlevelGoal) {
-                NotiValue = mlevelGoal;
-                NotiType = constant.ARCHIVEMENT_LEVEL;
-            } else if (mTotalDisanceData >= Distancegoal) {
-                NotiValue = Distancegoal;
-                NotiType = constant.ARCHIVEMENT_TOTAL_DISTANCE;
-            } else if (mTotalDaysData >= TotalDaysgoal) {
-                NotiValue = TotalDaysgoal;
-                NotiType = constant.ARCHIVEMENT_TOTAL_DAYS;
-            } else if (TotalDailyStep >= TotalDailygoal) {
-                NotiValue = TotalDailygoal;
-                NotiType = constant.ARCHIVEMENT_DAILY_STEP;
+                ArchivementModel archivementModels = dbManager.getArchivement(constant.ARCHIVEMENT_DAILY_STEP, TotalDailygoal);
+                if (!archivementModels.isReminderStatus()) {
+                    dbManager.updateArchivementReminingLevel(constant.ARCHIVEMENT_DAILY_STEP, TotalDailygoal);
+                    Intent sendLevel = new Intent(this, NotificationReceiver.class);
+                    sendLevel.setAction("Notification");
+                    sendLevel.putExtra("value", TotalDailygoal - TotalDailyStep);
+                    sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
+                    sendLevel.putExtra("CompeleteDailyStep", false);
+                    sendBroadcast(sendLevel);
+                }
             }
 
-            if (NotiValue != 0 && NotiType != null) {
-                Intent sendLevel = new Intent(this, NotificationReceiver.class);
-                sendLevel.setAction("Notification");
-                sendLevel.putExtra("value", TotalDailygoal);
-                sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
-                sendLevel.putExtra("CompeleteDailyStep", true);
-                sendBroadcast(sendLevel);
+            if (TotalDailyStep >= StorageManager.getInstance().getStepCountGoalUnit()) {
+                Intent intent = new Intent(this, NotificationReceiver.class);
+                intent.setAction("Notification");
+                intent.putExtra("value", TotalDailygoal);
+                intent.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
+                intent.putExtra("CompeleteDailyStepGoal", true);
+                sendBroadcast(intent);
             }
+        }
+
+        long NotiValue = 0;
+        String NotiType = null;
+
+        if (mTotalStepData >= mlevelGoal && !mLevel.get(mLevel.size() - 1).isCompeleteStatus()) {
+            NotiValue = mlevelGoal;
+            NotiType = constant.ARCHIVEMENT_LEVEL;
+        } else if (mTotalDisanceData >= Distancegoal && !mTotalDistanceList.get(mTotalDistanceList.size() - 1).isCompeleteStatus()) {
+            NotiValue = Distancegoal;
+            NotiType = constant.ARCHIVEMENT_TOTAL_DISTANCE;
+        } else if (mTotalDaysData >= TotalDaysgoal && !mTotalDaysList.get(mTotalDaysList.size() - 1).isCompeleteStatus()) {
+            NotiValue = TotalDaysgoal;
+            NotiType = constant.ARCHIVEMENT_TOTAL_DAYS;
+        } else if (TotalDailyStep >= TotalDailygoal && !mDailyStepDatalist.get(mDailyStepDatalist.size() - 1).isCompeleteStatus()) {
+            NotiValue = TotalDailygoal;
+            NotiType = constant.ARCHIVEMENT_DAILY_STEP;
+        }
+
+        if (NotiValue != 0 && NotiType != null) {
+            Intent sendLevel = new Intent(this, NotificationReceiver.class);
+            sendLevel.setAction("Notification");
+            sendLevel.putExtra("value", TotalDailygoal);
+            sendLevel.putExtra("Type", constant.ARCHIVEMENT_DAILY_STEP);
+            sendLevel.putExtra("CompeleteDailyStep", true);
+            sendBroadcast(sendLevel);
+
         }
 
         if (DailogGoal != null && DailogDesc != null) {
             CommanMethod.showCompleteDailog(this, DailogGoal, DailogDesc);
         }
 
+        if (NotificationValue != 0 && NotificationType != null) {
+            Intent intent = new Intent(this, NotificationReceiver.class);
+            intent.setAction("Notification");
+            intent.putExtra("value", NotificationValue);
+            intent.putExtra("Type", NotificationType);
+            sendBroadcast(intent);
+        }
+
+        StorageManager.getInstance().setLevelArchivement(false);
     }
 
     private final RectF onValueSelectedRectF = new RectF();

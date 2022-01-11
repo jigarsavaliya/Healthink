@@ -19,6 +19,12 @@ public class constant {
     public static final String CHANNEL_ID_FOR_STEP = "Location Update";
     public static final String CHANNEL_NAME_FOR_STEP = "Location Update Channel";
 
+    public static final String CHANNEL_ID_FOR_WATER = "Water Update";
+    public static final String CHANNEL_NAME_FOR_WATER = "Water Update Channel";
+
+    public static final String CHANNEL_ID_FOR_GPS = "Gps Update";
+    public static final String CHANNEL_NAME_FOR_GPS = "Gps Update Channel";
+
     public static final String ARCHIVEMENT_LEVEL = "Level";
     public static final String ARCHIVEMENT_DAILY_STEP = "Daily Step";
     public static final String ARCHIVEMENT_COMBO_DAY = "Combo Day";

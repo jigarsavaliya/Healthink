@@ -21,7 +21,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.sevices.DailyReminderReceiver;
-import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -232,11 +231,23 @@ public class ReminderActivity extends AppCompatActivity implements View.OnClickL
                         calendar.set(Calendar.AM_PM, Calendar.PM);
                     }
 
-                    Intent intent1 = new Intent(ReminderActivity.this, DailyReminderReceiver.class);
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
-                    AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
-                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000 * 60 * 60 * 24, pendingIntent);
-                    Logger.e(calendar.getTimeInMillis());
+                    Calendar cal = Calendar.getInstance();
+                    long Rightnowtime = cal.getTimeInMillis();
+
+//                    Logger.e(mStartHour + ":" + mStartMinute + " " + starttimeSet);
+//                    Logger.e(calendar.getTimeInMillis());
+                    long setTime = calendar.getTimeInMillis();
+
+                    if (Rightnowtime > setTime) {
+                        long time = calendar.getTimeInMillis() + 1000 * 60 * 60 * 24;
+//                        Logger.e(time);
+
+                        Intent intent1 = new Intent(ReminderActivity.this, DailyReminderReceiver.class);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+                        AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
+                        am.setRepeating(AlarmManager.RTC_WAKEUP, time, 1000 * 60 * 60 * 24, pendingIntent);
+                    }
+//                    Logger.e(calendar.getTimeInMillis());
                 }
                 finish();
                 break;

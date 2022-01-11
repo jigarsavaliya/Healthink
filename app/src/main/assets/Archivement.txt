@@ -1,338 +1,380 @@
 [
-    {
-      "Type": "Level",
-      "Label": "Level1",
-      "Value": 0,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Level2",
-      "Value": 10000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Level2",
-      "Value": 50000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Leve4",
-      "Value": 100000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Level5",
-      "Value": 170000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Level6",
-      "Value": 220000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Leve7",
-      "Value": 330000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Level8",
-      "Value": 440000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Level",
-      "Label": "Level9",
-      "Value": 440000,
-      "Description": "A good Strat!",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Daily Step",
-      "Label": "3k",
-      "Value": 3000,
-      "Description": "Away from sofa",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Daily Step",
-      "Label": "7k",
-      "Value": 7000,
-      "Description": "Keep Fit",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Daily Step",
-      "Label": "10k",
-      "Value": 10000,
-      "Description": "Health Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Daily Step",
-      "Label": "14k",
-      "Value": 14000,
-      "Description": "Slimmer Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Daily Step",
-      "Label": "20k",
-      "Value": 20000,
-      "Description": "Hiker",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Daily Step",
-      "Label": "30k",
-      "Value": 30000,
-      "Description": "Explorer",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Daily Step",
-      "Label": "40k",
-      "Value": 40000,
-      "Description": "Hero",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "DailyStep",
-      "Label": "60k",
-      "Value": 60000,
-      "Description": "Conqueror",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "1x",
-      "Value": 1,
-      "Description": "1 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "3x",
-      "Value": 3,
-      "Description": "3 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "7x",
-      "Value": 7,
-      "Description": "7 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "13x",
-      "Value": 13,
-      "Description": "13 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "25x",
-      "Value": 25,
-      "Description": "25 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "50x",
-      "Value": 50,
-      "Description": "50 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "100",
-      "Value": 100,
-      "Description": "100 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Combo Day",
-      "Label": "365",
-      "Value": 365,
-      "Description": "365 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Days",
-      "Label": "7 Days",
-      "Value": 7,
-      "Description": "7 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Days",
-      "Label": "14 Days",
-      "Value": 14,
-      "Description": "14 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Days",
-      "Label": "30 Days",
-      "Value": 30,
-      "Description": "30 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Days",
-      "Label": "60 Days",
-      "Value": 60,
-      "Description": "60 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Days",
-      "Label": "100 Days",
-      "Value": 100,
-      "Description": "100 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Days",
-      "Label": "180 Days",
-      "Value": 180,
-      "Description": "180 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Days",
-      "Label": "365 Days",
-      "Value": 365,
-      "Description": "365 Day",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "5",
-      "Value": 5,
-      "Description": "Short Hike",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "10",
-      "Value": 10,
-      "Description": "Roman Holiday",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "20",
-      "Value": 20,
-      "Description": "Conquer olympus",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "42",
-      "Value": 42,
-      "Description": "Marathon",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "100",
-      "Value": 100,
-      "Description": "100 KM",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "220",
-      "Value": 220,
-      "Description": "London to Paris",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "450",
-      "Value": 450,
-      "Description": "Boston to Philiy",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "800",
-      "Value": 800,
-      "Description": "Five Hundred Miles",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "2000",
-      "Value": 2000,
-      "Description": "Sahara Desert",
-      "CompeleteStatus": false,
-      "Count": 0
-    },
-    {
-      "Type": "Total Distance",
-      "Label": "6300",
-      "Value": 6300,
-      "Description": "To Earth's Core",
-      "CompeleteStatus": false,
-      "Count": 0
-    }
-  ]
+  {
+    "Type": "Level",
+    "Label": "Level1",
+    "Value": 0,
+    "Description": "A good Strat!",
+    "CompeleteStatus": true,
+    "ReminderStatus": true,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level2",
+    "Value": 10000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level3",
+    "Value": 50000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level4",
+    "Value": 100000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level5",
+    "Value": 170000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level6",
+    "Value": 220000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level7",
+    "Value": 330000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level8",
+    "Value": 440000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Level",
+    "Label": "Level9",
+    "Value": 550000,
+    "Description": "A good Strat!",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Daily Step",
+    "Label": "3k",
+    "Value": 3000,
+    "Description": "Away from sofa",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Daily Step",
+    "Label": "7k",
+    "Value": 7000,
+    "Description": "Keep Fit",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Daily Step",
+    "Label": "10k",
+    "Value": 10000,
+    "Description": "Health Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Daily Step",
+    "Label": "14k",
+    "Value": 14000,
+    "Description": "Slimmer Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Daily Step",
+    "Label": "20k",
+    "Value": 20000,
+    "Description": "Hiker",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Daily Step",
+    "Label": "30k",
+    "Value": 30000,
+    "Description": "Explorer",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Daily Step",
+    "Label": "40k",
+    "Value": 40000,
+    "Description": "Hero",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "DailyStep",
+    "Label": "60k",
+    "Value": 60000,
+    "Description": "Conqueror",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "1x",
+    "Value": 1,
+    "Description": "1 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "3x",
+    "Value": 3,
+    "Description": "3 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "7x",
+    "Value": 7,
+    "Description": "7 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "13x",
+    "Value": 13,
+    "Description": "13 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "25x",
+    "Value": 25,
+    "Description": "25 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "50x",
+    "Value": 50,
+    "Description": "50 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "100",
+    "Value": 100,
+    "Description": "100 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Combo Day",
+    "Label": "365",
+    "Value": 365,
+    "Description": "365 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Days",
+    "Label": "7 Days",
+    "Value": 7,
+    "Description": "7 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Days",
+    "Label": "14 Days",
+    "Value": 14,
+    "Description": "14 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Days",
+    "Label": "30 Days",
+    "Value": 30,
+    "Description": "30 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Days",
+    "Label": "60 Days",
+    "Value": 60,
+    "Description": "60 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Days",
+    "Label": "100 Days",
+    "Value": 100,
+    "Description": "100 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Days",
+    "Label": "180 Days",
+    "Value": 180,
+    "Description": "180 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Days",
+    "Label": "365 Days",
+    "Value": 365,
+    "Description": "365 Day",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "5",
+    "Value": 5,
+    "Description": "Short Hike",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "10",
+    "Value": 10,
+    "Description": "Roman Holiday",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "20",
+    "Value": 20,
+    "Description": "Conquer olympus",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "42",
+    "Value": 42,
+    "Description": "Marathon",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "100",
+    "Value": 100,
+    "Description": "100 KM",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "220",
+    "Value": 220,
+    "Description": "London to Paris",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "450",
+    "Value": 450,
+    "Description": "Boston to Philiy",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "800",
+    "Value": 800,
+    "Description": "Five Hundred Miles",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "2000",
+    "Value": 2000,
+    "Description": "Sahara Desert",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  },
+  {
+    "Type": "Total Distance",
+    "Label": "6300",
+    "Value": 6300,
+    "Description": "To Earth's Core",
+    "CompeleteStatus": false,
+    "ReminderStatus": false,
+    "Count": 0
+  }
+]

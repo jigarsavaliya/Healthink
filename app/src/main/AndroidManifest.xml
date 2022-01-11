@@ -58,6 +58,10 @@
 
         <service android:name=".sevices.SensorService" />
 
+        <service
+            android:name=".sevices.LocationBgService"
+            android:foregroundServiceType="location" />
+
         <!-- Register the Alarm Receiver -->
         <receiver android:name=".sevices.AlarmReceiver" />
         <receiver android:name=".sevices.DailyReminderReceiver" />
@@ -75,13 +79,15 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities=".fileprovider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
+            android:permission="com.example.filesvisible.permission.READ"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
     </application>
 
 </manifest>

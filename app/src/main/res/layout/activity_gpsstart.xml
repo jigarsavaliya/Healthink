@@ -199,50 +199,7 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/top_round_drawable"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:weightSum="3">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center">
-
-            <!--<RelativeLayout
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_40sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:background="@drawable/cricle_background"
-                android:gravity="center"
-                android:weightSum="1">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/_30sdp"
-                    android:src="@drawable/ic_baseline_location_on_24" />
-            </RelativeLayout>-->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cvResume"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_marginRight="@dimen/_5sdp"
-                android:layout_weight="1"
-                android:visibility="gone"
-                app:cardBackgroundColor="?attr/colorAccent"
-                app:cardCornerRadius="@dimen/_20sdp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="@dimen/_10sdp"
-                    android:text="Resume"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_14sdp" />
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -254,8 +211,8 @@
                 android:id="@+id/cvPause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_marginRight="@dimen/_5sdp"
+                android:layout_marginLeft="@dimen/_80sdp"
+                android:layout_marginRight="@dimen/_80sdp"
                 android:layout_weight="1"
                 app:cardBackgroundColor="?attr/colorAccent"
                 app:cardCornerRadius="@dimen/_20sdp">
@@ -271,46 +228,5 @@
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center">
-
-            <!--            <RelativeLayout-->
-            <!--                android:layout_width="@dimen/_40sdp"-->
-            <!--                android:layout_height="@dimen/_40sdp"-->
-            <!--                android:layout_marginLeft="@dimen/_10sdp"-->
-            <!--                android:background="@drawable/cricle_background"-->
-            <!--                android:gravity="center"-->
-            <!--                android:weightSum="1">-->
-
-            <!--                <ImageView-->
-            <!--                    android:layout_width="wrap_content"-->
-            <!--                    android:layout_height="@dimen/_30sdp"-->
-            <!--                    android:src="@drawable/ic_baseline_lock_24" />-->
-            <!--            </RelativeLayout>-->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cvFinish"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_marginRight="@dimen/_5sdp"
-                android:layout_weight="1"
-                android:visibility="gone"
-                app:cardBackgroundColor="?attr/colorAccent"
-                app:cardCornerRadius="@dimen/_20sdp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="@dimen/_10sdp"
-                    android:text="Finish"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_14sdp" />
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.android.stepcounter.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +11,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,16 +22,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.GpsTrackerModel;
+import com.android.stepcounter.utils.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -138,10 +142,10 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (options[item].equals("Take Photo")) {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    File f = new File(android.os.Environment.getExternalStorageDirectory(), "temp.jpg");
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
-                    startActivityForResult(intent, 1);
+                    Intent camera_intent
+                            = new Intent(MediaStore
+                            .ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(camera_intent, 1);
                 } else if (options[item].equals("Choose from Gallery")) {
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(intent, 2);
@@ -158,41 +162,9 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == 1) {
-                File f = new File(Environment.getExternalStorageDirectory().toString());
-                for (File temp : f.listFiles()) {
-                    if (temp.getName().equals("temp.jpg")) {
-                        f = temp;
-                        break;
-                    }
-                }
-                try {
-                    Bitmap bitmap;
-                    BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-                    bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(),
-                            bitmapOptions);
-                    viewImage.setImageBitmap(bitmap);
-                    String path = android.os.Environment
-                            .getExternalStorageDirectory()
-                            + File.separator
-                            + "Phoenix" + File.separator + "default";
-                    f.delete();
-                    OutputStream outFile = null;
-                    File file = new File(path, String.valueOf(System.currentTimeMillis()) + ".jpg");
-                    try {
-                        outFile = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outFile);
-                        outFile.flush();
-                        outFile.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
+                // Set the image in imageview for display
+                viewImage.setImageBitmap(photo);
             } else if (requestCode == 2) {
                 Uri selectedImage = data.getData();
                 String[] filePath = {MediaStore.Images.Media.DATA};
@@ -204,6 +176,79 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
                 Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
                 viewImage.setImageBitmap(thumbnail);
             }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.share_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_share:
+                TakeScreenShot(getWindow().getDecorView());
+                break;
+        }
+        return true;
+    }
+
+    public void TakeScreenShot(View view) {
+
+        //This is used to provide file name with Date a format
+        Date date = new Date();
+        CharSequence format = DateFormat.format("MM-dd-yyyy_hh:mm:ss", date);
+
+        //It will make sure to store file to given below Directory and If the file Directory dosen't exist then it will create it.
+        try {
+            File mainDir = new File(
+                    this.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath(), "FilShare");
+            if (!mainDir.exists()) {
+                boolean mkdir = mainDir.mkdir();
+            }
+
+            //Providing file name along with Bitmap to capture screenview
+            String path = mainDir + "/" + "StepCounter" + "-" + format + ".jpeg";
+            view.setDrawingCacheEnabled(true);
+            Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+            view.setDrawingCacheEnabled(false);
+
+//This logic is used to save file at given location with the given filename and compress the Image Quality.
+            File imageFile = new File(path);
+            FileOutputStream fileOutputStream = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+
+//Create New Method to take ScreenShot with the imageFile.
+            shareScreenShot(imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void shareScreenShot(File imageFile) {
+        //Using sub-class of Content provider
+        Logger.e(imageFile);
+        Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", imageFile);
+
+        //Explicit intent
+        Intent intent = new Intent();
+        grantUriPermission(getApplicationContext().getPackageName() + ".provider", uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.setType("image/*");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, "This is Sample App to take ScreenShot");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+
+        //It will show the application which are available to share Image; else Toast message will throw.
+        try {
+            startActivity(Intent.createChooser(intent, "Share With"));
+        } catch (ActivityNotFoundException e) {
+//            Toast.makeText(activity, "No App Available", Toast.LENGTH_SHORT).show();
         }
     }
 }

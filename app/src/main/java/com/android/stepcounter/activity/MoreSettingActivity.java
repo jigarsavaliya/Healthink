@@ -105,7 +105,7 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
         mTvSteps.setText(mTotalStepData + "");
         mTvMiles.setText(mTotalDisanceData + "");
 
-        sensitivity = StorageManager.getInstance().getSetThreshold();
+        sensitivity = 100 - StorageManager.getInstance().getSetThreshold();
         if (sensitivity <= 20) {
             mTvSensitivity.setText("Low");
         } else if (sensitivity > 20 && sensitivity <= 40) {
@@ -205,7 +205,10 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
                 } else if (progress > 80 && progress <= 100) {
                     mTvSensitivityCount.setText("Sensitivity 5");
                 }
-                StorageManager.getInstance().setSetThreshold(progress);
+                StorageManager.getInstance().setSetThreshold(100 - progress);
+
+                Logger.e(progress);
+                Logger.e(100 - progress);
             }
 
             @Override
@@ -229,7 +232,8 @@ public class MoreSettingActivity extends AppCompatActivity implements View.OnCli
         mcvSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sensitivity = StorageManager.getInstance().getSetThreshold();
+                sensitivity = 100 - StorageManager.getInstance().getSetThreshold();
+                Logger.e(sensitivity);
                 if (sensitivity <= 20) {
                     mTvSensitivity.setText("Low");
                 } else if (sensitivity > 20 && sensitivity <= 40) {

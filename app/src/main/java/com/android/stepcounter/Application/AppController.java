@@ -29,12 +29,7 @@ public class AppController extends Application {
         DatabaseManager.init(this);
 
         InsertArchivementData();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR, 12);
-        calendar.set(Calendar.MINUTE, 00);
-        calendar.set(Calendar.AM_PM, Calendar.PM);
-        Logger.e(calendar.getTimeInMillis());
-        StorageManager.getInstance().setCurrentDay(calendar.getTimeInMillis() + "");
+
         DashboardComponent();
     }
 
