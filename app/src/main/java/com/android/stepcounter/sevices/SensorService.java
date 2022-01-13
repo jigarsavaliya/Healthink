@@ -34,7 +34,6 @@ import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -64,6 +63,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
     public static boolean IsTimerStart = false;
     public static boolean IsServiceStart = true;
     public static boolean IsNotiFlag = false;
+    public static GpsModel gpsModel;
 
     public static String IsTargetType = "Target Distance";
     private int seconds = 0;
@@ -136,7 +136,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
                     time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
 
                     if (IsTimerStart) {
-                        GpsModel gpsModel = new GpsModel();
+                        gpsModel = new GpsModel();
                         gpsModel.setSecond(seconds);
                         gpsModel.setCurrStep(mapStep);
                         gpsModel.setStepTitle("Step");
@@ -249,7 +249,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
                 float Caloriegoal = Float.parseFloat(StorageManager.getInstance().getTargetCalories());
                 float CurrentKcal = Float.parseFloat(Calories);
 
-                GpsModel gpsModel = new GpsModel();
+                gpsModel = new GpsModel();
                 gpsModel.setSecond(seconds);
                 gpsModel.setCurrStep(mapStep);
                 gpsModel.setStepTitle("Step");
@@ -633,7 +633,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         contentView.setImageViewResource(R.id.ivcalorie, R.drawable.ic_baseline_local_fire_department_24);
         contentView.setTextViewText(R.id.title, i + "");
         contentView.setTextViewText(R.id.tvcalorie, calories + "");
-        contentView.setProgressBar(R.id.progress, 1000, i, false);
+        contentView.setProgressBar(R.id.progress, StepGoal, i, false);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
@@ -668,7 +668,10 @@ public class SensorService extends Service implements SensorEventListener, StepL
 
     private void showGPSNotification(GpsModel gpsModel) {
 
+        Logger.e(mapStep);
+
         String Calories = String.valueOf(CommanMethod.calculateCalories(mapStep, userWeight, userHeight));
+        Logger.e(Calories);
         String Distance = String.format("%.2f", CommanMethod.calculateDistance(mapStep));
 
         int Durationgoal = Integer.parseInt(StorageManager.getInstance().getTargetDuration()) * 60 * 1000;
@@ -682,7 +685,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         contentView.setTextViewText(R.id.type, IsTargetType + "");
         if (IsTargetType != null && IsTargetType.equals("Target Distance")) {
             float goal = Float.parseFloat(String.valueOf(Distgoal));
-            float Current = Float.parseFloat(String.valueOf(CurrentDist));
+            float Current = CurrentDist;
 
             float progress = 0;
             if (Current != 0) {
@@ -697,7 +700,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         } else if (IsTargetType != null && IsTargetType.equals("Target Calories")) {
 
             float goal = Float.parseFloat(String.valueOf(Caloriegoal));
-            float Current = Float.parseFloat(String.valueOf(CurrentKcal));
+            float Current = CurrentKcal;
 
             float progress = 0;
             if (Current != 0) {
@@ -711,7 +714,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
             contentView.setProgressBar(R.id.gpsprogress, (int) goal, (int) progress, false);
         } else if (IsTargetType != null && IsTargetType.equals("Target Duration")) {
             float goal = Float.parseFloat(String.valueOf(Durationgoal));
-            float Current = Float.parseFloat(String.valueOf(seconds));
+            float Current = seconds;
 
 //            Logger.e(goal + "Goal");
 //            Logger.e(Current + "Current");
@@ -729,7 +732,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
             contentView.setProgressBar(R.id.gpsprogress, 100, (int) progress, false);
         } else if (IsTargetType != null && IsTargetType.equals("Open Target")) {
             float goal = Float.parseFloat(String.valueOf(Distgoal));
-            float Current = Float.parseFloat(String.valueOf(CurrentDist));
+            float Current = CurrentDist;
 
             float progress = 0;
             if (Current != 0) {
@@ -749,7 +752,7 @@ public class SensorService extends Service implements SensorEventListener, StepL
         gpsModel.setCurrKcal(String.valueOf(CurrentKcal));
 
 //        Logger.e(IsTargetType);
-        Logger.e("GSON" + new GsonBuilder().create().toJson(gpsModel));
+//        Logger.e("GSON" + new GsonBuilder().create().toJson(gpsModel));
         IsNotiFlag = true;
 
         notificationIntent.putExtra("Notigpsmodel", gpsModel);

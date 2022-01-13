@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     long mlevelGoal, mLevelData, Distancegoal, DisplayDistance, TotalDaysgoal, mTotalDaysData, TotalDailygoal, TotalDailyStep;
     String LevelDesc, DistanceDesc, DayDesc, DailyDesc;
     ExtendedFloatingActionButton mExtFabAdjustOrder;
-    View view1, view2, view3;
+    View view1, view2, view3, view4;
     private TextView TvSteps, accuracyText, tvduration, tvkm, tvkcal, tvuserWeight, tvwatergoal, tvwaterlevel, mtvlastdaydiffvalue, mtvAvgstep, mTvDisplayLabel, mTvDisplayDesc, mTvDisplayPendingValue;
     private int numSteps;
     private CircularProgressBar progress;
@@ -226,6 +226,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         view2 = vi.inflate(R.layout.main_water_layout, null);
         view3 = vi.inflate(R.layout.main_weigth_layout, null);
 
+        view4 = vi.inflate(R.layout.main_level_layout, null);
+
         rightNow = Calendar.getInstance();
         hour = rightNow.get(Calendar.HOUR_OF_DAY);
         min = rightNow.get(Calendar.MINUTE);
@@ -256,11 +258,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mtvAvgstep = findViewById(R.id.tvAvgstep);
 
-        mTvDisplayLabel = findViewById(R.id.tvDisplayLabel);
-        mTvDisplayDesc = findViewById(R.id.tvDisplayDesc);
-        mTvDisplayPendingValue = findViewById(R.id.DisplayPendingValue);
-        Displayprogress = findViewById(R.id.Displayprogress);
-        mCvArchivement = findViewById(R.id.cvArchivement);
 
         mExtFabAdjustOrder = findViewById(R.id.extFabAdjustOrder);
         mExtFabAdjustOrder.setOnClickListener(this);
@@ -271,8 +268,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mIvPlay.setOnClickListener(this);
         mIvPause.setOnClickListener(this);
-
-        mCvArchivement.setOnClickListener(this);
 
         if (StorageManager.getInstance().getIsStepService()) {
             mIvPause.setVisibility(View.VISIBLE);
@@ -304,6 +299,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case constant.DASHBORAD_WEIGHT_TRACKER:
                         llContainer.addView(view3);
                         setWeightdata();
+                        break;
+                    case constant.DASHBORAD_LEVEL_TRACKER:
+                        llContainer.addView(view4);
+                        setLeveldata();
                         break;
                     default:
                         break;
@@ -404,6 +403,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (StorageManager.getInstance().getLevelArchivement()) {
             setArchivementData(date, month, year, hour);
         }
+    }
+
+    private void setLeveldata() {
+        mTvDisplayLabel = findViewById(R.id.tvDisplayLabel);
+        mTvDisplayDesc = findViewById(R.id.tvDisplayDesc);
+        mTvDisplayPendingValue = findViewById(R.id.DisplayPendingValue);
+        Displayprogress = findViewById(R.id.Displayprogress);
+        mCvArchivement = findViewById(R.id.cvArchivement);
+
+        mCvArchivement.setOnClickListener(this);
     }
 
     private void setWeightdata() {
@@ -1308,7 +1317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alertDialog.show();
     }
 
-    private void setArchivementData(int date, int month, int year, int hour) {
+    private void setArchivementData(int mdate, int month, int year, int hour) {
         //Archievement level Data
         long mTotalStepData = dbManager.getTotalStepCount();
         ArrayList<ArchivementModel> mLevel = new ArrayList<>();
@@ -1353,7 +1362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Archivement Daily Step
         ArrayList<ArchivementModel> mDailySteplist = new ArrayList<>();
-        ArrayList<StepCountModel> MaxStepCount = dbManager.getsumofdayStep(date, month, year);
+        ArrayList<StepCountModel> MaxStepCount = dbManager.getsumofdayStep(mdate, month, year);
 
 //        Logger.e(MaxStepCount.get(0).getSumstep());
 //        Logger.e(MaxStepCount.get(0).getMaxStep());
@@ -1374,7 +1383,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dbManager.updateArchivementDailyStep(archivementModel);
 
                 StepCountModel stepCountModel = new StepCountModel();
-                stepCountModel.setDate(date);
+                stepCountModel.setDate(mdate);
                 stepCountModel.setMonth(month);
                 stepCountModel.setYear(year);
                 stepCountModel.setDuration(hour);
@@ -1487,9 +1496,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-//        Logger.e("currDayStep" + currDayStep + "YestDayStep" + YestDayStep);
-//        Logger.e((YestDayStep >= StepGoal));
-//        Logger.e((currDayStep >= StepGoal));
+        Logger.e("currDayStep" + currDayStep + "YestDayStep" + YestDayStep);
+        Logger.e((YestDayStep >= StepGoal));
+        Logger.e((currDayStep >= StepGoal));
 
         int Count = StorageManager.getInstance().getComboDayCount();
         if (currDayStep >= StepGoal) {
@@ -1616,7 +1625,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Logger.e(TotalDailyStep + ">=" + TotalDailygoal);
 //        Logger.e(TotalDailyStep + ">=" + StorageManager.getInstance().getStepCountGoalUnit());
 
-        if (date == rightNow.get(Calendar.DATE) && floats.get(index) > 90) {
+        if (mdate == rightNow.get(Calendar.DATE) && floats.get(index) > 90) {
             if (index == 0) {
                 ArchivementModel archivementModels = dbManager.getArchivement(constant.ARCHIVEMENT_LEVEL, mlevelGoal);
                 if (!archivementModels.isReminderStatus()) {

@@ -235,12 +235,15 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
         Logger.e(imageFile);
         Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", imageFile);
 
+//        Uri uriToImage = Uri.parse("file://" + imageFile);
+
         //Explicit intent
         Intent intent = new Intent();
         grantUriPermission(getApplicationContext().getPackageName() + ".provider", uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setAction(Intent.ACTION_SEND);
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         intent.setType("image/*");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(android.content.Intent.EXTRA_TEXT, "This is Sample App to take ScreenShot");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
 

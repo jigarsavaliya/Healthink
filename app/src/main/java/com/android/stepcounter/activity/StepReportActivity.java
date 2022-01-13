@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
+import com.android.stepcounter.IAxisValueFormatter;
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DatabaseManager;
@@ -39,6 +40,7 @@ import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
@@ -47,6 +49,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
@@ -353,15 +356,21 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(true);
         xAxis.setCenterAxisLabels(true);
+        xAxis.setDrawLabels(false);
 
         LimitLine ll1 = new LimitLine(StepGoal);
         ll1.setLineWidth(1f);
         ll1.enableDashedLine(1f, 1f, 0f);
+        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        ll1.setTextSize(10f);
 
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setDrawGridLines(false);
         rightAxis.setDrawLabels(false);
         rightAxis.setDrawZeroLine(false);
+        rightAxis.setDrawAxisLine(false);
+        rightAxis.setDrawGridLines(false);
+        rightAxis.setDrawZeroLine(false);
+        rightAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+        rightAxis.addLimitLine(ll1);
 
         BarData data = new BarData(setDayData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -371,9 +380,10 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         mv.setChartView(chart);
         chart.setMarker(mv);
 
-//        chart.getXAxis().setEnabled(false);
+        chart.getXAxis().setEnabled(false);
 //        chart.getAxisRight().setAxisMaximum(StepGoal);
 //        chart.getAxisRight().setAxisMinimum(0);
+
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -386,8 +396,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.getAxisRight().setDrawGridLines(false);
         chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
-
-        chart.invalidate();
 
     }
 
@@ -404,6 +412,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -414,7 +424,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         L = chart.getLegend();
         L.setEnabled(false);
 
-        YAxis leftAxis = chart.getAxisLeft();
         YAxis rightAxis = chart.getAxisRight();
         XAxis xAxis = chart.getXAxis();
 
@@ -422,18 +431,24 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         xAxis.setTextSize(10f);
         xAxis.setDrawAxisLine(true);
         xAxis.setDrawGridLines(false);
+        xAxis.setCenterAxisLabels(true);
 
         LimitLine ll1 = new LimitLine(StepGoal);
         ll1.setLineWidth(1f);
         ll1.enableDashedLine(1f, 1f, 0f);
+        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        ll1.setTextSize(10f);
 
+        rightAxis.setDrawZeroLine(false);
         rightAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
         rightAxis.addLimitLine(ll1);
-        rightAxis.setDrawAxisLine(false);
+
         rightAxis.setAxisMaximum(6000);
         rightAxis.setAxisMinimum(0);
+        rightAxis.setDrawAxisLine(false);
         rightAxis.setDrawGridLines(false);
         rightAxis.setDrawLabels(false);
+        rightAxis.setDrawZeroLine(false);
 
         BarData data = new BarData(setMonthData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -443,7 +458,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         mv.setChartView(chart);
         chart.setMarker(mv);
 
-//        chart.getXAxis().setEnabled(false);
+        chart.getXAxis().setEnabled(false);
 //        chart.getAxisRight().setAxisMaximum(StepGoal);
 //        chart.getAxisRight().setAxisMinimum(0);
 
@@ -500,6 +515,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -509,15 +526,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         L = chart.getLegend();
         L.setEnabled(false);
 
-        final ArrayList<String> xAxisLabel = new ArrayList<>();
-        xAxisLabel.add("Mon");
-        xAxisLabel.add("Tue");
-        xAxisLabel.add("Wed");
-        xAxisLabel.add("Thu");
-        xAxisLabel.add("Fri");
-        xAxisLabel.add("Sat");
-        xAxisLabel.add("Sun");
-
         chart.setPinchZoom(false);
         chart.setScaleEnabled(false);
         chart.setDrawBarShadow(false);
@@ -526,17 +534,14 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.getDescription().setEnabled(false);
 
         chart.setDrawGridBackground(false);
-
-        LimitLine ll1 = new LimitLine(StepGoal);
-        ll1.setLineWidth(1f);
-        ll1.enableDashedLine(1f, 1f, 0f);
+        chart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(getXAxisValues()));
 
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(true);
         xAxis.setCenterAxisLabels(true);
-        xAxis.setValueFormatter(new ValueFormatter() {
+        /*xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
                 try {
@@ -546,18 +551,35 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                     return "";
                 }
             }
+        });*/
+
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return getXAxisValues().get((int) value);
+            }
         });
 
+
         YAxis leftAxis = chart.getAxisRight();
-        leftAxis.setLabelCount(4, false);
+
+        LimitLine ll1 = new LimitLine(StepGoal);
+        ll1.setLineWidth(1f);
+        ll1.enableDashedLine(1f, 1f, 0f);
+        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        ll1.setTextSize(10f);
+
+        leftAxis.setDrawAxisLine(false);
         leftAxis.setDrawGridLines(false);
-        leftAxis.setDrawAxisLine(true);
-        leftAxis.setDrawZeroLine(false); // draw a zero line
-        leftAxis.setAxisMinimum(0f);
-        leftAxis.setAxisMaximum(6000F);
-        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
-        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
         leftAxis.setDrawLabels(false);
+        leftAxis.setDrawZeroLine(false);
+        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+        leftAxis.addLimitLine(ll1);
+
+        leftAxis.setLabelCount(4, false);
+        leftAxis.setAxisMinimum(0);
+        leftAxis.setAxisMaximum(7000);
+        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
 
         BarData data = new BarData(setWeekData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -568,8 +590,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setMarker(mv);
 
         chart.getXAxis().setEnabled(false);
-        chart.getAxisRight().setAxisMaximum(StepGoal);
-        chart.getAxisRight().setAxisMinimum(0);
+//        chart.getAxisRight().setAxisMaximum(StepGoal);
+//        chart.getAxisRight().setAxisMinimum(0);
+
 
         chart.setFitBars(true); // make the x-axis fit exactly all bars
         chart.invalidate(); // refresh
@@ -614,6 +637,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -632,8 +657,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextSize(10f);
-        xAxis.setDrawAxisLine(true);
         xAxis.setDrawGridLines(false);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setCenterAxisLabels(true);
 
 //        leftAxis.setTextSize(10f);
 //        leftAxis.setDrawLabels(false);
@@ -643,6 +669,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         rightAxis.setDrawAxisLine(false);
         rightAxis.setDrawGridLines(false);
         rightAxis.setDrawLabels(false);
+        rightAxis.setDrawZeroLine(false);
 
         BarData data = new BarData(setDayCaloriesData());
         data.setBarWidth(0.9f); // set custom bar width
@@ -659,6 +686,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         chart.setBackgroundColor(Color.rgb(255, 255, 255));
         chart.animateXY(2000, 2000);
         chart.setDrawBorders(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);
         chart.setDrawValueAboveBar(true);
 
     }
@@ -680,6 +710,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -754,20 +786,25 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
 
-    private void SetWeekwiseCaloriesChart() {
+    private ArrayList<String> getXAxisValues() {
+        ArrayList<String> xAxis = new ArrayList<>();
+        xAxis.add("Mon");
+        xAxis.add("Tue");
+        xAxis.add("Web");
+        xAxis.add("Thu");
+        xAxis.add("Fri");
+        xAxis.add("Sat");
+        xAxis.add("Sun");
+        return xAxis;
+    }
 
-        final ArrayList<String> xAxisLabel = new ArrayList<>();
-        xAxisLabel.add("Mon");
-        xAxisLabel.add("Tue");
-        xAxisLabel.add("Wed");
-        xAxisLabel.add("Thu");
-        xAxisLabel.add("Fri");
-        xAxisLabel.add("Sat");
-        xAxisLabel.add("Sun");
+    private void SetWeekwiseCaloriesChart() {
 
         chart.setPinchZoom(false);
         chart.setScaleEnabled(false);
@@ -794,6 +831,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 }
             }
         });
+//        xAxis.setValueFormatter(new IndexAxisValueFormatter(xAxisLabel));
 
         Legend L = chart.getLegend();
         L.setEnabled(false);
@@ -809,6 +847,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
         leftAxis.setDrawLabels(false);
 
+//        BarData data = new BarData(getXAxisValues(), setWeekCaloriesData());
         BarData data = new BarData(setWeekCaloriesData());
         data.setBarWidth(0.9f); // set custom bar width
         chart.setData(data);
@@ -847,6 +886,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int sumvalue = 0;
         StepWeeklist = dbManager.getweekCaloriesdata(fristdate, lastdate);
 
+
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (StepWeeklist != null) {
             for (int i = 0; i < StepWeeklist.size(); i++) {
@@ -858,8 +898,12 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         tvTotal.setText(sumvalue + "");
         BarDataSet set = new BarDataSet(entries, "");
+
+
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -935,6 +979,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -1024,6 +1070,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -1077,12 +1125,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         leftAxis.setAxisMaximum(6000F);
         leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
 
-        //        LimitLine ll1 = new LimitLine(Integer.parseInt(Watergoal));
-//        ll1.setLineWidth(1f);
-//        ll1.enableDashedLine(1f, 1f, 0f);
-
-        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-//        leftAxis.addLimitLine(ll1);
         leftAxis.setDrawLabels(false);
 
         BarData data = new BarData(setWeekTimeData());
@@ -1147,6 +1189,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -1211,6 +1255,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -1285,6 +1331,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -1337,13 +1385,6 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         leftAxis.setAxisMinimum(0f);
         leftAxis.setAxisMaximum(6000F);
         leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
-
-        //        LimitLine ll1 = new LimitLine(Integer.parseInt(Watergoal));
-//        ll1.setLineWidth(1f);
-//        ll1.enableDashedLine(1f, 1f, 0f);
-
-        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-//        leftAxis.addLimitLine(ll1);
         leftAxis.setDrawLabels(false);
 
         BarData data = new BarData(setWeekDistanceData());
@@ -1397,6 +1438,8 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         BarDataSet set = new BarDataSet(entries, "");
         set.setColor(Color.rgb(155, 155, 155));
         set.setValueTextColor(Color.rgb(155, 155, 155));
+        set.setDrawValues(false);
+        set.setDrawIcons(false);
 
         return set;
     }
@@ -1623,7 +1666,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         alertDialog.show();
     }
 
-    private void setArchivementData(int date, int month, int year, int hour) {
+    private void setArchivementData(int mdate, int month, int year, int hour) {
         //Archievement level Data
         long mTotalStepData = dbManager.getTotalStepCount();
         ArrayList<ArchivementModel> mLevel = new ArrayList<>();
@@ -1662,7 +1705,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 
         // Archivement Daily Step
         ArrayList<ArchivementModel> mDailySteplist = new ArrayList<>();
-        ArrayList<StepCountModel> MaxStepCount = dbManager.getsumofdayStep(date, month, year);
+        ArrayList<StepCountModel> MaxStepCount = dbManager.getsumofdayStep(mdate, month, year);
 
         Logger.e(MaxStepCount.get(0).getSumstep());
         Logger.e(MaxStepCount.get(0).getMaxStep());
@@ -1683,13 +1726,13 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
                 dbManager.updateArchivementDailyStep(archivementModel);
 
                 StepCountModel stepCountModel = new StepCountModel();
-                stepCountModel.setDate(date);
+                stepCountModel.setDate(mdate);
                 stepCountModel.setMonth(month);
                 stepCountModel.setYear(year);
                 stepCountModel.setDuration(hour);
                 stepCountModel.setMaxStep(MaxStepCount.get(0).getSumstep());
 
-                Logger.e(date + "**" + month + "**" + year + "**" + hour + "**" + MaxStepCount.get(0).getSumstep());
+                Logger.e(mdate + "**" + month + "**" + year + "**" + hour + "**" + MaxStepCount.get(0).getSumstep());
                 dbManager.updatemaxStep(stepCountModel);
 
                 DailogGoal = String.valueOf(mDailySteplist.get(i).getValue());
@@ -1836,7 +1879,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
 //        Logger.e("Total Days" + mTotalDaysData + "---" + TotalDaysgoal);
 
         //        -------------------------Daily Steps
-        long TotalDailyStep = dbManager.getSumOfStepList(date, month, year);
+        long TotalDailyStep = dbManager.getSumOfStepList(mdate, month, year);
         long TotalDailygoal = 0;
         String DailyDesc = "";
 
@@ -1891,7 +1934,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         int index = floats.indexOf(obj);
 //        Logger.e(obj + "--" + index);
 
-        if (date == Calendar.DATE && floats.get(index) > 90) {
+        if (mdate == Calendar.DATE && floats.get(index) > 90) {
             if (index == 0) {
                 ArchivementModel archivementModels = dbManager.getArchivement(constant.ARCHIVEMENT_LEVEL, mlevelGoal);
                 if (!archivementModels.isReminderStatus()) {

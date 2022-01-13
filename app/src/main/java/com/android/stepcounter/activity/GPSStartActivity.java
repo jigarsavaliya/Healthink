@@ -4,6 +4,7 @@ import static com.android.stepcounter.sevices.SensorService.IsNotiFlag;
 import static com.android.stepcounter.sevices.SensorService.IsServiceStart;
 import static com.android.stepcounter.sevices.SensorService.IsTargetType;
 import static com.android.stepcounter.sevices.SensorService.IsTimerStart;
+import static com.android.stepcounter.sevices.SensorService.gpsModel;
 import static com.android.stepcounter.sevices.SensorService.isGpsService;
 import static com.android.stepcounter.sevices.SensorService.mapStep;
 
@@ -59,7 +60,7 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
     DatabaseManager dbManager;
     Calendar rightnow = Calendar.getInstance();
     ArrayList<location> locationArrayList = new ArrayList<>();
-    GpsModel gpsModel;
+    GpsModel mGpsModel;
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -68,8 +69,9 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
 
             if (intent.getAction().equals("GET_SIGNAL")) {
                 TargetType = IsTargetType;
-                gpsModel = (GpsModel) intent.getExtras().getSerializable("gpsmodeldata");
-                numStep = gpsModel.getCurrStep();
+//                mGpsModel = (GpsModel) intent.getExtras().getSerializable("gpsmodeldata");
+                mGpsModel = gpsModel;
+                numStep = mGpsModel.getCurrStep();
 //                Logger.e("GSON" + new GsonBuilder().create().toJson(gpsModel));
 
                 mStepValue.setText(numStep + "");
@@ -97,8 +99,8 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        gpsModel = (GpsModel) getIntent().getExtras().getSerializable("Notigpsmodel");
-        Logger.e("GSON activity" + new GsonBuilder().create().toJson(gpsModel));
+        mGpsModel = (GpsModel) getIntent().getExtras().getSerializable("Notigpsmodel");
+        Logger.e("GSON activity" + new GsonBuilder().create().toJson(mGpsModel));
     }
 
     @Override
@@ -115,16 +117,16 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
 
 
         if (IsNotiFlag) {
-            gpsModel = (GpsModel) getIntent().getExtras().getSerializable("Notigpsmodel");
-
-            Logger.e("GSON activity" + new GsonBuilder().create().toJson(gpsModel));
-
+            gpsModel = gpsModel;
+//            Logger.e("GSON activity" + new GsonBuilder().create().toJson(gpsModel));
             numStep = gpsModel.getCurrStep();
             seconds = gpsModel.getSecond();
 
             Calories = String.valueOf(CommanMethod.calculateCalories(numStep, userWeight, userHeight));
             Distance = String.format("%.2f", CommanMethod.calculateDistance(numStep));
             IsNotiFlag = false;
+
+            Logger.e(numStep + "" + Calories);
         }
 
         rightnow.get(Calendar.HOUR);
@@ -385,6 +387,7 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
             public void onClick(View view) {
                 isGpsService = false;
                 IsServiceStart = false;
+                IsNotiFlag = false;
                 mapStep = 0;
                 InsetDataInDatabase();
                 alertDialog.dismiss();
@@ -471,13 +474,8 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
                 "CANCEL",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
                         isGpsService = true;
                         IsTimerStart = true;
-                        mCvResume.setVisibility(View.GONE);
-                        mCvFinish.setVisibility(View.GONE);
-                        mCvPause.setVisibility(View.VISIBLE);
-
                         dialog.cancel();
                     }
                 });

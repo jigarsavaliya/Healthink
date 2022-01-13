@@ -1,5 +1,7 @@
 package com.android.stepcounter.activity;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,9 +19,8 @@ import androidx.core.content.ContextCompat;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.utils.StorageManager;
-import com.android.stepcounter.utils.constant;
 
-import static android.content.ContentValues.TAG;
+import java.util.Calendar;
 
 public class WelcomeActivity extends AppCompatActivity {
     RelativeLayout mrlMale, mrlFemale;
@@ -32,8 +33,14 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
-        constant.IsProfile = true;
         StorageManager.getInstance().setIsProfile(false);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, 12);
+        calendar.set(Calendar.MINUTE, 00);
+        calendar.set(Calendar.AM_PM, Calendar.PM);
+//        Logger.e(calendar.getTimeInMillis());
+        StorageManager.getInstance().setCurrentDay(calendar.getTimeInMillis() + "");
         init();
     }
 

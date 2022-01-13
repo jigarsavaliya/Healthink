@@ -1,5 +1,7 @@
 package com.android.stepcounter.activity;
 
+import static com.android.stepcounter.sevices.SensorService.IsNotiFlag;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -22,8 +24,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.stepcounter.R;
-import com.android.stepcounter.database.DatabaseManager;
-import com.android.stepcounter.model.GpsTrackerModel;
 import com.android.stepcounter.utils.StorageManager;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -48,13 +48,17 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
         int secondsDelayed = 1;
 
-        new Handler().postDelayed(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.Q)
-            public void run() {
-                handlePermission();
-            }
-        }, secondsDelayed * 100);
 
+        if (IsNotiFlag) {
+            startActivity(new Intent(this, GPSStartActivity.class));
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.Q)
+                public void run() {
+                    handlePermission();
+                }
+            }, secondsDelayed * 100);
+        }
 //        stepcountModel stepcountModel= new stepcountModel();
 //        DatabaseManager dbManager= new DatabaseManager(this);
       /*  stepcountModel.setStep(8);

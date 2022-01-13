@@ -54,6 +54,12 @@ public class AppController extends Application {
         componentModel3.setShowonDashboard(true);
         dashboardComponentModels.add(componentModel3);
 
+        DashboardComponentModel componentModel4 = new DashboardComponentModel();
+        componentModel4.setComponentOrder(constant.DASHBORAD_LEVEL_TRACKER);
+        componentModel4.setComponentName("Level Tracker");
+        componentModel4.setShowonDashboard(true);
+        dashboardComponentModels.add(componentModel4);
+
         StorageManager.getInstance().setDashboardComponent(new Gson().toJson(dashboardComponentModels));
 
     }

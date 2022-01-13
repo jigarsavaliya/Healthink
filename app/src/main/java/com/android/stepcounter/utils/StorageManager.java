@@ -244,12 +244,7 @@ public class StorageManager {
     }
 
     public String getCurrentDay() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR, 12);
-        calendar.set(Calendar.MINUTE, 00);
-        calendar.set(Calendar.AM_PM, Calendar.PM);
-//        Logger.e(calendar.getTimeInMillis());
-        return preferences.getString(StorageManager.PREF_APP_KEY_CURRENTDAY_TIMESTAMP, calendar.getTimeInMillis() + "");
+        return preferences.getString(StorageManager.PREF_APP_KEY_CURRENTDAY_TIMESTAMP, "");
     }
 
     public void setIsStepService(Boolean message) {

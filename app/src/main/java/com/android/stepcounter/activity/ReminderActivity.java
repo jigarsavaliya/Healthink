@@ -21,6 +21,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.sevices.DailyReminderReceiver;
+import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -234,18 +235,19 @@ public class ReminderActivity extends AppCompatActivity implements View.OnClickL
                     Calendar cal = Calendar.getInstance();
                     long Rightnowtime = cal.getTimeInMillis();
 
-//                    Logger.e(mStartHour + ":" + mStartMinute + " " + starttimeSet);
-//                    Logger.e(calendar.getTimeInMillis());
+                    Logger.e(mStartHour + ":" + mStartMinute + " " + starttimeSet);
+                    Logger.e(calendar.getTimeInMillis());
                     long setTime = calendar.getTimeInMillis();
 
                     if (Rightnowtime > setTime) {
                         long time = calendar.getTimeInMillis() + 1000 * 60 * 60 * 24;
-//                        Logger.e(time);
+                        Logger.e(time);
 
                         Intent intent1 = new Intent(ReminderActivity.this, DailyReminderReceiver.class);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
                         AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
-                        am.setRepeating(AlarmManager.RTC_WAKEUP, time, 1000 * 60 * 60 * 24, pendingIntent);
+//                        am.setRepeating(AlarmManager.RTC_WAKEUP, time, 1000 * 60 * 60 * 24, pendingIntent);
+                        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, time, AlarmManager.INTERVAL_DAY, pendingIntent);
                     }
 //                    Logger.e(calendar.getTimeInMillis());
                 }

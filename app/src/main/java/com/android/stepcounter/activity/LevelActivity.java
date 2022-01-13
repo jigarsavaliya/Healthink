@@ -1,5 +1,11 @@
 package com.android.stepcounter.activity;
 
+import static com.android.stepcounter.sevices.NotificationReceiver.IsNofificationArchivement;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +26,6 @@ import com.android.stepcounter.model.ArchivementModel;
 import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.constant;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class LevelActivity extends AppCompatActivity {
@@ -34,9 +39,22 @@ public class LevelActivity extends AppCompatActivity {
     String StepGoalLabel = "10000", CurrLavel = "Level 1", CurrDescription = "A good Start!";
     long mTotalStepData;
     TextView mTvDetailslabel, mTvDailyLabel;
-    boolean IsNofification;
 
-    public File imagePath;
+    MyReceiver myReceiver;
+
+    private class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("GET_SIGNAL_STRENGTH")) {
+                mTotalStepData = dbManager.getTotalStepCount();
+                mTotalStepData = (int) mTotalStepData;
+                mPbLevelBar.setMax(StepGoal);
+                mPbLevelBar.setProgress((int) mTotalStepData);
+                mTvDetailslabel.setText((StepGoal - mTotalStepData) + " more than to reach " + StepGoalLabel + " level");
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +62,10 @@ public class LevelActivity extends AppCompatActivity {
         setContentView(R.layout.activity_level);
         dbManager = new DatabaseManager(this);
         mLevellist = new ArrayList<>();
-        IsNofification = getIntent().getBooleanExtra("IsNofification", false);
+
+        myReceiver = new MyReceiver();
+        registerReceiver(myReceiver, new IntentFilter("GET_SIGNAL_STRENGTH"));
+
         getDataFromDatabase();
     }
 
@@ -82,7 +103,7 @@ public class LevelActivity extends AppCompatActivity {
         mRvLevelList.setLayoutManager(new LinearLayoutManager(this));
         mRvLevelList.setAdapter(adapter);
 
-        if (IsNofification) {
+        if (IsNofificationArchivement) {
             CommanMethod.showCompleteDailog(this, CurrLavel, CurrDescription);
         }
     }

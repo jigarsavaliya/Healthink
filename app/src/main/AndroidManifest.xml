@@ -56,10 +56,14 @@
         </activity>
         <activity android:name=".activity.MainActivity" />
 
-        <service android:name=".sevices.SensorService" />
+        <service android:name=".sevices.SensorService"
+            android:enabled="true"
+            android:exported="false"/>
 
         <service
             android:name=".sevices.LocationBgService"
+            android:enabled="true"
+            android:exported="false"
             android:foregroundServiceType="location" />
 
         <!-- Register the Alarm Receiver -->

@@ -15,13 +15,18 @@ import androidx.core.app.NotificationCompat;
 
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.ArchivementActivity;
-import com.android.stepcounter.activity.ArchivementDetailActivity;
 import com.android.stepcounter.activity.LevelActivity;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.constant;
 
 public class NotificationReceiver extends BroadcastReceiver {
     Context mcontext;
+
+    public static boolean IsNofificationArchivement = false;
+    public static boolean IsDailyStepArchivement = false;
+    public static boolean IsCombodayArchivement = false;
+    public static boolean IsTotalDayArchivement = false;
+    public static boolean IsTotalDistanceArchivement = false;
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
@@ -104,56 +109,55 @@ public class NotificationReceiver extends BroadcastReceiver {
     }
 
     private void showCompleteNotification(String type, long level) {
-        Intent notificationIntent = new Intent();
         if (type.equals("Daily Step")) {
             Logger.e("Daily Step");
-            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
-            notificationIntent.putExtra("DailyStep", true);
-            notificationIntent.putExtra("ComboDay", false);
-            notificationIntent.putExtra("TotalDays", false);
-            notificationIntent.putExtra("TotalDistance", false);
-            notificationIntent.putExtra("IsNofification", true);
+            Intent notificationIntent = new Intent(mcontext, ArchivementActivity.class);
+            IsNofificationArchivement = true;
+            IsDailyStepArchivement = true;
+            sendNotification(notificationIntent, type, level);
         } else if (type.equals("Combo Day")) {
             Logger.e("Combo Day");
-            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
-            notificationIntent.putExtra("DailyStep", false);
-            notificationIntent.putExtra("ComboDay", true);
-            notificationIntent.putExtra("TotalDays", false);
-            notificationIntent.putExtra("TotalDistance", false);
-            notificationIntent.putExtra("IsNofification", true);
+            Intent notificationIntent = new Intent(mcontext, ArchivementActivity.class);
+            IsCombodayArchivement = true;
+            IsNofificationArchivement = true;
+            sendNotification(notificationIntent, type, level);
         } else if (type.equals("Total Days")) {
             Logger.e("Total Days");
-            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
-            notificationIntent.putExtra("DailyStep", false);
-            notificationIntent.putExtra("ComboDay", false);
-            notificationIntent.putExtra("TotalDays", true);
-            notificationIntent.putExtra("TotalDistance", false);
-            notificationIntent.putExtra("IsNofification", true);
+            Intent notificationIntent = new Intent(mcontext, ArchivementActivity.class);
+            IsTotalDayArchivement = true;
+            IsNofificationArchivement = true;
+            sendNotification(notificationIntent, type, level);
         } else if (type.equals("Total Distance")) {
             Logger.e("Total Distance");
-            notificationIntent = new Intent(mcontext, ArchivementDetailActivity.class);
-            notificationIntent.putExtra("DailyStep", false);
-            notificationIntent.putExtra("ComboDay", false);
-            notificationIntent.putExtra("TotalDays", false);
-            notificationIntent.putExtra("TotalDistance", true);
-            notificationIntent.putExtra("IsNofification", true);
+            Intent notificationIntent = new Intent(mcontext, ArchivementActivity.class);
+            IsTotalDistanceArchivement = true;
+            IsNofificationArchivement = true;
+            Logger.e("Click");
+            sendNotification(notificationIntent, type, level);
         } else if (type.equals("Level")) {
             Logger.e("Level");
-            notificationIntent = new Intent(mcontext, LevelActivity.class);
-            notificationIntent.putExtra("IsNofification", true);
+            Intent notificationIntent = new Intent(mcontext, LevelActivity.class);
+            IsNofificationArchivement = true;
+            sendNotification(notificationIntent, type, level);
         }
 
+    }
+
+    private void sendNotification(Intent notificationIntent, String NotiType, long NotiLevel) {
+//        Logger.e(NotiType);
+//        Logger.e(NotiLevel);
+
         RemoteViews contentView = new RemoteViews(mcontext.getPackageName(), R.layout.custom_notification_layout);
-        contentView.setTextViewText(R.id.tvDailyLabel, level + "");
-        contentView.setTextViewText(R.id.tvlevel, "Great! New Archivement of " + type + " reached..!!");
+        contentView.setTextViewText(R.id.tvDailyLabel, NotiLevel + "");
+        contentView.setTextViewText(R.id.tvlevel, "Great! New Archivement of " + NotiType + " reached..!!");
         contentView.setTextViewText(R.id.tvlevelDesc, "A new badge unloadked..!!");
 
         PendingIntent pendingIntent = PendingIntent.getActivity(mcontext, 0, notificationIntent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mcontext, constant.CHANNEL_ID_FOR_STEP)
                 .setContent(contentView)
                 .setContentIntent(pendingIntent)
-                .setContentTitle(type)
-                .setContentText(level + " completed " + type)
+                .setContentTitle(NotiType)
+                .setContentText(NotiLevel + " completed " + NotiType)
                 .setOngoing(false)
                 .setSilent(false)
                 .setAutoCancel(true);

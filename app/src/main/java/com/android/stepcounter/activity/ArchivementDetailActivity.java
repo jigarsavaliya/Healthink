@@ -1,23 +1,25 @@
 package com.android.stepcounter.activity;
 
-import android.content.ActivityNotFoundException;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsCombodayArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsDailyStepArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsNofificationArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsTotalDayArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsTotalDistanceArchivement;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Environment;
-import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,18 +33,14 @@ import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.StorageManager;
 import com.android.stepcounter.utils.constant;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 public class ArchivementDetailActivity extends AppCompatActivity {
     Toolbar mToolbar;
     RecyclerView mRvArchivementDetail;
     ArchivementDetailAdapter adapter;
-    boolean IsDailyStep, IsComboDay, IsTotalDays, IsTotalDistance, IsNofification;
+    boolean IsDailyStep, IsComboDay, IsTotalDays, IsTotalDistance;
     ArrayList<ArchivementModel> mDailySteplist, mComboDayList, mTotalDaysList, mTotalDistanceList;
     DatabaseManager dbManager;
     TextView mTvDailyLabel, mTvDescription, mTvDetailslabel;
@@ -55,29 +53,45 @@ public class ArchivementDetailActivity extends AppCompatActivity {
             StepDayGoalLabel, CurrDayLavel, CurrDayDesc,
             StepDistanceGoalLabel, CurrDistanceLavel, CurrDistanceDesc;
 
-    File imagePath;
+    MyReceiver myReceiver;
+
+    private class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("GET_SIGNAL_STRENGTH")) {
+                mTotalStepData = dbManager.getTotalStepCount();
+                mTotalStepData = (int) mTotalStepData;
+                mPbCompletedBar.setMax(StepGoal);
+                mPbCompletedBar.setProgress((int) mTotalStepData);
+                mTvDetailslabel.setText((StepGoal - mTotalStepData) + " more than to win the archievement " + StepGoalLabel);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archivement_detail);
+
         dbManager = new DatabaseManager(this);
         mDailySteplist = new ArrayList<>();
         mComboDayList = new ArrayList<>();
         mTotalDaysList = new ArrayList<>();
         mTotalDistanceList = new ArrayList<>();
 
+        myReceiver = new MyReceiver();
+        registerReceiver(myReceiver, new IntentFilter("GET_SIGNAL_STRENGTH"));
+
         IsDailyStep = getIntent().getBooleanExtra("DailyStep", false);
         IsComboDay = getIntent().getBooleanExtra("ComboDay", false);
         IsTotalDays = getIntent().getBooleanExtra("TotalDays", false);
         IsTotalDistance = getIntent().getBooleanExtra("TotalDistance", false);
-        IsNofification = getIntent().getBooleanExtra("IsNofification", false);
 
         Logger.e(IsDailyStep);
         Logger.e(IsComboDay);
         Logger.e(IsTotalDays);
         Logger.e(IsTotalDistance);
-        Logger.e(IsNofification);
     }
 
     @Override
@@ -106,17 +120,22 @@ public class ArchivementDetailActivity extends AppCompatActivity {
 
         mRvArchivementDetail = findViewById(R.id.rvArchivementDetail);
 
-        if (IsDailyStep && IsNofification) {
+        if (IsDailyStepArchivement && IsNofificationArchivement) {
             CommanMethod.showCompleteDailog(this, CurrLavel, CurrDesc);
+            IsNofificationArchivement = false;
         }
-        if (IsComboDay && IsNofification) {
+        if (IsCombodayArchivement && IsNofificationArchivement) {
             CommanMethod.showCompleteDailog(this, CurrComboDayLavel, CurrDayDesc);
+            IsNofificationArchivement = false;
         }
-        if (IsTotalDays && IsNofification) {
+        if (IsTotalDayArchivement && IsNofificationArchivement) {
             CommanMethod.showCompleteDailog(this, CurrDayLavel, CurrDayDesc);
+            IsNofificationArchivement = false;
         }
-        if (IsTotalDistance && IsNofification) {
+        if (IsTotalDistanceArchivement && IsNofificationArchivement) {
+            Logger.e("click2");
             CommanMethod.showCompleteDailog(this, CurrDistanceLavel, CurrDistanceDesc);
+            IsNofificationArchivement = false;
         }
 
         if (IsDailyStep) {
@@ -174,6 +193,7 @@ public class ArchivementDetailActivity extends AppCompatActivity {
                 mTotalStepData = stepCountModelArrayList.get(i).getSumstep();
             }
         }
+
         mDailySteplist = dbManager.getArchivementlist(constant.ARCHIVEMENT_DAILY_STEP);
 
         mComboDayList = dbManager.getArchivementlist(constant.ARCHIVEMENT_COMBO_DAY);
@@ -266,15 +286,11 @@ public class ArchivementDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
-                CommanMethod.TakeScreenShot(getWindow().getDecorView(),this);
+                CommanMethod.TakeScreenShot(getWindow().getDecorView(), this);
                 break;
         }
         return true;
     }
-
-
-
-
 
     @Override
     public void onBackPressed() {

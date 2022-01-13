@@ -171,11 +171,6 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
         tvHighestKg = findViewById(R.id.tvHighestKg);
         tvLowestkg = findViewById(R.id.tvLowestkg);
 
-        String Value = dbManager.getMinMaxWeight();
-        String[] MinMax = Value.split("-");
-        tvLowestkg.setText(MinMax[0] + "Kg");
-        tvHighestKg.setText(MinMax[1] + "Kg");
-
         scWaterNotification = findViewById(R.id.scWaterNoti);
         chart = (BarChart) findViewById(R.id.waterchart);
         tvchartdate = findViewById(R.id.tvchartdate);
@@ -703,6 +698,11 @@ public class HeathActivity extends AppCompatActivity implements DatePickerListen
     }
 
     private void setWeightChart() {
+        String Value = dbManager.getMinMaxWeight();
+        String[] MinMax = Value.split("-");
+        tvLowestkg.setText(MinMax[0] + "Kg");
+        tvHighestKg.setText(MinMax[1] + "Kg");
+
         Calendar cal = Calendar.getInstance();
         long fristdate = cal.getTimeInMillis();
         cal.add(Calendar.DATE, -30);

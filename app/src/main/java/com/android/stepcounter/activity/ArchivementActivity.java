@@ -1,5 +1,11 @@
 package com.android.stepcounter.activity;
 
+import static com.android.stepcounter.sevices.NotificationReceiver.IsCombodayArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsDailyStepArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsNofificationArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsTotalDayArchivement;
+import static com.android.stepcounter.sevices.NotificationReceiver.IsTotalDistanceArchivement;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,11 +43,10 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
     ProgressBar mPbLevelCompletedBar;
     TextView mTvDetailslabel, mTvDailyLabel;
     int StepGoal;
-    String StepGoalLabel, CurrLavel, CurrDescription = "A good Start!";
+    String StepGoalLabel, CurrLavel;
     private int numSteps;
     MyReceiver myReceiver;
     int CurrentStepData;
-    boolean IsDailyStep, IsComboDay, IsTotalDays, IsTotalDistance, IsNofification;
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -52,7 +57,7 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
                 int level = intent.getIntExtra("stepdata", 0);
                 numSteps = level;
                 mTotalStepData = dbManager.getTotalStepCount();
-                CurrentStepData = (int) mTotalStepData + 1;
+                CurrentStepData = (int) mTotalStepData;
                 mPbLevelCompletedBar.setProgress(CurrentStepData);
                 mTvDetailslabel.setText((StepGoal - CurrentStepData) + " more than to reach " + StepGoalLabel + " level");
             }
@@ -70,22 +75,16 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         mTotalDaysList = new ArrayList<>();
         mTotalDistanceList = new ArrayList<>();
         getDataFromDatabase();
-        init();
+
         myReceiver = new MyReceiver();
         registerReceiver(myReceiver, new IntentFilter("GET_SIGNAL_STRENGTH"));
 
-        IsDailyStep = getIntent().getBooleanExtra("DailyStep", false);
-        IsComboDay = getIntent().getBooleanExtra("ComboDay", false);
-        IsTotalDays = getIntent().getBooleanExtra("TotalDays", false);
-        IsTotalDistance = getIntent().getBooleanExtra("TotalDistance", false);
-        IsNofification = getIntent().getBooleanExtra("IsNofification", false);
-
-        Logger.e(IsDailyStep);
-        Logger.e(IsComboDay);
-        Logger.e(IsTotalDays);
-        Logger.e(IsTotalDistance);
-        Logger.e(IsNofification);
-
+//        Logger.e(IsDailyStepArchivement);
+//        Logger.e(IsCombodayArchivement);
+//        Logger.e(IsTotalDayArchivement);
+//        Logger.e(IsTotalDistanceArchivement);
+//        Logger.e(IsNofificationArchivement);
+        init();
     }
 
     private void setSharedPreferences() {
@@ -96,7 +95,7 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
     protected void onResume() {
         super.onResume();
         setSharedPreferences();
-        init();
+//        init();
     }
 
     private void init() {
@@ -136,16 +135,17 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         mCvTotalDistance.setOnClickListener(this);
         mCvLevel.setOnClickListener(this);
 
-        if (IsDailyStep) {
+        if (IsDailyStepArchivement && IsNofificationArchivement) {
             mCvDailyStep.performClick();
         }
-        if (IsComboDay) {
+        if (IsCombodayArchivement && IsNofificationArchivement) {
             mCvComboDays.performClick();
         }
-        if (IsTotalDays) {
+        if (IsTotalDayArchivement && IsNofificationArchivement) {
             mCvTotalDays.performClick();
         }
-        if (IsTotalDistance) {
+        if (IsTotalDistanceArchivement && IsNofificationArchivement) {
+            Logger.e("click1");
             mCvTotalDistance.performClick();
         }
 
@@ -219,22 +219,18 @@ public class ArchivementActivity extends AppCompatActivity implements View.OnCli
         switch (v.getId()) {
             case R.id.cvDailyStep:
                 intent.putExtra("DailyStep", true);
-                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvComboDays:
                 intent.putExtra("ComboDay", true);
-                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvTotalDays:
                 intent.putExtra("TotalDays", true);
-                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvTotalDistance:
                 intent.putExtra("TotalDistance", true);
-                intent.putExtra("IsNofification", IsNofification);
                 startActivity(intent);
                 break;
             case R.id.cvLevel:

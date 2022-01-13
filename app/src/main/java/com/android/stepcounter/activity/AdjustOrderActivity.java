@@ -59,6 +59,7 @@ public class AdjustOrderActivity extends AppCompatActivity implements StartDragL
         String json = StorageManager.getInstance().getDashboardComponent();
         Type arrayListTypeToken = new TypeToken<ArrayList<DashboardComponentModel>>() {
         }.getType();
+
         dashboardComponentModels = new Gson().fromJson(json, arrayListTypeToken);
 
         mAdapter = new AdjustOrderAdapter(dashboardComponentModels, this);

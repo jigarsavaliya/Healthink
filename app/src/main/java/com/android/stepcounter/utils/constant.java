@@ -8,7 +8,6 @@ public class constant {
 
     public static final int DEFAULT_WATER = 6;
     public static final int DEFAULT_WATER_GOAL = 24;
-    public static Boolean IsProfile = false;
     public static Boolean IsHistoryDelete = false;
     public static Boolean IsLocationHistoryDelete = false;
 
@@ -34,6 +33,7 @@ public class constant {
     public static final int DASHBORAD_GPS_TRACKER = 1;
     public static final int DASHBORAD_WATER_TRACKER = 2;
     public static final int DASHBORAD_WEIGHT_TRACKER = 3;
+    public static final int DASHBORAD_LEVEL_TRACKER = 4;
 
 
 
