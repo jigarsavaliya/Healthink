@@ -147,7 +147,7 @@ public class HistoryActivity extends AppCompatActivity {
                 lastdate = Long.parseLong(Weekdate[1].trim());
 //
 //                Logger.e(formatter.format(new Date(firstdate)) + " - " + formatter.format(new Date(lastdate)));
-//                Logger.e(firstdate + " - " + lastdate);
+                Logger.e(firstdate + " - " + lastdate);
 
                 StepHistoryModel mStepHistoryModel = new StepHistoryModel();
                 mStepHistoryModel.setFirstdate(firstdate);
@@ -170,11 +170,13 @@ public class HistoryActivity extends AppCompatActivity {
                             headerMap.put(mStepHistoryModel.getFirstdate(), value);
                             stringArrayListHashMap.put(mStepHistoryModel.getFirstdate(), valueModels);
                         }
-//                    Logger.e(value.getFirstdate() + " - new value: " + value.getSumstep());
+
+                        Logger.e(value.getFirstdate() + " - new value: " + value.getSumstep());
                     }
 
                     long timestamp = Long.parseLong(data.getTimestemp().trim());
-//                    Logger.e(" - new time: " + formatter.format(new Date(timestamp)) + "condition -----" + (firstdate <= timestamp && lastdate >= timestamp) + "firstdate -- " + firstdate + "lastdate -- " + lastdate + "timestamp -- " + timestamp);
+                    Logger.e(" - new time: " + formatter.format(new Date(timestamp)) + "condition -----" + (firstdate <= timestamp && lastdate >= timestamp) + "firstdate -- " + firstdate + "lastdate -- " + lastdate + "timestamp -- " + timestamp);
+
                     if (firstdate <= timestamp && lastdate >= timestamp) {
                         valueModels.add(data);
                         value.setSumstep(value.getSumstep() + data.getSumstep());

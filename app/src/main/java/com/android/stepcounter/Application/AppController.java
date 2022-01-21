@@ -77,8 +77,7 @@ public class AppController extends Application {
                 stream.read(buffer);
                 stream.close();
                 String tContents = new String(buffer);
-                Type arrayListTypeToken = new TypeToken<ArrayList<ArchivementModel>>() {
-                }.getType();
+                Type arrayListTypeToken = new TypeToken<ArrayList<ArchivementModel>>() {}.getType();
 
                 ArrayList<ArchivementModel> archivementModels = gson.fromJson(tContents, arrayListTypeToken);
 

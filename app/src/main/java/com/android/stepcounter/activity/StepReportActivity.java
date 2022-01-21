@@ -28,7 +28,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
-import com.android.stepcounter.IAxisValueFormatter;
 import com.android.stepcounter.MyMarkerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DatabaseManager;
@@ -361,7 +360,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         LimitLine ll1 = new LimitLine(StepGoal);
         ll1.setLineWidth(1f);
         ll1.enableDashedLine(1f, 1f, 0f);
-        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+//        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         ll1.setTextSize(10f);
 
         rightAxis.setDrawLabels(false);
@@ -436,7 +435,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         LimitLine ll1 = new LimitLine(StepGoal);
         ll1.setLineWidth(1f);
         ll1.enableDashedLine(1f, 1f, 0f);
-        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+//        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         ll1.setTextSize(10f);
 
         rightAxis.setDrawZeroLine(false);
@@ -566,7 +565,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         LimitLine ll1 = new LimitLine(StepGoal);
         ll1.setLineWidth(1f);
         ll1.enableDashedLine(1f, 1f, 0f);
-        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+//        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         ll1.setTextSize(10f);
 
         leftAxis.setDrawAxisLine(false);
@@ -626,7 +625,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         ArrayList<BarEntry> entries = new ArrayList<>();
         if (StepWeeklist != null) {
             for (int i = 0; i < StepWeeklist.size(); i++) {
-                Log.e("TAG", "step" + StepWeeklist.get(i).getDate() + "sum" + StepWeeklist.get(i).getSumstep());
+//                Log.e("TAG", "step" + StepWeeklist.get(i).getDate() + "sum" + StepWeeklist.get(i).getSumstep());
                 entries.add(new BarEntry(i, StepWeeklist.get(i).getSumstep(), StepWeeklist.get(i).getDate()));
                 sumvalue = sumvalue + StepWeeklist.get(i).getSumstep();
             }
@@ -2064,6 +2063,9 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
     public static String getCurrentWeek(Calendar mCalendar) {
 //        Date date = new Date();
 //        mCalendar.setTime(date);
+//        mCalendar.set(Calendar.HOUR, 12);
+//        mCalendar.set(Calendar.MINUTE, 00);
+//        mCalendar.set(Calendar.AM_PM, Calendar.AM);
 
         // 1 = Sunday, 2 = Monday, etc.
         int day_of_week = mCalendar.get(Calendar.DAY_OF_WEEK);
@@ -2074,6 +2076,7 @@ public class StepReportActivity extends AppCompatActivity implements OnChartValu
         } else
             monday_offset = (2 - day_of_week); // need to minus back
         mCalendar.add(Calendar.DAY_OF_YEAR, monday_offset);
+
 
 //        Date mDateMonday = mCalendar.getTime();
         long mDateMonday = mCalendar.getTimeInMillis();

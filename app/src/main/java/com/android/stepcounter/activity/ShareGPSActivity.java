@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,7 +28,6 @@ import androidx.core.content.FileProvider;
 import com.android.stepcounter.R;
 import com.android.stepcounter.database.DatabaseManager;
 import com.android.stepcounter.model.GpsTrackerModel;
-import com.android.stepcounter.utils.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -214,6 +214,18 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
             String path = mainDir + "/" + "StepCounter" + "-" + format + ".jpeg";
             view.setDrawingCacheEnabled(true);
             Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+
+            Canvas canvas = new Canvas(bitmap);
+            view.draw(canvas);
+
+            /*MediaStore.Images.Media.insertImage(
+                    getContentResolver(),
+                    bitmap,
+                    "Image",
+                    "Captured ScreenShot"
+            );*/
+
+
             view.setDrawingCacheEnabled(false);
 
 //This logic is used to save file at given location with the given filename and compress the Image Quality.
@@ -232,18 +244,14 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
 
     private void shareScreenShot(File imageFile) {
         //Using sub-class of Content provider
-        Logger.e(imageFile);
         Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", imageFile);
-
-//        Uri uriToImage = Uri.parse("file://" + imageFile);
 
         //Explicit intent
         Intent intent = new Intent();
         grantUriPermission(getApplicationContext().getPackageName() + ".provider", uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setAction(Intent.ACTION_SEND);
-        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("image/*");
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(android.content.Intent.EXTRA_TEXT, "This is Sample App to take ScreenShot");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
 

@@ -53,6 +53,7 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
         viewHolder.mTvDuration.setText(gpsTrackerModels.get(i).getDuration());
         viewHolder.mTvKcal.setText(gpsTrackerModels.get(i).getCalories() + " Kcal");
         viewHolder.mTvSteps.setText(gpsTrackerModels.get(i).getStep() + " Steps");
+//        viewHolder.mCbDeleteItem.setChecked(false);
 
         if (constant.IsLocationHistoryDelete) {
             viewHolder.mCbDeleteItem.setVisibility(View.VISIBLE);
