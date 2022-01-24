@@ -956,7 +956,7 @@ public class DatabaseManager {
         String s = "SELECT " + DbHelper.KEY_STEP_DATE + " , sum(" + DbHelper.KEY_STEP_COUNT + ") as total FROM " + DbHelper.TABLE_STEPCOUNT + " where " + DbHelper.KEY_STEP_TIMESTMP
                 + " BETWEEN " + fristdate + " AND " + lastdate + " GROUP BY " + DbHelper.KEY_STEP_DATE;
 
-//        Log.e("list", "" + s);
+        Log.e("list", "" + s);
 
         Cursor c = db.rawQuery(s, null);
 
@@ -1912,15 +1912,19 @@ public class DatabaseManager {
         return value;
     }
 
-    public void DeleteGpsTrakerData(String Action, String Distance, Integer Calories, String Duration, Integer Step) {
+    public void DeleteGpsTrakerData(String Action, String Distance, Integer Calories, String Duration, Integer Step, String slatitude, String slogtitude, String elatitude, String elongtitude) {
         db = helper.getWritableDatabase();
 
         int b = db.delete(DbHelper.TABLE_GPS_TRACKER, DbHelper.KEY_GPS_ACTION + " = ?  AND "
                         + DbHelper.KEY_GPS_DISTANCE + " =? AND "
                         + DbHelper.KEY_GPS_CALORIES + " =? AND "
                         + DbHelper.KEY_GPS_DURATION + " =? AND "
-                        + DbHelper.KEY_GPS_STEP + " =?",
-                new String[]{Action, Distance, String.valueOf(Calories), Duration, String.valueOf(Step)});
+                        + DbHelper.KEY_GPS_STEP + " =? AND "
+                        + DbHelper.KEY_GPS_SLATITUDE + " =? AND "
+                        + DbHelper.KEY_GPS_SLONGTITUDE + " =? AND "
+                        + DbHelper.KEY_GPS_ELATITUDE + " =? AND "
+                        + DbHelper.KEY_GPS_ELONGTITUDE + " =?",
+                new String[]{Action, Distance, String.valueOf(Calories), Duration, String.valueOf(Step), slatitude, slogtitude, elatitude, elongtitude});
         db.close();
     }
 

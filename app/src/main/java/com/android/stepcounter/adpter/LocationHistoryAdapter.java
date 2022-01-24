@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -60,18 +59,17 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
         } else {
             viewHolder.mCbDeleteItem.setVisibility(View.GONE);
         }
+        viewHolder.mCbDeleteItem.setChecked(false);
 
-        viewHolder.mCbDeleteItem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    gpsTrackerModelArrayList.add(gpsTrackerModels.get(i));
-                } else {
-                    gpsTrackerModelArrayList.remove(gpsTrackerModels.get(i));
-                }
-                Logger.e("count" + gpsTrackerModelArrayList.size());
-                myAdapterListener.onMethodCallback(gpsTrackerModelArrayList);
+        viewHolder.mCbDeleteItem.setOnClickListener(view -> {
+            if (!gpsTrackerModelArrayList.contains(gpsTrackerModels.get(i))) {
+                gpsTrackerModelArrayList.add(gpsTrackerModels.get(i));
+//                Logger.e("count" + gpsTrackerModelArrayList.size());
+            } else {
+                gpsTrackerModelArrayList.remove(gpsTrackerModels.get(i));
             }
+//            Logger.e("count" + gpsTrackerModelArrayList.size());
+            myAdapterListener.onMethodCallback(gpsTrackerModelArrayList);
         });
 
 

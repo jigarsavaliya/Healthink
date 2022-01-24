@@ -138,9 +138,12 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
                                         for (int i = 0; i < gpsTrackerModelList.size(); i++) {
                                             DbManger.DeleteGpsTrakerData(gpsTrackerModelList.get(i).getAction(), gpsTrackerModelList.get(i).getDistance(),
                                                     gpsTrackerModelList.get(i).getCalories(), gpsTrackerModelList.get(i).getDuration(),
-                                                    gpsTrackerModelList.get(i).getStep());
+                                                    gpsTrackerModelList.get(i).getStep(),gpsTrackerModelList.get(i).getSlatitude(),
+                                                    gpsTrackerModelList.get(i).getSlogtitude(),gpsTrackerModelList.get(i).getElatitude(),
+                                                    gpsTrackerModelList.get(i).getElongtitude());
                                         }
                                         getDataFromDataBase();
+                                        gpsTrackerModelList.clear();
                                         if (gpsTrackerModelArrayList.size() > 0) {
                                             mTvNoDataFound.setVisibility(View.GONE);
                                             mlocationHistoryAdapter.updatelist(gpsTrackerModelArrayList);
@@ -151,7 +154,6 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
                                             mTvNoDataFound.setVisibility(View.VISIBLE);
                                         }
                                         mTvTotalDuration.setText(Miles + "");
-                                        gpsTrackerModelList.clear();
                                         mIvDelete.setVisibility(View.VISIBLE);
                                         mIvClosed.setVisibility(View.GONE);
                                         dialog.cancel();

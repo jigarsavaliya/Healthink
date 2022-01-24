@@ -31,6 +31,7 @@
             android:textStyle="bold" />
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cvImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_20sdp"
@@ -80,8 +81,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="gfcxm"
-                        android:textColor="@color/white"
                         android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/_10sdp" />
                 </LinearLayout>
 

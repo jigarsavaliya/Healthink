@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ExtendedFloatingActionButton mExtFabAdjustOrder;
     View view1, view2, view3, view4;
     private TextView TvSteps, accuracyText, tvduration, tvkm, tvkcal, tvuserWeight, tvwatergoal, tvwaterlevel, mtvlastdaydiffvalue, mtvAvgstep, mTvDisplayLabel, mTvDisplayDesc, mTvDisplayPendingValue;
-    private int numSteps;
+    private int numSteps, totalsec = 0, totalmin = 0;
     private CircularProgressBar progress;
     private float userWeight = constant.DEFAULT_WEIGHT;
     private float userHeight = constant.DEFAULT_HEIGHT;
@@ -357,6 +357,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         TotalStepCount = dbManager.getSumOfStepList(date, month, year);
         TvSteps.setText(TotalStepCount + "");
+
+        totalmin = TotalStepCount / 100;
+
+        if (totalmin > 60) {
+            long hours = totalmin / 60;
+            long minnutesRemaining = totalmin % 60;
+            tvduration.setText(hours + "h " + minnutesRemaining + "m");
+        } else {
+            tvduration.setText(0 + "h " + totalmin + "m");
+        }
+
         progress.setProgressMax(StorageManager.getInstance().getStepCountGoalUnit());
         progress.setProgressWithAnimation(TotalStepCount, (long) 1000);
 
@@ -1773,7 +1784,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCvHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, StepReportActivity.class));
+                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
                 alertDialog.dismiss();
             }
         });
@@ -1835,6 +1846,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                Log.e("TAG", "onReceive: main " + level);
                 numSteps = level;
                 TvSteps.setText(numSteps + "");
+
+                /*totalsec = (int) (numSteps * 1.66);
+                totalmin = totalsec / 60;*/
+
+                totalmin = numSteps / 100;
+                Logger.e(totalsec + "sec");
+                Logger.e(totalmin + "min");
+
+                if (totalmin > 60) {
+                    long hours = totalmin / 60;
+                    long minnutesRemaining = totalmin % 60;
+                    tvduration.setText(hours + "h " + minnutesRemaining + "m");
+                } else {
+                    tvduration.setText(0 + "h " + totalmin + "m");
+                }
+
                 progress.setProgressMax(StorageManager.getInstance().getStepCountGoalUnit());
                 progress.setProgressWithAnimation(numSteps, (long) 1000);
 

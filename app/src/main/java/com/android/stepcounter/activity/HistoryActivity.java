@@ -166,7 +166,16 @@ public class HistoryActivity extends AppCompatActivity {
                         Logger.e(data.getSumstep());
                         Logger.e(mStepHistoryModel.getFirstdate());
 
-                        if (data.getSumstep() != 0) {
+                        long timestamp = Long.parseLong(data.getTimestemp().trim());
+                        Logger.e(" - new time: " + formatter.format(new Date(timestamp)) + "condition -----" + (firstdate <= timestamp && lastdate >= timestamp) + "firstdate -- " + firstdate + "lastdate -- " + lastdate + "timestamp -- " + timestamp);
+
+                        if (firstdate <= timestamp && lastdate >= timestamp) {
+                            valueModels.add(data);
+                            value.setSumstep(value.getSumstep() + data.getSumstep());
+                            Logger.e(value.getFirstdate() + " - add value: " + value.getSumstep() + "**" + data.getSumstep());
+                        }
+
+                        if (value.getSumstep() > 0) {
                             headerMap.put(mStepHistoryModel.getFirstdate(), value);
                             stringArrayListHashMap.put(mStepHistoryModel.getFirstdate(), valueModels);
                         }
@@ -174,14 +183,7 @@ public class HistoryActivity extends AppCompatActivity {
                         Logger.e(value.getFirstdate() + " - new value: " + value.getSumstep());
                     }
 
-                    long timestamp = Long.parseLong(data.getTimestemp().trim());
-                    Logger.e(" - new time: " + formatter.format(new Date(timestamp)) + "condition -----" + (firstdate <= timestamp && lastdate >= timestamp) + "firstdate -- " + firstdate + "lastdate -- " + lastdate + "timestamp -- " + timestamp);
 
-                    if (firstdate <= timestamp && lastdate >= timestamp) {
-                        valueModels.add(data);
-                        value.setSumstep(value.getSumstep() + data.getSumstep());
-                        Logger.e(value.getFirstdate() + " - add value: " + value.getSumstep() + "**" + data.getSumstep());
-                    }
                 }
 
                 // do while 6e atle issue che  a check kro c.add thai atle last week add kre che
@@ -259,12 +261,12 @@ public class HistoryActivity extends AppCompatActivity {
                                     for (int i = 0; i < mCountModelArrayList.size(); i++) {
                                         dbManager.DeleteCurrentDayStepCountData(mCountModelArrayList.get(i).getDate(), mCountModelArrayList.get(i).getMonth(), mCountModelArrayList.get(i).getYear());
                                     }
+                                    mCountModelArrayList.clear();
                                     getdataFromDatabase();
                                     mHistoryAdapter.updatelist(stringArrayListHashMap, headerMap);
                                     mHistoryAdapter.notifyDataSetChanged();
                                     myMenu.findItem(R.id.action_delete).setVisible(true);
                                     myMenu.findItem(R.id.action_tick).setVisible(false);
-                                    mCountModelArrayList.clear();
                                     dialog.cancel();
                                 }
                             });

@@ -1,5 +1,6 @@
 package com.android.stepcounter.adpter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.ArchivementDetailActivity;
 import com.android.stepcounter.model.ArchivementModel;
+import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class ArchivementDetailAdapter extends RecyclerView.Adapter<ArchivementDe
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(ViewHolder viewHolder, @SuppressLint("RecyclerView") int i) {
         if (mDailyStepDatalist.get(i).isCompeleteStatus()) {
             if (mDailyStepDatalist.get(i).getType().equals("Daily Step")) {
                 viewHolder.mLlLevalCount.setVisibility(View.VISIBLE);
@@ -65,15 +67,18 @@ public class ArchivementDetailAdapter extends RecyclerView.Adapter<ArchivementDe
                     dialogBuilder.setView(d);
                     AlertDialog alertDialog = dialogBuilder.create();
 
+                    LinearLayout mllArchivement = d.findViewById(R.id.llArchivement);
                     TextView mtvArchiveLabel = d.findViewById(R.id.tvArchiveLabel);
                     TextView mtvArchiveDescription = d.findViewById(R.id.tvArchiveDescription);
                     TextView mtvDetails = d.findViewById(R.id.tvDetails);
                     ImageView mIvClosed = d.findViewById(R.id.ivClosed);
                     CardView mcvClosed = d.findViewById(R.id.cvClosed);
+                    CardView mcvShare = d.findViewById(R.id.cvShare);
 
                     mtvArchiveLabel.setText(mDailyStepDatalist.get(i).getLabel());
                     mtvArchiveDescription.setText(mDailyStepDatalist.get(i).getDescription());
                     mtvDetails.setText("Great! You've Walked " + mDailyStepDatalist.get(i).getLabel() + " steps today!");
+
                     mcvClosed.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -88,6 +93,12 @@ public class ArchivementDetailAdapter extends RecyclerView.Adapter<ArchivementDe
                         }
                     });
 
+                    mcvShare.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            CommanMethod.TakeScreenShot(mllArchivement, activity);
+                        }
+                    });
                     alertDialog.show();
                 }
             });

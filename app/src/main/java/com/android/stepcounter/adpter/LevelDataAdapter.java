@@ -1,5 +1,6 @@
 package com.android.stepcounter.adpter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.stepcounter.R;
 import com.android.stepcounter.activity.LevelActivity;
 import com.android.stepcounter.model.ArchivementModel;
+import com.android.stepcounter.utils.CommanMethod;
 import com.android.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class LevelDataAdapter extends RecyclerView.Adapter<LevelDataAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(ViewHolder viewHolder, @SuppressLint("RecyclerView") int i) {
         if (mDailyStepDatalist.get(i).isCompeleteStatus()) {
             viewHolder.mTvLabelvalue.setText(mDailyStepDatalist.get(i).getLabel());
             if (mDailyStepDatalist.get(i).getValue() == 0) {
@@ -63,11 +65,13 @@ public class LevelDataAdapter extends RecyclerView.Adapter<LevelDataAdapter.View
                     dialogBuilder.setView(d);
                     AlertDialog alertDialog = dialogBuilder.create();
 
+                    LinearLayout mllArchivement = d.findViewById(R.id.llArchivement);
                     TextView mtvArchiveLabel = d.findViewById(R.id.tvArchiveLabel);
                     TextView mtvArchiveDescription = d.findViewById(R.id.tvArchiveDescription);
                     TextView mtvDetails = d.findViewById(R.id.tvDetails);
                     ImageView mIvClosed = d.findViewById(R.id.ivClosed);
                     CardView mcvClosed = d.findViewById(R.id.cvClosed);
+                    CardView mcvShare = d.findViewById(R.id.cvShare);
 
                     mtvArchiveLabel.setText(mDailyStepDatalist.get(i).getLabel());
                     mtvArchiveDescription.setText(mDailyStepDatalist.get(i).getDescription());
@@ -83,6 +87,13 @@ public class LevelDataAdapter extends RecyclerView.Adapter<LevelDataAdapter.View
                         @Override
                         public void onClick(View view) {
                             alertDialog.dismiss();
+                        }
+                    });
+
+                    mcvShare.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            CommanMethod.TakeScreenShot(mllArchivement, activity);
                         }
                     });
 

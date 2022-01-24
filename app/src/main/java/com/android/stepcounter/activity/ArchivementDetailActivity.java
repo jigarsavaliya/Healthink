@@ -88,10 +88,10 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         IsTotalDays = getIntent().getBooleanExtra("TotalDays", false);
         IsTotalDistance = getIntent().getBooleanExtra("TotalDistance", false);
 
-        Logger.e(IsDailyStep);
-        Logger.e(IsComboDay);
-        Logger.e(IsTotalDays);
-        Logger.e(IsTotalDistance);
+//        Logger.e(IsDailyStep);
+//        Logger.e(IsComboDay);
+//        Logger.e(IsTotalDays);
+//        Logger.e(IsTotalDistance);
     }
 
     @Override
@@ -275,7 +275,7 @@ public class ArchivementDetailActivity extends AppCompatActivity {
     }
 
 
-    @Override
+   /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.share_menu, menu);
@@ -286,12 +286,12 @@ public class ArchivementDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
-                CommanMethod.TakeScreenShot(getWindow().getDecorView(), this);
+//                CommanMethod.TakeScreenShot(getWindow().getDecorView(), this);
                 break;
         }
         return true;
     }
-
+*/
     @Override
     public void onBackPressed() {
         super.onBackPressed();

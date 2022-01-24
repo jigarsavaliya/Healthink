@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -47,6 +48,7 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
     int Calories = 0;
     CardView mCvChangeCover;
     ImageView viewImage;
+    CardView mCvImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +76,11 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+        getDataFromDatabase();
+
         mTvCurrDate = findViewById(R.id.tvDate);
         mTvEditDailog = findViewById(R.id.tvEditDailog);
+        mCvImage = findViewById(R.id.cvImage);
 
         mCvChangeCover = findViewById(R.id.cvChangeCover);
         mCvChangeCover.setOnClickListener(this);
@@ -93,7 +98,6 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
         Date d = new Date();
         CharSequence s = DateFormat.format("MMMM d, yyyy ", d.getTime());
         mTvCurrDate.setText(s);
-        getDataFromDatabase();
         setData();
     }
 
@@ -190,7 +194,7 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
-                TakeScreenShot(getWindow().getDecorView());
+                TakeScreenShot(mCvImage);
                 break;
         }
         return true;
