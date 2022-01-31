@@ -61,6 +61,7 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
     Calendar rightnow = Calendar.getInstance();
     ArrayList<location> locationArrayList = new ArrayList<>();
     GpsModel mGpsModel;
+    Calendar rightNow;
 
     private class MyReceiver extends BroadcastReceiver {
 
@@ -147,6 +148,8 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void init() {
+
+        rightNow = Calendar.getInstance();
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -415,6 +418,9 @@ public class GPSStartActivity extends AppCompatActivity implements View.OnClickL
         gpsTrackerModel.setSlogtitude(String.valueOf(mSlogtitude));
         gpsTrackerModel.setElatitude(String.valueOf(mElatitude));
         gpsTrackerModel.setElongtitude(String.valueOf(mElongtitude));
+        gpsTrackerModel.setDate(rightNow.get(Calendar.DATE));
+        gpsTrackerModel.setMonth(rightNow.get(Calendar.MONTH) + 1);
+        gpsTrackerModel.setYear(rightNow.get(Calendar.YEAR));
 
         if (TargetType != null && TargetType.equals("Target Duration")) {
             gpsTrackerModel.setDuration(mTvCurrentValue.getText().toString());

@@ -16,25 +16,36 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.stepcounter.GpsAdapterCallBack;
 import com.android.stepcounter.R;
-import com.android.stepcounter.adpter.LocationHistoryAdapter;
+import com.android.stepcounter.adpter.EventRVAdapter;
 import com.android.stepcounter.database.DatabaseManager;
+import com.android.stepcounter.model.EventItem;
 import com.android.stepcounter.model.GpsTrackerModel;
+import com.android.stepcounter.model.HeaderModel;
+import com.android.stepcounter.model.ListEvent;
 import com.android.stepcounter.utils.Logger;
 import com.android.stepcounter.utils.constant;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 
 public class HistoryFragment extends Fragment implements View.OnClickListener {
 
     View view;
     RecyclerView mRvHistoryData;
     TextView mTvTotalDuration, mTvNoDataFound;
-    LocationHistoryAdapter mlocationHistoryAdapter;
+    //    LocationHistoryAdapter mlocationHistoryAdapter;
+    EventRVAdapter mEventRVAdapter;
     DatabaseManager DbManger;
     ArrayList<GpsTrackerModel> gpsTrackerModelArrayList = new ArrayList<>();
     ArrayList<GpsTrackerModel> gpsTrackerModelList = new ArrayList<>();
     float Miles;
     ImageView mIvDelete, mIvClosed;
+    HashMap<String, ArrayList<GpsTrackerModel>> GpsTrackerModelHashMap;
+    List<ListEvent> eventHashMapArrayList = new ArrayList<>();
+    Calendar rightNow;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -57,7 +68,9 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     }
 
     private void init() {
+        rightNow = Calendar.getInstance();
         getDataFromDataBase();
+
         mTvTotalDuration = view.findViewById(R.id.tvTotalDuration);
         mTvNoDataFound = view.findViewById(R.id.tvNoDataFound);
 
@@ -72,17 +85,23 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
 
         setRecyclerview();
 
-
     }
 
     private void setRecyclerview() {
         if (gpsTrackerModelArrayList != null) {
             mTvNoDataFound.setVisibility(View.GONE);
-            mlocationHistoryAdapter = new LocationHistoryAdapter(this, gpsTrackerModelArrayList);
+
+//            locationAdapter = new HistoryLocationAdapter(this, GpsTrackerModelHashMap);
+
+            mEventRVAdapter = new EventRVAdapter(this, eventHashMapArrayList);
+
+//            mlocationHistoryAdapter = new LocationHistoryAdapter(this, gpsTrackerModelArrayList);
+
             mRvHistoryData.setHasFixedSize(true);
             mRvHistoryData.setLayoutManager(new LinearLayoutManager(getActivity()));
-            mRvHistoryData.setAdapter(mlocationHistoryAdapter);
-            mlocationHistoryAdapter.setMyAdapterListener(new GpsAdapterCallBack() {
+            mRvHistoryData.setAdapter(mEventRVAdapter);
+
+            mEventRVAdapter.setMyAdapterListener(new GpsAdapterCallBack() {
                 @Override
                 public void onMethodCallback(ArrayList<GpsTrackerModel> gpsTrackerModels) {
                     gpsTrackerModelList = gpsTrackerModels;
@@ -94,7 +113,8 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
                         constant.IsLocationHistoryDelete = false;
                         mIvDelete.setVisibility(View.VISIBLE);
                         mIvClosed.setVisibility(View.GONE);
-                        mlocationHistoryAdapter.notifyDataSetChanged();
+                        mEventRVAdapter.notifyDataSetChanged();
+//                        mlocationHistoryAdapter.notifyDataSetChanged();
                     }
                 }
             });
@@ -108,6 +128,55 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         gpsTrackerModelArrayList = DbManger.getGpsTrackerlist();
 //        Logger.e(gpsTrackerModelArrayList.size());
         Miles = DbManger.getSumOfGpsMilesList();
+
+        if (gpsTrackerModelArrayList != null) {
+            GpsTrackerModelHashMap = toMap(gpsTrackerModelArrayList);
+            for (String date : GpsTrackerModelHashMap.keySet()) {
+                HeaderModel header = new HeaderModel();
+                header.setDate(date);
+                eventHashMapArrayList.add(header);
+
+                for (GpsTrackerModel eventModel : GpsTrackerModelHashMap.get(date)) {
+                    EventItem item = new EventItem(eventModel);
+                    Logger.e(item.getEventModel().getAction());
+                    eventHashMapArrayList.add(item);
+                }
+
+            }
+            Logger.e(eventHashMapArrayList.size());
+        }
+
+        for (String s : GpsTrackerModelHashMap.keySet()) {
+            Logger.e(s + "Key Value " + GpsTrackerModelHashMap.get(s).size());
+        }
+
+    }
+
+    private HashMap<String, ArrayList<GpsTrackerModel>> toMap(ArrayList<GpsTrackerModel> events) {
+        Logger.e(events.size());
+
+        HashMap<String, ArrayList<GpsTrackerModel>> map = new HashMap<>();
+        for (GpsTrackerModel eventModel : events) {
+
+            Logger.e("Date  " + eventModel.getDate());
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.MONTH, eventModel.getMonth() - 1);
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM");
+            //simpleDateFormat.setCalendar(calendar);
+            String monthName = simpleDateFormat.format(calendar.getTime());
+
+            ArrayList<GpsTrackerModel> value = map.get(eventModel.getDate() + " " + monthName);
+            if (value == null) {
+                value = new ArrayList<>();
+                map.put(eventModel.getDate() + " " + monthName, value);
+            }
+//            Logger.e("Action  " + eventModel.getAction());
+            value.add(eventModel);
+        }
+        Logger.e("Size  " + map.size());
+        return map;
     }
 
     @Override
@@ -115,12 +184,13 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.ivDelete:
                 Logger.e("count" + gpsTrackerModelList.size());
-                if (gpsTrackerModelList != null) {
-                    constant.IsLocationHistoryDelete = true;
-                    mlocationHistoryAdapter.notifyDataSetChanged();
-                    mIvDelete.setVisibility(View.GONE);
-                    mIvClosed.setVisibility(View.VISIBLE);
-                }
+//                if (gpsTrackerModelList != null) {
+                constant.IsLocationHistoryDelete = true;
+                mEventRVAdapter.notifyDataSetChanged();
+//                    mlocationHistoryAdapter.notifyDataSetChanged();
+                mIvDelete.setVisibility(View.GONE);
+                mIvClosed.setVisibility(View.VISIBLE);
+//                }
                 break;
             case R.id.ivClosed:
                 if (gpsTrackerModelList != null) {
@@ -136,21 +206,23 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         for (int i = 0; i < gpsTrackerModelList.size(); i++) {
-                                            DbManger.DeleteGpsTrakerData(gpsTrackerModelList.get(i).getAction(), gpsTrackerModelList.get(i).getDistance(),
+                                           /* DbManger.DeleteGpsTrakerData(gpsTrackerModelList.get(i).getAction(), gpsTrackerModelList.get(i).getDistance(),
                                                     gpsTrackerModelList.get(i).getCalories(), gpsTrackerModelList.get(i).getDuration(),
                                                     gpsTrackerModelList.get(i).getStep(),gpsTrackerModelList.get(i).getSlatitude(),
                                                     gpsTrackerModelList.get(i).getSlogtitude(),gpsTrackerModelList.get(i).getElatitude(),
-                                                    gpsTrackerModelList.get(i).getElongtitude());
+                                                    gpsTrackerModelList.get(i).getElongtitude());*/
+                                            DbManger.DeleteGpsTrakerData(gpsTrackerModelList.get(i).getId());
                                         }
-                                        getDataFromDataBase();
                                         gpsTrackerModelList.clear();
-                                        if (gpsTrackerModelArrayList.size() > 0) {
+                                        eventHashMapArrayList.clear();
+                                        getDataFromDataBase();
+                                        if (eventHashMapArrayList.size() > 0) {
                                             mTvNoDataFound.setVisibility(View.GONE);
-                                            mlocationHistoryAdapter.updatelist(gpsTrackerModelArrayList);
-                                            mlocationHistoryAdapter.notifyDataSetChanged();
+                                            mEventRVAdapter.updatelist(eventHashMapArrayList);
+                                            mEventRVAdapter.notifyDataSetChanged();
                                         } else {
-                                            mlocationHistoryAdapter.updatelist(gpsTrackerModelArrayList);
-                                            mlocationHistoryAdapter.notifyDataSetChanged();
+                                            mEventRVAdapter.updatelist(eventHashMapArrayList);
+                                            mEventRVAdapter.notifyDataSetChanged();
                                             mTvNoDataFound.setVisibility(View.VISIBLE);
                                         }
                                         mTvTotalDuration.setText(Miles + "");
@@ -173,10 +245,12 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
                     } else {
                         mIvDelete.setVisibility(View.VISIBLE);
                         mIvClosed.setVisibility(View.GONE);
-                        mlocationHistoryAdapter.notifyDataSetChanged();
+                        mEventRVAdapter.notifyDataSetChanged();
                     }
                 }
                 break;
         }
     }
+
+
 }

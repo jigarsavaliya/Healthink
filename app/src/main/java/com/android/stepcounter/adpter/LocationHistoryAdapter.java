@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,14 +14,14 @@ import com.android.stepcounter.GpsAdapterCallBack;
 import com.android.stepcounter.R;
 import com.android.stepcounter.fragment.HistoryFragment;
 import com.android.stepcounter.model.GpsTrackerModel;
-import com.android.stepcounter.utils.Logger;
+import com.android.stepcounter.model.ListEvent;
 import com.android.stepcounter.utils.constant;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistoryAdapter.ViewHolder> {
@@ -105,12 +104,10 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
         return gpsTrackerModels.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements OnMapReadyCallback {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         TextView mTvType, mTvMile, mTvDuration, mTvKcal, mTvSteps;
         AppCompatCheckBox mCbDeleteItem;
-        MapView mapFragment;
         ImageView mivmap;
-        GoogleMap map;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -121,39 +118,7 @@ public class LocationHistoryAdapter extends RecyclerView.Adapter<LocationHistory
             mTvSteps = itemView.findViewById(R.id.tvSteps);
             mCbDeleteItem = itemView.findViewById(R.id.cbDeleteItem);
             mivmap = itemView.findViewById(R.id.ivmap);
-           
-           /* mapFragment = (MapView) itemView.findViewById(R.id.fmap);
 
-            if (mapFragment != null) {
-                mapFragment.onCreate(null);
-                mapFragment.getMapAsync(this);
-                mapFragment.onResume();
-            }*/
-        }
-
-        @Override
-        public void onMapReady(@NonNull GoogleMap googleMap) {
-            /*MapsInitializer.initialize(activity.getContext());
-            map = googleMap;
-//            Logger.e("googleMap");
-            googleMap.getUiSettings().setMapToolbarEnabled(false);
-
-            int i = getAdapterPosition();
-            PolylineOptions polylineOptions = new PolylineOptions();
-            polylineOptions.add(new LatLng(Double.parseDouble(gpsTrackerModels.get(i).getSlatitude()), Double.parseDouble(gpsTrackerModels.get(i).getSlogtitude())), new LatLng(Double.parseDouble(gpsTrackerModels.get(i).getElatitude()), Double.parseDouble(gpsTrackerModels.get(i).getElongtitude())))
-                    .width(5).color(Color.BLUE);
-            map.addPolyline(polylineOptions);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(gpsTrackerModels.get(i).getSlatitude()), Double.parseDouble(gpsTrackerModels.get(i).getSlogtitude())), 18));
-
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.title("Position");
-            LatLng latLng = new LatLng(Double.parseDouble(gpsTrackerModels.get(i).getSlatitude()), Double.parseDouble(gpsTrackerModels.get(i).getSlogtitude()));
-            markerOptions.position(latLng);
-
-            map.animateCamera(CameraUpdateFactory.zoomTo(25), 2000, null);
-            map.addMarker(markerOptions);
-*/
-//            Logger.e(gpsTrackerModels.get(i).getSlatitude());
         }
     }
 

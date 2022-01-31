@@ -1,6 +1,7 @@
 package com.android.stepcounter.model;
 
 public class GpsTrackerModel {
+    int id;
     String type;
     String Action;
     String goal;
@@ -12,6 +13,42 @@ public class GpsTrackerModel {
     String slogtitude;
     String elatitude;
     String elongtitude;
+
+    int date;
+    int month;
+    int year;
+
+    public int getDate() {
+        return date;
+    }
+
+    public void setDate(int date) {
+        this.date = date;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getAction() {
         return Action;

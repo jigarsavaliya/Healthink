@@ -13,6 +13,7 @@ import com.android.stepcounter.model.GpsTrackerModel;
 import com.android.stepcounter.model.StepCountModel;
 import com.android.stepcounter.model.WaterLevelModel;
 import com.android.stepcounter.model.WeightModel;
+import com.android.stepcounter.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -107,6 +108,9 @@ public class DatabaseManager {
         public static final String KEY_GPS_SLONGTITUDE = "Slogtitude";
         public static final String KEY_GPS_ELATITUDE = "Elatitude";
         public static final String KEY_GPS_ELONGTITUDE = "Elongtitude";
+        public static final String KEY_GPS_DATE = "GpsDate";
+        public static final String KEY_GPS_MONTH = "Gpsmonth";
+        public static final String KEY_GPS_YEAR = "GpsYear";
 
 
         public static final String WaterTable = "CREATE TABLE " + TABLE_WATER + " ("
@@ -154,6 +158,9 @@ public class DatabaseManager {
                 + KEY_GPS_TYPE + " TEXT,"
                 + KEY_GPS_ACTION + " TEXT,"
 //                + KEY_GPS_GOAL + " TEXT,"
+                + KEY_GPS_DATE + " INTEGER,"
+                + KEY_GPS_MONTH + " INTEGER,"
+                + KEY_GPS_YEAR + " INTEGER,"
                 + KEY_GPS_STEP + " INTEGER,"
                 + KEY_GPS_DISTANCE + " TEXT,"
                 + KEY_GPS_DURATION + " TEXT,"
@@ -1806,6 +1813,9 @@ public class DatabaseManager {
         initialValues.put(DbHelper.KEY_GPS_SLONGTITUDE, GpsTrackerModel.getSlogtitude());
         initialValues.put(DbHelper.KEY_GPS_ELATITUDE, GpsTrackerModel.getElatitude());
         initialValues.put(DbHelper.KEY_GPS_ELONGTITUDE, GpsTrackerModel.getElongtitude());
+        initialValues.put(DbHelper.KEY_GPS_DATE, GpsTrackerModel.getDate());
+        initialValues.put(DbHelper.KEY_GPS_MONTH, GpsTrackerModel.getMonth());
+        initialValues.put(DbHelper.KEY_GPS_YEAR, GpsTrackerModel.getYear());
 
         try {
             db.insert(DbHelper.TABLE_GPS_TRACKER, null, initialValues);
@@ -1835,6 +1845,7 @@ public class DatabaseManager {
         ArrayList<GpsTrackerModel> list = new ArrayList<GpsTrackerModel>();
 
         try {
+            int iKEY_GPS_ID = c.getColumnIndex(DbHelper.GPS_ID);
             int iKEY_GPS_TYPE = c.getColumnIndex(DbHelper.KEY_GPS_TYPE);
             int iKEY_GPS_ACTION = c.getColumnIndex(DbHelper.KEY_GPS_ACTION);
             int iKEY_GPS_STEP = c.getColumnIndex(DbHelper.KEY_GPS_STEP);
@@ -1845,11 +1856,15 @@ public class DatabaseManager {
             int iKEY_GPS_SLONGTITUDE = c.getColumnIndex(DbHelper.KEY_GPS_SLONGTITUDE);
             int iKEY_GPS_ELATITUDE = c.getColumnIndex(DbHelper.KEY_GPS_ELATITUDE);
             int iKEY_GPS_ELONGTITUDE = c.getColumnIndex(DbHelper.KEY_GPS_ELONGTITUDE);
+            int iKEY_GPS_DATE = c.getColumnIndex(DbHelper.KEY_GPS_DATE);
+            int iKEY_GPS_MONTH = c.getColumnIndex(DbHelper.KEY_GPS_MONTH);
+            int iKEY_GPS_YEAR = c.getColumnIndex(DbHelper.KEY_GPS_YEAR);
 
 
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 GpsTrackerModel model = new GpsTrackerModel();
 
+                model.setId(c.getInt(iKEY_GPS_ID));
                 model.setType(c.getString(iKEY_GPS_TYPE));
                 model.setAction(c.getString(iKEY_GPS_ACTION));
                 model.setStep(c.getInt(iKEY_GPS_STEP));
@@ -1860,8 +1875,11 @@ public class DatabaseManager {
                 model.setSlogtitude(c.getString(iKEY_GPS_SLONGTITUDE));
                 model.setElatitude(c.getString(iKEY_GPS_ELATITUDE));
                 model.setElongtitude(c.getString(iKEY_GPS_ELONGTITUDE));
-
+                model.setDate(c.getInt(iKEY_GPS_DATE));
+                model.setMonth(c.getInt(iKEY_GPS_MONTH));
+                model.setYear(c.getInt(iKEY_GPS_YEAR));
                 list.add(model);
+
             }
         } finally {
             if (c != null)
@@ -1912,10 +1930,10 @@ public class DatabaseManager {
         return value;
     }
 
-    public void DeleteGpsTrakerData(String Action, String Distance, Integer Calories, String Duration, Integer Step, String slatitude, String slogtitude, String elatitude, String elongtitude) {
+    public void DeleteGpsTrakerData(int id) {
         db = helper.getWritableDatabase();
 
-        int b = db.delete(DbHelper.TABLE_GPS_TRACKER, DbHelper.KEY_GPS_ACTION + " = ?  AND "
+        /*int b = db.delete(DbHelper.TABLE_GPS_TRACKER, DbHelper.KEY_GPS_ACTION + " = ?  AND "
                         + DbHelper.KEY_GPS_DISTANCE + " =? AND "
                         + DbHelper.KEY_GPS_CALORIES + " =? AND "
                         + DbHelper.KEY_GPS_DURATION + " =? AND "
@@ -1924,7 +1942,10 @@ public class DatabaseManager {
                         + DbHelper.KEY_GPS_SLONGTITUDE + " =? AND "
                         + DbHelper.KEY_GPS_ELATITUDE + " =? AND "
                         + DbHelper.KEY_GPS_ELONGTITUDE + " =?",
-                new String[]{Action, Distance, String.valueOf(Calories), Duration, String.valueOf(Step), slatitude, slogtitude, elatitude, elongtitude});
+                new String[]{Action, Distance, String.valueOf(Calories), Duration, String.valueOf(Step), slatitude, slogtitude, elatitude, elongtitude});*/
+
+        int b = db.delete(DbHelper.TABLE_GPS_TRACKER, DbHelper.GPS_ID + " =?",
+                new String[]{String.valueOf(id)});
         db.close();
     }
 

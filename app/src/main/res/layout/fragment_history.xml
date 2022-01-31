@@ -40,11 +40,6 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/_5sdp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Today"
-                    android:textColor="@color/black" />
 
                 <ImageView
                     android:id="@+id/ivDelete"
