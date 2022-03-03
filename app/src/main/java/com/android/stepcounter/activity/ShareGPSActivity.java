@@ -146,9 +146,7 @@ public class ShareGPSActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (options[item].equals("Take Photo")) {
-                    Intent camera_intent
-                            = new Intent(MediaStore
-                            .ACTION_IMAGE_CAPTURE);
+                    Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(camera_intent, 1);
                 } else if (options[item].equals("Choose from Gallery")) {
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

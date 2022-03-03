@@ -236,8 +236,7 @@ public class CommanMethod {
 
         //It will make sure to store file to given below Directory and If the file Directory dosen't exist then it will create it.
         try {
-            File mainDir = new File(
-                    activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath(), "FilShare");
+            File mainDir = new File(activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath(), "FilShare");
             if (!mainDir.exists()) {
                 boolean mkdir = mainDir.mkdir();
             }
