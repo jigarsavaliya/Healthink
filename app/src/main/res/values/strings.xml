@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">StepCounter</string>
+    <string name="app_name">Healthink</string>
     <string name="label_notification_service_is_running">Total Step...</string>
 </resources>

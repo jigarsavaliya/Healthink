@@ -1,7 +1,7 @@
 [
   {
     "Type": "Level",
-    "Label": "Level1",
+    "Label": "Level\n1",
     "Value": 0,
     "Description": "A good Strat!",
     "CompeleteStatus": true,
@@ -10,7 +10,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level2",
+    "Label": "Level\n2",
     "Value": 10000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,
@@ -19,7 +19,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level3",
+    "Label": "Level\n3",
     "Value": 50000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,
@@ -28,7 +28,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level4",
+    "Label": "Level\n4",
     "Value": 100000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,
@@ -37,7 +37,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level5",
+    "Label": "Level\n5",
     "Value": 170000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,
@@ -46,7 +46,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level6",
+    "Label": "Level\n6",
     "Value": 220000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,
@@ -55,7 +55,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level7",
+    "Label": "Level\n7",
     "Value": 330000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,
@@ -64,7 +64,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level8",
+    "Label": "Level\n8",
     "Value": 440000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,
@@ -73,7 +73,7 @@
   },
   {
     "Type": "Level",
-    "Label": "Level9",
+    "Label": "Level\n9",
     "Value": 550000,
     "Description": "A good Strat!",
     "CompeleteStatus": false,

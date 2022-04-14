@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F4F4F4"
-    tools:context=".activity.StepReportActivity">
+    tools:context="com.js.stepcounter.activity.StepReportActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/logo_bg"
+
         android:minHeight="?attr/actionBarSize"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -20,19 +21,20 @@
         android:id="@+id/llChart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/llbutton"
+        android:layout_above="@+id/ll_bottom"
         android:layout_below="@+id/toolbar"
         android:orientation="vertical">
-
         <LinearLayout
+            android:id="@+id/llbutton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal"
             android:padding="@dimen/_10sdp"
-            android:weightSum="4">
+            android:weightSum="3">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cvStep"
+                android:id="@+id/cvDay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_5sdp"
@@ -46,33 +48,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="@dimen/_5sdp"
-                    android:text="Step"
+                    android:text="Day"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_14sdp" />
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cvCalories"
-                android:layout_width="89dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_marginRight="@dimen/_5sdp"
-                android:layout_weight="1"
-                app:cardCornerRadius="@dimen/_10sdp"
-                app:cardElevation="0dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="@dimen/_5sdp"
-                    android:text="Calorie"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_14sdp" />
-            </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cvTime"
+                android:id="@+id/cvWeek"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_5sdp"
@@ -86,13 +69,13 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="@dimen/_5sdp"
-                    android:text="Time"
+                    android:text="Week"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_14sdp" />
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cvDistance"
+                android:id="@+id/cvMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_5sdp"
@@ -106,12 +89,13 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="@dimen/_5sdp"
-                    android:text="Distance"
+                    android:text="Month"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_14sdp" />
             </androidx.cardview.widget.CardView>
-
         </LinearLayout>
+
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -189,19 +173,17 @@
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </LinearLayout>
-
     <LinearLayout
-        android:id="@+id/llbutton"
+        android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:gravity="center"
         android:orientation="horizontal"
         android:padding="@dimen/_10sdp"
-        android:weightSum="3">
+        android:weightSum="4">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cvDay"
+            android:id="@+id/cvStep"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_5sdp"
@@ -215,14 +197,33 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="@dimen/_5sdp"
-                android:text="Day"
+                android:text="Step"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_14sdp" />
         </androidx.cardview.widget.CardView>
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvCalories"
+            android:layout_width="89dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/_5sdp"
+            android:layout_marginRight="@dimen/_5sdp"
+            android:layout_weight="1"
+            app:cardCornerRadius="@dimen/_10sdp"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/_5sdp"
+                android:text="Calorie"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14sdp" />
+        </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cvWeek"
+            android:id="@+id/cvTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_5sdp"
@@ -236,13 +237,13 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="@dimen/_5sdp"
-                android:text="Week"
+                android:text="Time"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_14sdp" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cvMonth"
+            android:id="@+id/cvDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_5sdp"
@@ -256,9 +257,10 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="@dimen/_5sdp"
-                android:text="Month"
+                android:text="Distance"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_14sdp" />
         </androidx.cardview.widget.CardView>
+
     </LinearLayout>
 </RelativeLayout>

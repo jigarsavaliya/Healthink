@@ -9,6 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/logo_bg"
         android:minHeight="?attr/actionBarSize"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -44,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_200sdp"
                 android:scaleType="fitXY"
-                android:src="@drawable/download" />
+                android:src="@drawable/images" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -59,30 +60,30 @@
 
                     <TextView
                         android:id="@+id/tvDate"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="hgjzx"
-                        android:textColor="@color/white"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_10sdp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvCurrentValue"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="gfcxm"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textColor="@color/white"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_24sdp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvGoalValue"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="gfcxm"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textColor="@color/white"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_10sdp" />
                 </LinearLayout>
 

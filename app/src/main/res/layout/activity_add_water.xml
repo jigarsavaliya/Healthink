@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    tools:context=".activity.AddWaterActivity">
+    tools:context="com.js.stepcounter.activity.AddWaterActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/logo_bg"
         android:minHeight="?attr/actionBarSize"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -72,7 +72,7 @@
                     app:donut_suffix="%"
                     app:donut_text_color="@color/colorPrimaryDark"
                     app:donut_text_size="@dimen/_25sdp"
-                    app:donut_unfinished_color="@color/colorPrimary"
+                    app:donut_unfinished_color="@color/colorBackgrond"
                     app:donut_unfinished_stroke_width="25dp" />
 
             </RelativeLayout>

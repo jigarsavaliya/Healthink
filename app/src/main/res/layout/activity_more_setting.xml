@@ -9,7 +9,8 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/logo_bg"
+
         android:minHeight="?attr/actionBarSize"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -166,7 +167,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="@dimen/_5sdp"
-                            android:src="@drawable/ic_archivements" />
+                            android:src="@drawable/trophy" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -202,8 +203,8 @@
                         android:padding="@dimen/_5sdp">
 
                         <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/_30sdp"
+                            android:layout_height="@dimen/_30sdp"
                             android:padding="@dimen/_5sdp"
                             android:src="@drawable/ic_person" />
 
@@ -243,8 +244,8 @@
                         android:paddingRight="@dimen/_5sdp">
 
                         <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/_30sdp"
+                            android:layout_height="@dimen/_30sdp"
                             android:padding="@dimen/_5sdp"
                             android:src="@drawable/ic_person" />
 
@@ -306,7 +307,7 @@
                         android:paddingBottom="@dimen/_8sdp">
 
                         <ImageView
-                            android:layout_width="@dimen/_35sdp"
+                            android:layout_width="@dimen/_30sdp"
                             android:layout_height="@dimen/_30sdp"
                             android:padding="@dimen/_5sdp"
                             android:src="@drawable/ic_step_goal" />
@@ -355,13 +356,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
-                        android:padding="@dimen/_8sdp">
+                        android:padding="@dimen/_5sdp">
 
                         <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/_30sdp"
+                            android:layout_height="@dimen/_30sdp"
                             android:padding="@dimen/_5sdp"
-                            android:src="@drawable/ic_person" />
+                            android:src="@drawable/ic_baseline_access_alarm_24" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -450,7 +451,7 @@
                             android:layout_width="@dimen/_35sdp"
                             android:layout_height="wrap_content"
                             android:padding="@dimen/_5sdp"
-                            android:src="@drawable/ic_feedback" />
+                            android:src="@drawable/ic_baseline_feedback_24" />
 
                         <LinearLayout
                             android:layout_width="match_parent"

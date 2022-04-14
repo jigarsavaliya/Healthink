@@ -22,7 +22,7 @@
 
             <item
                 android:id="@+id/action_archivement"
-                android:icon="@drawable/ic_archivements"
+                android:icon="@drawable/trophy"
                 android:title="Archivement"
                 app:showAsAction="ifRoom" />
             <item

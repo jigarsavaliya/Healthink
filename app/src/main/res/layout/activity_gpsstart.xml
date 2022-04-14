@@ -9,7 +9,8 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/logo_bg"
+
         android:minHeight="?attr/actionBarSize"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -66,7 +67,7 @@
                     app:donut_suffix="%"
                     app:donut_text_color="@color/colorPrimaryDark"
                     app:donut_text_size="@dimen/_25sdp"
-                    app:donut_unfinished_color="@color/colorPrimary"
+                    app:donut_unfinished_color="@color/colorBackgrond"
                     app:donut_unfinished_stroke_width="25dp" />
             </LinearLayout>
         </LinearLayout>
@@ -214,7 +215,8 @@
                 android:layout_marginLeft="@dimen/_80sdp"
                 android:layout_marginRight="@dimen/_80sdp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="?attr/colorAccent"
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="?attr/colorPrimary"
                 app:cardCornerRadius="@dimen/_20sdp">
 
                 <TextView

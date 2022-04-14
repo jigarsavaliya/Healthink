@@ -21,9 +21,9 @@
 
             <LinearLayout
                 android:layout_width="@dimen/_50sdp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/_60sdp"
                 android:layout_weight="1"
-                android:background="@drawable/dailystepshape"
+                android:background="@drawable/squre"
                 android:gravity="center_vertical">
 
                 <TextView

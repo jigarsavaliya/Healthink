@@ -9,7 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/logo_bg"
         android:minHeight="?attr/actionBarSize"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -23,8 +23,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:gravity="center"
@@ -53,69 +53,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:weightSum="2">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="@dimen/_20sdp"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-
-                            <RelativeLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_centerInParent="true">
-
-                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                                    android:id="@+id/progressBar"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    app:cpb_background_progressbar_color="#C6E9ED"
-                                    app:cpb_background_progressbar_width="10dp"
-                                    app:cpb_progress_direction="to_right"
-                                    app:cpb_progress_max="1000"
-                                    app:cpb_progressbar_color="#8E47D5"
-                                    app:cpb_progressbar_width="10dp"
-                                    app:cpb_round_border="false" />
-
-                                <TextView
-                                    android:id="@+id/tv_steps"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_centerInParent="true"
-                                    android:gravity="center"
-                                    android:textAppearance="?android:attr/textAppearanceSmall"
-                                    android:textColor="@color/colorPrimaryDark"
-                                    android:textSize="@dimen/_24sdp"
-                                    android:textStyle="bold" />
-                            </RelativeLayout>
-
-                            <RelativeLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center">
-
-                                <ImageView
-                                    android:id="@+id/ivPlay"
-                                    android:layout_width="@dimen/_40sdp"
-                                    android:layout_height="@dimen/_40sdp"
-                                    android:layout_alignParentRight="true"
-                                    android:layout_marginRight="10dp"
-                                    android:padding="3dp"
-                                    android:src="@drawable/ic_baseline_play_circle_24" />
-
-                                <ImageView
-                                    android:id="@+id/ivPause"
-                                    android:layout_width="@dimen/_40sdp"
-                                    android:layout_height="@dimen/_40sdp"
-                                    android:layout_alignParentRight="true"
-                                    android:layout_marginRight="10dp"
-                                    android:padding="3dp"
-                                    android:src="@drawable/ic_baseline_pause_circle_24" />
-                            </RelativeLayout>
-                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -198,6 +135,66 @@
                             </LinearLayout>
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="@dimen/_20sdp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true">
+
+                                <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                                    android:id="@+id/progressBar"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    app:cpb_background_progressbar_color="@color/colorBackgrond"
+                                    app:cpb_background_progressbar_width="10dp"
+                                    app:cpb_progress_direction="to_right"
+                                    app:cpb_progress_max="1000"
+                                    app:cpb_progressbar_color="@color/colorPrimary"
+                                    app:cpb_progressbar_width="10dp"
+                                    app:cpb_round_border="false" />
+
+                                <TextView
+                                    android:id="@+id/tv_steps"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:gravity="center"
+                                    android:textAppearance="?android:attr/textAppearanceSmall"
+                                    android:textColor="@color/colorPrimaryDark"
+                                    android:textSize="@dimen/_24sdp"
+                                    android:textStyle="bold" />
+                            </RelativeLayout>
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/ivPlay"
+                                    android:layout_width="@dimen/_40sdp"
+                                    android:layout_height="@dimen/_40sdp"
+                                    android:layout_alignParentRight="true"
+                                    android:padding="3dp"
+                                    android:src="@drawable/ic_baseline_play_circle_24" />
+
+                                <ImageView
+                                    android:id="@+id/ivPause"
+                                    android:layout_width="@dimen/_40sdp"
+                                    android:layout_height="@dimen/_40sdp"
+                                    android:layout_alignParentRight="true"
+                                    android:padding="3dp"
+                                    android:src="@drawable/ic_baseline_pause_circle_24" />
+                            </RelativeLayout>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <LinearLayout
@@ -253,7 +250,8 @@
                 android:id="@+id/llContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:layout_marginStart="@dimen/_5sdp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical" />
@@ -267,8 +265,8 @@
                 android:text="Adjust order"
                 android:textColor="@color/white"
                 app:backgroundTint="@color/colorPrimaryDark"
-                app:icon="@drawable/ic_menu"
-                app:iconPadding="40dp"
+                app:icon="@drawable/ic_baseline_reorder_24"
+                app:iconPadding="@dimen/_10sdp"
                 app:iconTint="@color/white" />
         </LinearLayout>
     </ScrollView>

@@ -7,8 +7,8 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.android.stepcounter"
-        minSdkVersion 19
+        applicationId "com.js.stepcounter"
+        minSdkVersion 22
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"

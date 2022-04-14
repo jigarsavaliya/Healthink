@@ -19,8 +19,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_5sdp"
             android:layout_marginRight="@dimen/_5sdp"
+            app:cardUseCompatPadding="true"
             android:layout_weight="1"
-            app:cardBackgroundColor="?attr/colorAccent"
+            app:cardBackgroundColor="?attr/colorPrimary"
             app:cardCornerRadius="@dimen/_20sdp">
 
             <TextView
@@ -40,7 +41,8 @@
             android:layout_marginLeft="@dimen/_5sdp"
             android:layout_marginRight="@dimen/_5sdp"
             android:layout_weight="1"
-            app:cardBackgroundColor="?attr/colorAccent"
+            app:cardUseCompatPadding="true"
+            app:cardBackgroundColor="?attr/colorPrimary"
             app:cardCornerRadius="@dimen/_20sdp">
 
             <TextView

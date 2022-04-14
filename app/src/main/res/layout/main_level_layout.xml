@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cvArchivement"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/_5sdp"
+    android:layout_marginTop="@dimen/_10sdp"
+
     app:cardCornerRadius="@dimen/_10sdp">
 
     <RelativeLayout
@@ -17,7 +22,7 @@
         <RelativeLayout
             android:id="@+id/llDisplayView"
             android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
+            android:layout_height="@dimen/_50sdp"
             android:background="@drawable/dailystepshape"
             android:gravity="center_vertical">
 
@@ -26,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Level 1"
+                android:text="Level\n1"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_12sdp"
                 android:textStyle="bold" />
@@ -35,7 +40,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_5sdp"
             android:layout_toRightOf="@+id/llDisplayView"
             android:orientation="vertical"
@@ -78,3 +83,4 @@
         </LinearLayout>
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
+</FrameLayout>
