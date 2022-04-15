@@ -15,12 +15,19 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+import com.ironsource.mediationsdk.IronSource;
+import com.js.stepcounter.Application.AppController;
 import com.js.stepcounter.R;
 import com.js.stepcounter.utils.StorageManager;
 import com.js.stepcounter.sevices.SensorService;
@@ -46,6 +53,24 @@ public class SplashActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
         int secondsDelayed = 1;
+
+        FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder().setMinimumFetchIntervalInSeconds(900).build();
+        remoteConfig.setConfigSettingsAsync(configSettings);
+
+        remoteConfig.fetchAndActivate()
+                .addOnCompleteListener(new OnCompleteListener<Boolean>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Boolean> task) {
+                        AppController.IsAdOn = remoteConfig.getBoolean("AD_ON");
+//                        AppController.IsAdOn = true;
+                        if (AppController.IsAdOn) {
+
+                            IronSource.init(SplashActivity.this, "14317d8c1");
+                        }
+                    }
+                }) ;
+//                IpoApplication.isAdOn = true
 
 
         if (SensorService.IsNotiFlag) {

@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
+        android:layout_above="@id/bannerContainer"
         android:layout_marginBottom="@dimen/_10sdp"
         android:padding="@dimen/_5sdp" />
 
@@ -35,5 +36,9 @@
         android:textSize="@dimen/_18sdp"
         android:textStyle="bold"
         android:visibility="gone" />
-
+    <FrameLayout
+        android:id="@+id/bannerContainer"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

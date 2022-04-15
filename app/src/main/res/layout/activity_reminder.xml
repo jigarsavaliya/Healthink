@@ -118,7 +118,11 @@
 
         </RelativeLayout>
     </LinearLayout>
-
+    <FrameLayout
+        android:id="@+id/bannerContainer"
+        android:layout_width="match_parent"
+        android:layout_above="@id/btnDailyReminder"
+        android:layout_height="wrap_content" />
     <Button
         android:id="@+id/btnDailyReminder"
         android:layout_width="match_parent"

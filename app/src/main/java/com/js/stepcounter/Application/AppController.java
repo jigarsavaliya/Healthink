@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 public class AppController extends Application {
     private static Context context;
+     public static boolean IsAdOn = false;
 
     @Override
     public void onCreate() {

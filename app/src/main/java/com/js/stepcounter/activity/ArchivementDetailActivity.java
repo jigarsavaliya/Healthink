@@ -28,7 +28,7 @@ import com.js.stepcounter.sevices.NotificationReceiver;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class ArchivementDetailActivity extends AppCompatActivity {
+public class ArchivementDetailActivity extends BaseActivity {
     Toolbar mToolbar;
     RecyclerView mRvArchivementDetail;
     ArchivementDetailAdapter adapter;
@@ -79,7 +79,6 @@ public class ArchivementDetailActivity extends AppCompatActivity {
         IsComboDay = getIntent().getBooleanExtra("ComboDay", false);
         IsTotalDays = getIntent().getBooleanExtra("TotalDays", false);
         IsTotalDistance = getIntent().getBooleanExtra("TotalDistance", false);
-
 //        Logger.e(IsDailyStep);
 //        Logger.e(IsComboDay);
 //        Logger.e(IsTotalDays);

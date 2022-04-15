@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ShareGPSActivity extends AppCompatActivity implements View.OnClickListener {
+public class ShareGPSActivity extends BaseActivity implements View.OnClickListener {
     Toolbar mToolbar;
     String TargetType;
     Integer numStep;

@@ -16,6 +16,7 @@
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
 
     <LinearLayout
+        android:id="@+id/ll_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
@@ -193,8 +194,14 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
+    <FrameLayout
+        android:layout_above="@id/ll_bottom"
+        android:id="@+id/bannerContainer"
+        android:layout_below="@id/ll_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <LinearLayout
+        android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_70sdp"
         android:layout_alignParentBottom="true"

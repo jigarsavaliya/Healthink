@@ -76,7 +76,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class HeathActivity extends AppCompatActivity implements DatePickerListener, View.OnClickListener {
+public class HeathActivity extends BaseActivity implements DatePickerListener, View.OnClickListener {
     TextView muserWeight, mAddWeightDailog, meditHeightWeight, mtvlastdaydiff, mtvwaterCount;
     Calendar rightNow;
     int hour, min, date, month, year;

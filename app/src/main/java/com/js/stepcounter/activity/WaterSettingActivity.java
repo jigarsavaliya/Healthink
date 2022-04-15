@@ -18,7 +18,7 @@ import com.js.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
 
-public class WaterSettingActivity extends AppCompatActivity {
+public class WaterSettingActivity extends BaseActivity {
     Toolbar mToolbar;
     String unitvalue = "ml";
     RelativeLayout rlReminder;

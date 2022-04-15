@@ -27,7 +27,7 @@ import com.js.stepcounter.sevices.NotificationReceiver;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class ArchivementActivity extends AppCompatActivity implements View.OnClickListener {
+public class ArchivementActivity extends BaseActivity implements View.OnClickListener {
     Toolbar mToolbar;
     DatabaseManager dbManager;
     long mTotalDaysData, mTotalDisanceData, mTotalStepData;

@@ -21,7 +21,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class AdjustOrderActivity extends AppCompatActivity implements StartDragListener {
+public class AdjustOrderActivity extends BaseActivity implements StartDragListener {
     Toolbar mToolbar;
     RecyclerView mRvAdjustOrder;
     ArrayList<DashboardComponentModel> dashboardComponentModels = new ArrayList<>();

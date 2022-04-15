@@ -32,7 +32,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class FinishGpsDataActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
+public class FinishGpsDataActivity extends BaseActivity implements View.OnClickListener, OnMapReadyCallback {
 
     String Date, TargetType;
     Integer AMPM, numStep;

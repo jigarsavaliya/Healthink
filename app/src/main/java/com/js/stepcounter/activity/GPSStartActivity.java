@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class GPSStartActivity extends AppCompatActivity implements View.OnClickListener {
+public class GPSStartActivity extends BaseActivity implements View.OnClickListener {
     Toolbar mToolbar;
     private int seconds = 0;
     CardView mCvPause, mCvFinish, mCvResume;

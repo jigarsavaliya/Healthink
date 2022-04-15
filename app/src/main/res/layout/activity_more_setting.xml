@@ -337,7 +337,10 @@
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
+            <FrameLayout
+                android:id="@+id/bannerContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
             <androidx.cardview.widget.CardView
                 android:id="@+id/cvReminder"
                 android:layout_width="match_parent"

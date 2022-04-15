@@ -27,7 +27,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.util.List;
 
-public class TrainingActivity extends AppCompatActivity {
+public class TrainingActivity extends BaseActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     MainViewPagerAdapter viewPagerAdapter;

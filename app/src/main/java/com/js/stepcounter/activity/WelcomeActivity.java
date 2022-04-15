@@ -22,7 +22,7 @@ import com.js.stepcounter.utils.StorageManager;
 
 import java.util.Calendar;
 
-public class WelcomeActivity extends AppCompatActivity {
+public class WelcomeActivity extends BaseActivity {
     RelativeLayout mrlMale, mrlFemale;
     CardView cvHeight, cvWeight, cvDownload;
     String Gender = "male";

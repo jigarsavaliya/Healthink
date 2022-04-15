@@ -35,6 +35,8 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ironsource.mediationsdk.IronSource;
+import com.js.stepcounter.Application.AppController;
 import com.js.stepcounter.MyMarkerView;
 import com.js.stepcounter.R;
 import com.js.stepcounter.adpter.StepWeekChartAdapter;
@@ -79,7 +81,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, DatePickerListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, DatePickerListener {
 
     final float[] value = {0};
     Toolbar mToolbar;
@@ -990,6 +992,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
+        if (AppController.IsAdOn)
+            IronSource.showInterstitial();
         finishAffinity();
     }
 
@@ -1874,5 +1878,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
+    
 }

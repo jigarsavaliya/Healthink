@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 
-public class InstructionActivity extends AppCompatActivity {
+public class InstructionActivity extends BaseActivity {
     Toolbar mToolbar;
     RecyclerView mRvInstruction;
     InstructionAdapter instructionAdapter;

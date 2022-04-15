@@ -58,7 +58,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
-public class StepReportActivity extends AppCompatActivity implements OnChartValueSelectedListener, View.OnClickListener {
+public class StepReportActivity extends BaseActivity implements OnChartValueSelectedListener, View.OnClickListener {
     Toolbar mToolbar;
     DatabaseManager dbManager;
     private BarChart chart;

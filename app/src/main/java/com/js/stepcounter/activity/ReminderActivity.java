@@ -30,7 +30,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class ReminderActivity extends AppCompatActivity implements View.OnClickListener {
+public class ReminderActivity extends BaseActivity implements View.OnClickListener {
     Toolbar mToolbar;
     String getDailyReminderTime;
     int mStartHour = 9, mStartMinute = 0;

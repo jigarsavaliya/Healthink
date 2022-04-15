@@ -14,6 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ironsource.mediationsdk.integration.IntegrationHelper;
 import com.js.stepcounter.AdapterCallback;
 import com.js.stepcounter.R;
 import com.js.stepcounter.adpter.HistoryAdapter;
@@ -29,7 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-public class HistoryActivity extends AppCompatActivity {
+public class HistoryActivity extends BaseActivity {
     Toolbar mToolbar;
     RecyclerView mRvHistrory;
     HistoryAdapter mHistoryAdapter;
@@ -47,6 +48,7 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         dbManager = new DatabaseManager(this);
+
     }
 
     @Override

@@ -21,7 +21,7 @@ import com.bikomobile.donutprogress.DonutProgress;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class AddWaterActivity extends AppCompatActivity {
+public class AddWaterActivity extends BaseActivity {
     Toolbar mToolbar;
     TextView mTvTargeGoalDisplay;
     DonutProgress mCpWaterChart;

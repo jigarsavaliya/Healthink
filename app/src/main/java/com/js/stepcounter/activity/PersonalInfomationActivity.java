@@ -23,7 +23,7 @@ import com.js.stepcounter.utils.constant;
 
 import static android.content.ContentValues.TAG;
 
-public class PersonalInfomationActivity extends AppCompatActivity {
+public class PersonalInfomationActivity extends BaseActivity {
     Toolbar mToolbar;
     LinearLayout llGender, llLenght, llWeight, llUnit;
     RelativeLayout mRlGender, mRlWeight, mRlUnit;

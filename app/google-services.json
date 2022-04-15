@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "785214561992",
+    "project_id": "healthink-19239",
+    "storage_bucket": "healthink-19239.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785214561992:android:4512718f8a969e1516cffd",
+        "android_client_info": {
+          "package_name": "com.js.stepcounter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "785214561992-85m8q7sus22e3nv78ca48v5ulg51vkdo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg-WZGLBwpP5bLqvZbSqpIqTbZfo01e70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "785214561992-85m8q7sus22e3nv78ca48v5ulg51vkdo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -29,6 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/fragment_view_map"
+        android:layout_above="@id/bannerContainer"
         android:layout_marginLeft="@dimen/_10sdp"
         android:layout_marginRight="@dimen/_10sdp"
         android:orientation="vertical">
@@ -234,5 +235,9 @@
                 android:textStyle="bold" />
         </androidx.cardview.widget.CardView>
     </LinearLayout>
-
+    <FrameLayout
+        android:id="@+id/bannerContainer"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

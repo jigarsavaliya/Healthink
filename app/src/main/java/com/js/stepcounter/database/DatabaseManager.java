@@ -1475,7 +1475,7 @@ public class DatabaseManager {
         if (list != null && list.size() > 0) {
             return list;
         } else {
-            return null;
+            return new ArrayList<>();
         }
 
     }

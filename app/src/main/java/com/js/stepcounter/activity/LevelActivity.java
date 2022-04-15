@@ -24,7 +24,7 @@ import com.js.stepcounter.sevices.NotificationReceiver;
 
 import java.util.ArrayList;
 
-public class LevelActivity extends AppCompatActivity {
+public class LevelActivity extends BaseActivity {
     Toolbar mToolbar;
     RecyclerView mRvLevelList;
     LevelDataAdapter adapter;

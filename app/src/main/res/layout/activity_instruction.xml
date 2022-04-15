@@ -18,8 +18,14 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvInstruction"
                 android:layout_margin="@dimen/_3sdp"
+                android:layout_above="@id/bannerContainer"
                 android:layout_below="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+    <FrameLayout
+        android:id="@+id/bannerContainer"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

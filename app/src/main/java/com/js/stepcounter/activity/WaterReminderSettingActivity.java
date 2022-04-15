@@ -28,7 +28,7 @@ import com.js.stepcounter.utils.StorageManager;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class WaterReminderSettingActivity extends AppCompatActivity implements View.OnClickListener {
+public class WaterReminderSettingActivity extends BaseActivity implements View.OnClickListener {
     Toolbar mToolbar;
     TextView mtvhourstext, mtvremindertime;
     int mHour, mMinute;

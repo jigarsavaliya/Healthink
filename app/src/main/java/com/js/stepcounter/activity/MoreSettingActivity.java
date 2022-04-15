@@ -27,7 +27,7 @@ import com.js.stepcounter.utils.StorageManager;
 
 import java.util.ArrayList;
 
-public class MoreSettingActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener {
+public class MoreSettingActivity extends BaseActivity implements View.OnClickListener, SensorEventListener {
     Toolbar mToolbar;
     LinearLayout mLlArchivement, mLlPersonalInfo, mLlSensitivity, mLlHistory, mLlHistoryData, mLlInstruction;
     AppCompatSpinner mSpGoal;

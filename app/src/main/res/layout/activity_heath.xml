@@ -83,7 +83,7 @@
                                 app:arc_stroke_width="@dimen/_10sdp"
                                 app:arc_suffix_text=""
                                 app:arc_suffix_text_size="0dp"
-                                app:arc_text_color="@color/colorPrimary"
+                                app:arc_text_color="@color/colorWater"
                                 app:arc_unfinished_color="@color/colorBackgrond" />
 
                             <TextView
